@@ -1,0 +1,71 @@
+<?php
+
+use Drupal\multiversion\Entity\RepositoryInterface;
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function multiversion_entity_type_alter(array &$entity_types) {
+  // @todo: Loop over all entity types and load the plugin info to look at the
+  // 'bundle_of' property to only alter content entity types.
+  foreach (array('node', 'entity_test_rev', 'entity_test_mulrev') as $entity_type) {
+    if (isset($entity_types[$entity_type])) {
+      $entity_types[$entity_type]->setStorageClass('Drupal\multiversion\Entity\ContentEntityDatabaseStorage');
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_bundle_create().
+ */
+function multiversion_entity_bundle_create($entity_type, $bundle) {
+  if ($entity_type == 'node') {
+    \Drupal::service('multiversion.manager')->attachRequiredFields($entity_type, $bundle);
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function multiversion_cron() {
+  if (\Drupal::config('multiversion.settings')->get('compaction_on_cron')) {
+    \Drupal::service('entity.compaction.manager')->compact();
+  }
+}
+
+/**
+ * Load a deleted entity.
+ *
+ * @param string $entity_type
+ * @param integer $id
+ * @param boolean $reset
+ */
+function entity_load_deleted($entity_type, $id, $reset = FALSE) {
+  $controller = \Drupal::entityManager()->getStorage($entity_type);
+  if ($reset) {
+    $controller->resetCache(array($id));
+  }
+  return $controller->loadDeleted($id);
+}
+
+/**
+ * Load multiple deleted entities.
+ *
+ * @param string $entity_type
+ * @param array $ids
+ * @param boolean $reset
+ */
+function entity_load_multiple_deleted($entity_type, $ids, $reset = FALSE) {
+  $controller = \Drupal::entityManager()->getStorage($entity_type);
+  if ($reset) {
+    $controller->resetCache($ids);
+  }
+  return $controller->loadMultipleDeleted($ids);
+}
+
+/**
+ * URI callback for the repository entity type.
+ */
+function multiversion_repository_uri(RepositoryInterface $entity) {
+  return $entity->id();
+}

@@ -1,0 +1,10 @@
+multiversion.settings:
+  type: mapping
+  label: 'Multiversion settings'
+  mapping:
+    compaction_batch_size:
+      type: integer
+      label: 'Maximum number of entity revisions to purge in one compaction run'
+    compaction_on_cron:
+      type: integer
+      label: 'Whether or not to run compaction on cron'

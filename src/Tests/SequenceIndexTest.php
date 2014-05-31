@@ -1,0 +1,69 @@
+<?php
+
+namespace Drupal\multiversion\Tests;
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Component\Utility\String;
+
+class SequenceIndexTest extends MultiversionWebTestBase {
+
+  /**
+   * @var \Drupal\multiversion\Entity\SequenceIndexInterface
+   */
+  protected $sequenceIndex;
+
+  public static function getInfo() {
+    return array(
+      'name'  => 'Entity sequence',
+      'description'  => "Test the entity sequence functionality.",
+      'group' => 'Multiversion'
+    );
+  }
+
+  protected function setUp() {
+    parent::setUp();
+    $this->sequenceIndex = \Drupal::service('entity.sequence_index');
+  }
+
+  protected function assertSequence(EntityInterface $entity, $message = '') {
+    $record = db_select('repository__default', 'es')
+      ->fields('es')
+      ->condition('entity_type', $entity->getEntityTypeId())
+      ->condition('entity_id', $entity->id())
+      ->condition('entity_revision_id', $entity->getRevisionId())
+      ->execute()
+      ->fetchObject();
+ 
+    $this->assertTrue(!empty($record), $message);
+    $this->assertEqual((boolean) $record->deleted, $entity->_deleted->value);
+  }
+
+  public function testRecord() {
+    $entity = entity_create('entity_test_rev');
+    // We don't want to save the entity and trigger the hooks in the storage
+    // controller. We just want to test the sequence storage here, so we mock
+    // entity IDs here.
+    $expected = array(
+      'local_seq' => (string) microtime(TRUE),
+      'entity_type' => 'entity_test_rev',
+      'entity_id' => 1,
+      'revision_id' => 1,
+      'parent_revision_id' => 0,
+      'deleted' => FALSE,
+      'conflict' => FALSE,
+    );
+    $entity->id->value = $expected['entity_id'];
+    $entity->revision_id->value = $expected['revision_id'];
+    $entity->_deleted->value = $expected['deleted'];
+    $entity->_local_seq->id = $expected['local_seq'];
+
+    $this->sequenceIndex->add($entity,  $expected['parent_revision_id']);
+
+    $values = $this->sequenceIndex->getAll(0);
+    $this->assertEqual(count($values), 1, 'One index entry was added.');
+
+    foreach ($expected as $key => $value) {
+      $this->assertIdentical($values[0][$key], $value, String::format('Index entry key !key have value !value', array('!key' => $key, '!value' => $value)));
+    }
+  }
+}

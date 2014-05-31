@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function multiversion_schema() {
+  $schema['repository'] = array(
+    'description' => 'Stores all content repositories.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier of the repository.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'length' => 255,
+        'description' => 'The name of the repository.',
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'name' => array('name'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function multiversion_install() {
+  $manager = \Drupal::service('multiversion.manager');
+  $manager->ensureRequiredRepositories();
+  $manager->ensureRequiredFields();
+}
