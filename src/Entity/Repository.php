@@ -29,6 +29,8 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *     "label" = "name"
  *   }
  * )
+ *
+ * @todo Consider renaming to ContentRepository
  */
 class Repository extends Entity implements RepositoryInterface {
 

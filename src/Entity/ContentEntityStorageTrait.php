@@ -25,6 +25,8 @@ trait ContentEntityStorageTrait {
    * {@inhertidoc}
    *
    * @todo Conflict detection.
+   * @todo Consider implementing hook_entity_insert/update for this to make
+   *   the system depend less on this storage controller.
    */
   public function save(EntityInterface $entity) {
     // Force new revision. 
