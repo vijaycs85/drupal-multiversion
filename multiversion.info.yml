@@ -1,6 +1,6 @@
 name: Multiversion
 type: module
-description: 'Extends the revision model of Entity API to function like the revision model implemented by CouchDB.'
+description: 'Extends the revision support for content entities.'
 version: VERSION
 core: 8.x
 dependencies:
