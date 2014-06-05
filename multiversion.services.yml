@@ -5,6 +5,9 @@ services:
   entity.sequence_index:
     class: Drupal\multiversion\Entity\SequenceIndex
     arguments: ['@keyvalue.sorted_set', '@multiversion.manager']
+  entity.uuid_index:
+    class: Drupal\multiversion\Entity\UuidIndex
+    arguments: ['@keyvalue']
   entity.rev_index:
     class: Drupal\multiversion\Entity\RevisionIndex
     arguments: ['@keyvalue']

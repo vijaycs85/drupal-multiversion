@@ -36,4 +36,27 @@ function multiversion_install() {
   $manager = \Drupal::service('multiversion.manager');
   $manager->ensureRequiredRepositories();
   $manager->ensureRequiredFields();
+
+  $query_factory = \Drupal::service('entity.query');
+  $uuid_index = \Drupal::service('entity.uuid_index');
+
+  // @todo: Consider batching this operation into a background queue.
+  foreach (\Drupal::entityManager()->getDefinitions() as $entity_type => $definition) {
+    // Fetch all entities of this type.
+    $results = $query_factory->get($entity_type)
+      ->execute();
+
+    // Generate index entries for all entities.
+    $entities = entity_load_multiple($entity_type, array_keys($results));
+    foreach ($entities as $entity) {
+      $uuid_index->add($entity);
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function multiversion_uninstall() {
+  \Drupal::service('entity.uuid_index')->deleteAll();
 }

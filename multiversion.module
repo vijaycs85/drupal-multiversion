@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\multiversion\Entity\RepositoryInterface;
 
 /**
@@ -30,6 +31,24 @@ function multiversion_entity_bundle_create($entity_type, $bundle) {
 function multiversion_cron() {
   if (\Drupal::config('multiversion.settings')->get('compaction_on_cron')) {
     \Drupal::service('entity.compaction.manager')->compact();
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function multiversion_entity_insert(EntityInterface $entity) {
+  if ($entity->uuid()) {
+    \Drupal::service('entity.uuid_index')->add($entity);
+  }
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function multiversion_entity_delete(EntityInterface $entity) {
+  if ($entity->uuid()) {
+    \Drupal::service('entity.uuid_index')->delete($entity->uuid());
   }
 }
 
