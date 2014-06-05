@@ -19,6 +19,6 @@ interface SequenceIndexInterface {
    *
    * @return array
    */
-  public function getAll($start, $stop = NULL);
+  public function getRange($start, $stop = NULL);
 
 }

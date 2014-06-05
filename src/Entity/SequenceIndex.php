@@ -38,7 +38,7 @@ class SequenceIndex implements SequenceIndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function getAll($start, $stop = NULL) {
+  public function getRange($start, $stop = NULL) {
     $repository_name = $this->multiversionManager->getActiveRepositoryName();
     return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $repository_name)->getRange($start, $stop);
   }

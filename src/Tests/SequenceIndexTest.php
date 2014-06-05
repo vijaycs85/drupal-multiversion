@@ -59,7 +59,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
 
     $this->sequenceIndex->add($entity,  $expected['parent_revision_id']);
 
-    $values = $this->sequenceIndex->getAll(0);
+    $values = $this->sequenceIndex->getRange(0);
     $this->assertEqual(count($values), 1, 'One index entry was added.');
 
     foreach ($expected as $key => $value) {
