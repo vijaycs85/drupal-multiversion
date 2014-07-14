@@ -2,15 +2,12 @@
 
 namespace Drupal\multiversion\Tests;
 
+/**
+ * Test the methods on the UuidIndex class.
+ *
+ * @group multiversion
+ */
 class UuidIndexMethodsTest extends UuidIndexTestBase {
-
-  public static function getInfo() {
-    return array(
-      'name'  => 'UUID index methods',
-      'description'  => 'Test the methods on the UuidIndex class.',
-      'group' => 'Multiversion'
-    );
-  }
 
   public function testMethods() {
     $entity = entity_create('entity_test');

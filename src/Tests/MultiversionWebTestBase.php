@@ -7,7 +7,7 @@ use Drupal\simpletest\WebTestBase;
 /**
  * @todo Change to extending DrupalUnitTestBase to increase performance. 
  */
-class MultiversionWebTestBase extends WebTestBase {
+abstract class MultiversionWebTestBase extends WebTestBase {
 
   public static $modules = array('entity_test', 'multiversion');
 

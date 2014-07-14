@@ -2,6 +2,11 @@
 
 namespace Drupal\multiversion\Tests;
 
+/**
+ * Test the MultiversionManager class.
+ *
+ * @group multiversion
+ */
 class MultiversionManagerTest extends MultiversionWebTestBase {
 
   const REVISION_HASH_REGEX = '[0-9a-f]{32}';
@@ -10,14 +15,6 @@ class MultiversionManagerTest extends MultiversionWebTestBase {
    * @var \Drupal\multiversion\MultiversionManager
    */
   protected $multiversionManager;
-
-  public static function getInfo() {
-    return array(
-      'name'  => 'Multiversion manager',
-      'description'  => "Test the MultiversionManager class.",
-      'group' => 'Multiversion'
-    );
-  }
 
   protected function setUp() {
     parent::setUp();

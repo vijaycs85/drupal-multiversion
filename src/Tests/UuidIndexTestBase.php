@@ -4,7 +4,7 @@ namespace Drupal\multiversion\Tests;
 
 use Drupal\simpletest\WebTestBase;
 
-class UuidIndexTestBase extends WebTestBase {
+abstract class UuidIndexTestBase extends WebTestBase {
 
   public static $modules = array('entity_test', 'multiversion');
 

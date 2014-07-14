@@ -5,15 +5,12 @@ namespace Drupal\multiversion\Tests;
 use Drupal\multiversion\Plugin\Field\FieldType\LocalSequenceItem;
 use Drupal\multiversion\Plugin\Field\FieldType\LocalSequenceItemList;
 
+/**
+ * Test the creation and operation of the Local Sequence field.
+ *
+ * @group multiversion
+ */
 class LocalSequenceFieldTest extends MultiversionWebTestBase {
-
-  public static function getInfo() {
-    return array(
-      'name'  => 'Local Sequence field',
-      'description'  => "Test the creation and operation of the Local Sequence field.",
-      'group' => 'Multiversion'
-    );
-  }
 
   public function testFieldCreation() {
     $entity = entity_create('entity_test_rev');

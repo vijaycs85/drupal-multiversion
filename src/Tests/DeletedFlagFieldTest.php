@@ -5,15 +5,12 @@ namespace Drupal\multiversion\Tests;
 use Drupal\multiversion\Plugin\Field\FieldType\DeletedFlagItem;
 use Drupal\multiversion\Plugin\Field\FieldType\DeletedFlagItemList;
 
+/**
+ * Test the creation of the Deleted Flag field.
+ *
+ * @group multiversion
+ */
 class DeletedFlagFieldTest extends MultiversionWebTestBase {
-
-  public static function getInfo() {
-    return array(
-      'name'  => 'Deleted Flag field',
-      'description'  => "Test the creation of the Deleted Flag field.",
-      'group' => 'Multiversion'
-    );
-  }
 
   public function testFieldCreation() {
     $entity = entity_create('entity_test_rev');

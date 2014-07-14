@@ -5,20 +5,17 @@ namespace Drupal\multiversion\Tests;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Component\Utility\String;
 
+/**
+ * Test the entity sequence functionality.
+ *
+ * @group multiversion
+ */
 class SequenceIndexTest extends MultiversionWebTestBase {
 
   /**
    * @var \Drupal\multiversion\Entity\SequenceIndexInterface
    */
   protected $sequenceIndex;
-
-  public static function getInfo() {
-    return array(
-      'name'  => 'Entity sequence',
-      'description'  => "Test the entity sequence functionality.",
-      'group' => 'Multiversion'
-    );
-  }
 
   protected function setUp() {
     parent::setUp();

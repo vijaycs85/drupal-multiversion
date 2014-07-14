@@ -5,15 +5,12 @@ namespace Drupal\multiversion\Tests;
 use Drupal\multiversion\Plugin\Field\FieldType\RevisionInfoItem;
 use Drupal\multiversion\Plugin\Field\FieldType\RevisionInfoItemList;
 
+/**
+ * Test the creation and operation of the Revision Info field.
+ *
+ * @group multiversion
+ */
 class RevisionInfoFieldTest extends MultiversionWebTestBase {
-
-  public static function getInfo() {
-    return array(
-      'name'  => 'Revision Info field',
-      'description'  => "Test the creation and operation of the Revision Info field.",
-      'group' => 'Multiversion'
-    );
-  }
 
   public function testFieldCreation() {
     $entity = entity_create('entity_test_rev');

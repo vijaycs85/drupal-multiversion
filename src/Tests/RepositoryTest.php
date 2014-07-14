@@ -5,17 +5,14 @@ namespace Drupal\multiversion\Tests;
 use Drupal\multiversion\Entity\RepositoryInterface;
 use Drupal\simpletest\WebTestBase;
 
+/**
+ * Test the repository entity.
+ *
+ * @group multiversion
+ */
 class RepositoryTest extends WebTestBase {
 
   public static $modules = array('multiversion');
-
-  public static function getInfo() {
-    return array(
-      'name'  => 'Content repository',
-      'description'  => "Test the repository entity.",
-      'group' => 'Multiversion'
-    );
-  }
 
   protected function setUp() {
     parent::setUp();

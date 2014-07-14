@@ -2,15 +2,12 @@
 
 namespace Drupal\multiversion\Tests;
 
+/**
+ * Test the content entity storage controller.
+ *
+ * @group multiversion
+ */
 class ContentEntityStorageTest extends MultiversionWebTestBase {
-
-  public static function getInfo() {
-    return array(
-      'name'  => 'Content entity storage',
-      'description'  => "Test the content entity storage controller.",
-      'group' => 'Multiversion'
-    );
-  }
 
   public function testSave() {
     $entity = entity_create('entity_test_rev');

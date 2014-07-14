@@ -2,15 +2,12 @@
 
 namespace Drupal\multiversion\Tests;
 
+/**
+ * Test the hooks invoking the UuidIndex class.
+ *
+ * @group multiversion
+ */
 class UuidIndexHooksTest extends UuidIndexTestBase {
-
-  public static function getInfo() {
-    return array(
-      'name'  => 'UUID index hooks',
-      'description'  => 'Test the hooks invoking the UuidIndex class.',
-      'group' => 'Multiversion'
-    );
-  }
 
   public function testInstallHook() {
     $user = entity_load('user', 1);

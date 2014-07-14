@@ -4,6 +4,11 @@ namespace Drupal\multiversion\Tests;
 
 use Drupal\simpletest\WebTestBase;
 
+/**
+ * Test the altered entity query functionality.
+ *
+ * @group multiversion
+ */
 class EntityQueryTest extends WebTestBase {
 
   public static $modules = array('entity_test', 'multiversion');
@@ -12,14 +17,6 @@ class EntityQueryTest extends WebTestBase {
    * @var \Drupal\Core\Entity\Query\QueryFactory
    */
   protected $factory;
-
-  public static function getInfo() {
-    return array(
-      'name'  => 'Entity query',
-      'description'  => "Test the altered entity query functionality.",
-      'group' => 'Multiversion'
-    );
-  }
 
   public function setUp() {
     parent::setUp();
