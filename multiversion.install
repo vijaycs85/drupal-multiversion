@@ -41,7 +41,13 @@ function multiversion_install() {
   $uuid_index = \Drupal::service('entity.uuid_index');
 
   // @todo: Consider batching this operation into a background queue.
-  foreach (\Drupal::entityManager()->getDefinitions() as $entity_type => $definition) {
+  foreach (\Drupal::entityManager()->getDefinitions() as $entity_type_id => $entity_type) {
+    // We can't query the Null storage.
+    $storage_class = $entity_type->getStorageClass();
+    if ($storage_class == 'Drupal\Core\Entity\ContentEntityNullStorage') {
+      continue;
+    }
+
     // Fetch all entities of this type.
     $results = $query_factory->get($entity_type)
       ->execute();
