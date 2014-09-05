@@ -4,7 +4,7 @@ namespace Drupal\multiversion;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Symfony\Component\Serializer\Serializer;
 
 class MultiversionManager implements MultiversionManagerInterface {
@@ -44,7 +44,7 @@ class MultiversionManager implements MultiversionManagerInterface {
     $definitions['_revs_info'] = array(
       'label' => 'Revision info',
       'type' => 'revision_info',
-      'cardinality' => FieldDefinitionInterface::CARDINALITY_UNLIMITED,
+      'cardinality' => FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED,
       'revisionable' => TRUE,
       'locked' => TRUE,
     );
