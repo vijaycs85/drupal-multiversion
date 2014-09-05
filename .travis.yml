@@ -39,7 +39,7 @@ before_script:
   - git clone --depth 500 --branch 8.0.x http://git.drupal.org/project/drupal.git $TRAVIS_BUILD_DIR/../drupal
   - cd $TRAVIS_BUILD_DIR/../drupal
   - git checkout 48fb187d5cef2c3616d4973491438a68fd241ebc
-  - git clone --branch 8.0.x-compatibility git@github.com:dickolsson/drupal-key_value.git $TRAVIS_BUILD_DIR/../drupal/modules/key_value
+  - git clone --branch 8.0.x-compatibility https://github.com/dickolsson/drupal-key_value.git $TRAVIS_BUILD_DIR/../drupal/modules/key_value
   - ln -s $TRAVIS_BUILD_DIR $TRAVIS_BUILD_DIR/../drupal/modules/multiversion
 
   # Install the site that will host our tests.
