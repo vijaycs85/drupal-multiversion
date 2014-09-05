@@ -18,8 +18,8 @@ use Drupal\Core\Entity\EntityStorageInterface;
  * @EntityType(
  *   id = "repository",
  *   label = @Translation("Content repository"),
- *   controllers = {
- *     "storage" = "\Drupal\Core\Entity\EntityDatabaseStorage"
+ *   handlers = {
+ *     "storage" = "Drupal\Core\Entity\EntityDatabaseStorage",
  *   },
  *   base_table = "repository",
  *   uri_callback = "multiversion_repository_uri",

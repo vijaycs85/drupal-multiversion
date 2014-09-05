@@ -91,7 +91,7 @@ class MultiversionManager implements MultiversionManagerInterface {
    */
   public function attachRequiredFields($entity_type, $bundle) {
     $definitions = self::requiredFieldDefinitions();
-    $field_storage = $this->entityManager->getStorage('field_config');
+    $field_storage = $this->entityManager->getStorage('field_storage_config');
     $instance_storage = $this->entityManager->getStorage('field_instance_config');
 
     foreach ($definitions as $field_name => $definition) {
