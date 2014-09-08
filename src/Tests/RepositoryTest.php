@@ -20,7 +20,7 @@ class RepositoryTest extends WebTestBase {
   }
 
   public function testOperations() {
-    $name = $this->randomName();
+    $name = $this->randomMachineName();
     $entity = entity_create('repository', array('name' => $name));
     $this->assertTrue($entity instanceof RepositoryInterface, 'Repository entity was created.');
 
@@ -30,7 +30,7 @@ class RepositoryTest extends WebTestBase {
     $entity = entity_load('repository', $entity->id());
     $this->assertEqual($entity->name(), $name, 'Repository entity was loaded by ID.');
 
-    $entity = entity_load_by_uuid('repository', $name);
+    $entity = \Drupal::entityManager()->loadEntityByUuid('repository', $name);
     $this->assertEqual($entity->name(), $name, 'Repository entity was loaded by UUID.');
 
     $this->assertEqual($entity->label(), $name, 'Label method returns the repository name.');

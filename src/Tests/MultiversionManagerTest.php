@@ -57,7 +57,7 @@ class MultiversionManagerTest extends MultiversionWebTestBase {
     $this->assertTrue(count($revs) == count(array_unique($revs)), 'Revision ID varies on old revision.');
 
     $test_entity = clone $entity;
-    $test_entity->name = $this->randomName();
+    $test_entity->name = $this->randomMachineName();
     $revs[] = $this->multiversionManager->newRevisionId($test_entity, 0);
     $this->assertTrue(count($revs) == count(array_unique($revs)), 'Revision ID varies on entity fields.');
 
