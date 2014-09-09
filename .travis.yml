@@ -45,7 +45,7 @@ before_script:
   - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes site-install --db-url=mysql://root:@127.0.0.1/drupal testing
 
   # Enable required modules and ignore any output to not break the test.
-  - drush --yes pm-enable multiversion
+  - drush --yes pm-enable multiversion || true
 
 script:
   # Enable Simpletest and run Simpletest tests.
