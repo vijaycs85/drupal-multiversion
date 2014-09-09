@@ -30,7 +30,7 @@ class RepositoryTest extends WebTestBase {
     $entity = entity_load('repository', $entity->id());
     $this->assertEqual($entity->name(), $name, 'Repository entity was loaded by ID.');
 
-    $entity = \Drupal::entityManager()->loadEntityByUuid('repository', $entity->uuid());
+    $entity = \Drupal::entityManager()->loadEntityByUuid('repository', $name);
     $this->assertEqual($entity->name(), $name, 'Repository entity was loaded by UUID.');
 
     $this->assertEqual($entity->label(), $name, 'Label method returns the repository name.');
