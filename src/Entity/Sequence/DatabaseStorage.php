@@ -12,7 +12,7 @@ use Drupal\Component\Uuid\UuidInterface;
  */
 class DatabaseStorage extends SequenceStorageBase implements SequenceStorageInterface {
 
-  const TABLE_PREFIX = 'repository__';
+  const TABLE_PREFIX = 'workspace__';
 
   /**
    * @var \Drupal\Core\Database\Connection
@@ -34,10 +34,10 @@ class DatabaseStorage extends SequenceStorageBase implements SequenceStorageInte
    */
   protected $schemaExists = FALSE;
 
-  public function __construct(Connection $connection, UuidInterface $uuid_service, $repository_name) {
+  public function __construct(Connection $connection, UuidInterface $uuid_service, $workspace_name) {
     $this->connection = $connection;
     $this->uuidService = $uuid_service;
-    $this->table = self::TABLE_PREFIX . $repository_name;
+    $this->table = self::TABLE_PREFIX . $workspace_name;
   }
 
   /**

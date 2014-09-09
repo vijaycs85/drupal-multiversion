@@ -4,13 +4,13 @@ namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\EntityInterface;
 
-interface RepositoryInterface extends EntityInterface {
+interface WorkspaceInterface extends EntityInterface {
 
   /**
-   * Returns the repository name.
+   * Returns the workspace name.
    *
    * @return string
-   *   The name of the repository.
+   *   The name of the workspace.
    */
   public function name();
 

@@ -1,7 +1,7 @@
 <?php
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\multiversion\Entity\RepositoryInterface;
+use Drupal\multiversion\Entity\WorkspaceInterface;
 
 /**
  * Implements hook_entity_type_alter().
@@ -83,8 +83,8 @@ function entity_load_multiple_deleted($entity_type, $ids, $reset = FALSE) {
 }
 
 /**
- * URI callback for the repository entity type.
+ * URI callback for the workspace entity type.
  */
-function multiversion_repository_uri(RepositoryInterface $entity) {
+function multiversion_workspace_uri(WorkspaceInterface $entity) {
   return $entity->id();
 }

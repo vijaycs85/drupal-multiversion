@@ -6,23 +6,23 @@ use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityStorageInterface;
 
 /**
- * The content repository entity class.
+ * The content workspace entity class.
  *
- * The content repository entity is neither an implementation of
+ * The content workspace entity is neither an implementation of
  * ContentEntityInterface or ConfigEntityInterface. It's not a content entity
- * because those are contained within a repository itself. And it's not a
+ * because those are contained within a workspace itself. And it's not a
  * config entity because certain field data (such as document count etc.) is
  * constantly changing in production, and the config system is not designed
  * to handle those situations.
  *
  * @EntityType(
- *   id = "repository",
- *   label = @Translation("Content repository"),
+ *   id = "workspace",
+ *   label = @Translation("Content workspace"),
  *   handlers = {
  *     "storage" = "Drupal\Core\Entity\EntityDatabaseStorage",
  *   },
- *   base_table = "repository",
- *   uri_callback = "multiversion_repository_uri",
+ *   base_table = "workspace",
+ *   uri_callback = "multiversion_workspace_uri",
  *   entity_keys = {
  *     "id" = "id",
  *     "uuid" = "name",
@@ -30,9 +30,9 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *   }
  * )
  *
- * @todo Consider renaming to ContentRepository
+ * @todo Consider renaming to ContentWorkspace
  */
-class Repository extends Entity implements RepositoryInterface {
+class Workspace extends Entity implements WorkspaceInterface {
 
   /**
    * {@inheritdoc}

@@ -4,11 +4,11 @@
  * Implements hook_schema().
  */
 function multiversion_schema() {
-  $schema['repository'] = array(
-    'description' => 'Stores all content repositories.',
+  $schema['workspace'] = array(
+    'description' => 'Stores all content workspaces.',
     'fields' => array(
       'id' => array(
-        'description' => 'The primary identifier of the repository.',
+        'description' => 'The primary identifier of the workspace.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -17,7 +17,7 @@ function multiversion_schema() {
         'type' => 'varchar',
         'not null' => TRUE,
         'length' => 255,
-        'description' => 'The name of the repository.',
+        'description' => 'The name of the workspace.',
       ),
     ),
     'primary key' => array('id'),

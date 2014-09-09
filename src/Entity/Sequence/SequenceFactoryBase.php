@@ -11,23 +11,23 @@ abstract class SequenceFactoryBase implements SequenceFactoryInterface {
   /**
    * @var string
    */
-  protected $repositoryId;
+  protected $workspaceId;
 
-  public function useRepository($repository_name) {
-    $this->repositoryName = $repository_name;
+  public function useWorkspace($workspace_name) {
+    $this->workspaceName = $workspace_name;
     return $this;
   }
 
-  public function currentRepository() {
-    return $this->resolveRepositoryName();
+  public function currentWorkspace() {
+    return $this->resolveWorkspaceName();
   }
 
-  protected function resolveRepositoryName($repository_name = NULL) {
-    if (empty($repository_name) && !empty($this->repositoryName)) {
-      return $this->repositoryName;
+  protected function resolveWorkspaceName($workspace_name = NULL) {
+    if (empty($workspace_name) && !empty($this->workspaceName)) {
+      return $this->workspaceName;
     }
     return self::DEFAULT_REPOSITORY;
   }
 
-  abstract public function repository($repository_name = NULL);
+  abstract public function workspace($workspace_name = NULL);
 }

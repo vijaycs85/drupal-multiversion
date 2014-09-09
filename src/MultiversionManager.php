@@ -22,7 +22,7 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * @var string
    */
-  protected $activeRepository = 'default';
+  protected $activeWorkspace = 'default';
 
   public function __construct(EntityManagerInterface $entity_manager, Serializer $serializer) {
     $this->entityManager = $entity_manager;
@@ -32,7 +32,7 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public static function requiredRepositoryDefinitions() {
+  public static function requiredWorkspaceDefinitions() {
     $definitions['default'] = array();
     return $definitions;
   }
@@ -69,13 +69,13 @@ class MultiversionManager implements MultiversionManagerInterface {
    * {@inheritdoc}
    */
   public function ensureRequiredRepositories() {
-    $definitions = self::requiredRepositoryDefinitions();
-    $storage = $this->entityManager->getStorage('repository');
+    $definitions = self::requiredWorkspaceDefinitions();
+    $storage = $this->entityManager->getStorage('workspace');
 
-    foreach ($definitions as $repository_name => $values) {
-      $values['name'] = $repository_name;
-      $repository = $storage->create($values);
-      $repository->save();
+    foreach ($definitions as $workspace_name => $values) {
+      $values['name'] = $workspace_name;
+      $workspace = $storage->create($values);
+      $workspace->save();
     }
   }
 
@@ -119,15 +119,15 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getActiveRepositoryName() {
-    return $this->activeRepository;
+  public function getActiveWorkspaceName() {
+    return $this->activeWorkspace;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setActiveRepositoryName($repository_name) {
-    return $this->activeRepository = $repository_name;
+  public function setActiveWorkspaceName($workspace_name) {
+    return $this->activeWorkspace = $workspace_name;
   }
 
   public function newRevisionId(ContentEntityInterface $entity, $index = 0) {
