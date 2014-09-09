@@ -11,7 +11,7 @@ function multiversion_entity_type_alter(array &$entity_types) {
   // 'bundle_of' property to only alter content entity types.
   foreach (array('node', 'entity_test_rev', 'entity_test_mulrev') as $entity_type) {
     if (isset($entity_types[$entity_type])) {
-      $entity_types[$entity_type]->setStorageClass('Drupal\multiversion\Entity\ContentEntityDatabaseStorage');
+      $entity_types[$entity_type]->setStorageClass('Drupal\multiversion\Entity\SqlContentEntityStorage');
     }
   }
 }
