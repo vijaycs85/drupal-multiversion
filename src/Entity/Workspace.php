@@ -30,6 +30,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
  *   }
  * )
  *
+ * @todo Replace Drupal\Core\Entity\EntityDatabaseStorage because this class has been removed from core. https://www.drupal.org/node/2332577
  * @todo Consider renaming to ContentWorkspace
  */
 class Workspace extends Entity implements WorkspaceInterface {
