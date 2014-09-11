@@ -3,62 +3,62 @@
 /**
  * Implements hook_schema().
  */
-function multiversion_schema() {
-  $schema['workspace'] = array(
-    'description' => 'Stores all content workspaces.',
-    'fields' => array(
-      'id' => array(
-        'description' => 'The primary identifier of the workspace.',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'name' => array(
-        'type' => 'varchar',
-        'not null' => TRUE,
-        'length' => 255,
-        'description' => 'The name of the workspace.',
-      ),
-    ),
-    'primary key' => array('id'),
-    'indexes' => array(
-      'name' => array('name'),
-    ),
-  );
-
-  return $schema;
-}
+//function multiversion_schema() {
+//  $schema['workspace'] = array(
+//    'description' => 'Stores all content workspaces.',
+//    'fields' => array(
+//      'id' => array(
+//        'description' => 'The primary identifier of the workspace.',
+//        'type' => 'serial',
+//        'unsigned' => TRUE,
+//        'not null' => TRUE,
+//      ),
+//      'name' => array(
+//        'type' => 'varchar',
+//        'not null' => TRUE,
+//        'length' => 255,
+//        'description' => 'The name of the workspace.',
+//      ),
+//    ),
+//    'primary key' => array('id'),
+//    'indexes' => array(
+//      'name' => array('name'),
+//    ),
+//  );
+//
+//  return $schema;
+//}
 
 /**
  * Implements hook_install().
  */
 function multiversion_install() {
-  $manager = \Drupal::service('multiversion.manager');
-  $manager->ensureRequiredRepositories();
-  $manager->ensureRequiredFields();
-
-  $query_factory = \Drupal::service('entity.query');
-  $uuid_index = \Drupal::service('entity.uuid_index');
-
-  $definitions = \Drupal::entityManager()->getDefinitions();
-  // @todo: Consider batching this operation into a background queue.
-  foreach ($definitions as $entity_type_id => $entity_type) {
-    // We can't query the Null storage.
-    $storage_class = $entity_type->getStorageClass();
-    if ($storage_class == 'Drupal\Core\Entity\ContentEntityNullStorage') {
-      continue;
-    }
-
-    // Fetch all entities of this type.
-    $results = $query_factory->get($entity_type_id)
-      ->execute();
-
-    // Generate index entries for all entities.
-    $entities = entity_load_multiple($entity_type_id, array_keys($results));
-    foreach ($entities as $entity) {
-      $uuid_index->add($entity);
-    }
-  }
+//  $manager = \Drupal::service('multiversion.manager');
+//  $manager->ensureRequiredRepositories();
+//  $manager->ensureRequiredFields();
+//
+//  $query_factory = \Drupal::service('entity.query');
+//  $uuid_index = \Drupal::service('entity.uuid_index');
+//
+//  $definitions = \Drupal::entityManager()->getDefinitions();
+//  // @todo: Consider batching this operation into a background queue.
+//  foreach ($definitions as $entity_type_id => $entity_type) {
+//    // We can't query the Null storage.
+//    $storage_class = $entity_type->getStorageClass();
+//    if ($storage_class == 'Drupal\Core\Entity\ContentEntityNullStorage') {
+//      continue;
+//    }
+//
+//    // Fetch all entities of this type.
+//    $results = $query_factory->get($entity_type_id)
+//      ->execute();
+//
+//    // Generate index entries for all entities.
+//    $entities = entity_load_multiple($entity_type_id, array_keys($results));
+//    foreach ($entities as $entity) {
+//      $uuid_index->add($entity);
+//    }
+//  }
 }
 
 /**

@@ -2,9 +2,9 @@
 
 namespace Drupal\multiversion\Entity;
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Config\Entity\ConfigEntityInterface;
 
-interface WorkspaceInterface extends EntityInterface {
+interface WorkspaceInterface extends ConfigEntityInterface {
 
   /**
    * Returns the workspace name.

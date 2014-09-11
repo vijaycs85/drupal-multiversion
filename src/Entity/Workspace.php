@@ -4,36 +4,44 @@ namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\multiversion\Entity\WorkspaceInterface;
 
 /**
  * The content workspace entity class.
  *
- * The content workspace entity is neither an implementation of
- * ContentEntityInterface or ConfigEntityInterface. It's not a content entity
- * because those are contained within a workspace itself. And it's not a
- * config entity because certain field data (such as document count etc.) is
- * constantly changing in production, and the config system is not designed
- * to handle those situations.
+ * It's config entity not a content entity because those are contained within a workspace itself.
  *
- * @EntityType(
+ * @ConfigEntityType(
  *   id = "workspace",
  *   label = @Translation("Content workspace"),
  *   handlers = {
- *     "storage" = "Drupal\Core\Entity\EntityDatabaseStorage",
+ *     "storage" = "Drupal\Core\Config\Entity\ConfigEntityStorage",
  *   },
- *   base_table = "workspace",
- *   uri_callback = "multiversion_workspace_uri",
+ *   config_prefix = "workspace",
  *   entity_keys = {
  *     "id" = "id",
  *     "uuid" = "name",
- *     "label" = "name"
+ *     "label" = "name",
+ *     "name" = "name"
  *   }
  * )
- *
- * @todo Replace Drupal\Core\Entity\EntityDatabaseStorage because this class has been removed from core. https://www.drupal.org/node/2332577
- * @todo Consider renaming to ContentWorkspace
  */
-class Workspace extends Entity implements WorkspaceInterface {
+class Workspace extends ConfigEntityBase implements WorkspaceInterface {
+
+  /**
+   * The name (plugin ID) of the workspace.
+   *
+   * @var string
+   */
+  public $id;
+
+  /**
+   * The label of the workspace entity.
+   *
+   * @var string
+   */
+  public $label;
 
   /**
    * {@inheritdoc}
