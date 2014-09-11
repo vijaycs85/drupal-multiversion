@@ -11,6 +11,11 @@ abstract class SequenceFactoryBase implements SequenceFactoryInterface {
   /**
    * @var string
    */
+  protected $workspaceName;
+
+  /**
+   * @var string
+   */
   protected $workspaceId;
 
   public function useWorkspace($workspace_name) {

@@ -29,6 +29,8 @@ use Drupal\multiversion\Entity\WorkspaceInterface;
  */
 class Workspace extends ConfigEntityBase implements WorkspaceInterface {
 
+  public $name;
+
   /**
    * The name (plugin ID) of the workspace.
    *
