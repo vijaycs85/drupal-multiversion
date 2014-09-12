@@ -4,7 +4,7 @@ namespace Drupal\multiversion\Entity\Sequence;
 
 abstract class SequenceFactoryBase implements SequenceFactoryInterface {
 
-  const DEFAULT_REPOSITORY = 'default';
+  const DEFAULT_WORKSPACE = 'default';
   
   const DEFAULT_STORAGE_SERVICE = 'entity.sequence.storage.database';
 
@@ -31,7 +31,7 @@ abstract class SequenceFactoryBase implements SequenceFactoryInterface {
     if (empty($workspace_name) && !empty($this->workspaceName)) {
       return $this->workspaceName;
     }
-    return self::DEFAULT_REPOSITORY;
+    return self::DEFAULT_WORKSPACE;
   }
 
   abstract public function workspace($workspace_name = NULL);
