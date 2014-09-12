@@ -2,12 +2,12 @@
 
 namespace Drupal\multiversion\Entity;
 
-use Drupal\Core\Entity\ContentEntityDatabaseStorage as CoreContentEntityDatabaseStorage;
+use Drupal\Core\Entity\Sql\SqlContentEntityStorage as CoreSqlContentEntityStorage;
 use Drupal\multiversion\Entity\Sequence\DatabaseStorage;
 
-class ContentEntityDatabaseStorage extends CoreContentEntityDatabaseStorage {
+class SqlContentEntityStorage extends CoreSqlContentEntityStorage {
 
-  use ContentEntityStorageTrait;
+  use SqlContentEntityStorageTrait;
 
   public function getQueryServiceName() {
     return 'entity.query.sql.multiversion';

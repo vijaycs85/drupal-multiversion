@@ -22,11 +22,11 @@ class SequenceFactory extends SequenceFactoryBase {
     $this->settings = $settings;
   }
 
-  public function repository($repository_name = NULL) {
+  public function workspace($workspace_name = NULL) {
     // Resolve sequence storage service.
     if (!$service_name = $this->settings->get('entity.sequence.storage')) {
       $service_name = self::DEFAULT_STORAGE_SERVICE;
     }
-    return $this->container->get($service_name)->repository($this->resolveRepositoryName($repository_name));
+    return $this->container->get($service_name)->workspace($this->resolveWorkspaceName($workspace_name));
   }
 }

@@ -4,9 +4,9 @@ namespace Drupal\multiversion\Entity\Sequence;
 
 interface SequenceFactoryInterface {
 
-  public function useRepository($repository_name);
+  public function useWorkspace($workspace_name);
 
-  public function currentRepository();
+  public function currentWorkspace();
 
-  public function repository($repository_name = NULL);
+  public function workspace($workspace_name = NULL);
 }

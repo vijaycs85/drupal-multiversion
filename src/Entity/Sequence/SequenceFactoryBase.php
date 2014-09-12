@@ -4,30 +4,35 @@ namespace Drupal\multiversion\Entity\Sequence;
 
 abstract class SequenceFactoryBase implements SequenceFactoryInterface {
 
-  const DEFAULT_REPOSITORY = 'default';
+  const DEFAULT_WORKSPACE = 'default';
   
   const DEFAULT_STORAGE_SERVICE = 'entity.sequence.storage.database';
 
   /**
    * @var string
    */
-  protected $repositoryId;
+  protected $workspaceName;
 
-  public function useRepository($repository_name) {
-    $this->repositoryName = $repository_name;
+  /**
+   * @var string
+   */
+  protected $workspaceId;
+
+  public function useWorkspace($workspace_name) {
+    $this->workspaceName = $workspace_name;
     return $this;
   }
 
-  public function currentRepository() {
-    return $this->resolveRepositoryName();
+  public function currentWorkspace() {
+    return $this->resolveWorkspaceName();
   }
 
-  protected function resolveRepositoryName($repository_name = NULL) {
-    if (empty($repository_name) && !empty($this->repositoryName)) {
-      return $this->repositoryName;
+  protected function resolveWorkspaceName($workspace_name = NULL) {
+    if (empty($workspace_name) && !empty($this->workspaceName)) {
+      return $this->workspaceName;
     }
-    return self::DEFAULT_REPOSITORY;
+    return self::DEFAULT_WORKSPACE;
   }
 
-  abstract public function repository($repository_name = NULL);
+  abstract public function workspace($workspace_name = NULL);
 }

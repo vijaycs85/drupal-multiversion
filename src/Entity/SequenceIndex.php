@@ -29,18 +29,18 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function add(ContentEntityInterface $entity, $parent_revision_id, $conflict = FALSE) {
-    $repository_name = $this->multiversionManager->getActiveRepositoryName();
+    $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
     $record = $this->buildRecord($entity, $parent_revision_id, $conflict);
     $sequence_id = $entity->_local_seq->id;
-    $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $repository_name)->add($sequence_id, $record);
+    $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->add($sequence_id, $record);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getRange($start, $stop = NULL) {
-    $repository_name = $this->multiversionManager->getActiveRepositoryName();
-    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $repository_name)->getRange($start, $stop);
+    $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
+    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getRange($start, $stop);
   }
 
   protected function buildRecord(ContentEntityInterface $entity, $parent_revision_id, $conflict) {

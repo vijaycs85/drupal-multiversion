@@ -1,3 +1,5 @@
+# Schema for the configuration files of the File module.
+
 multiversion.settings:
   type: mapping
   label: 'Multiversion settings'
@@ -8,3 +10,20 @@ multiversion.settings:
     compaction_on_cron:
       type: integer
       label: 'Whether or not to run compaction on cron'
+
+multiversion.workspace.*:
+  type: config_entity
+  label: 'Workspace'
+  mapping:
+    id:
+      type: string
+      label: 'Workspace identifier'
+    uuid:
+      type: string
+      label: 'UUID'
+    label:
+      type: string
+      label: 'Label'
+    name:
+      type: string
+      label: 'Name'

@@ -12,7 +12,7 @@ class DatabaseStorageFactory extends SequenceFactoryBase {
     $this->uuidService = $uuid_service;
   }
 
-  public function repository($repository_name = NULL) {
-    return new DatabaseStorage($this->connection, $this->uuidService, $this->resolveRepositoryName($repository_name));
+  public function workspace($workspace_name = NULL) {
+    return new DatabaseStorage($this->connection, $this->uuidService, $this->resolveWorkspaceName($workspace_name));
   }
 }

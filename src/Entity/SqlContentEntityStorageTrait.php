@@ -4,7 +4,7 @@ namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\EntityInterface;
 
-trait ContentEntityStorageTrait {
+trait SqlContentEntityStorageTrait {
 
   /**
    * @var boolean

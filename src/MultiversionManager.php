@@ -4,7 +4,7 @@ namespace Drupal\multiversion;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Symfony\Component\Serializer\Serializer;
 
 class MultiversionManager implements MultiversionManagerInterface {
@@ -22,7 +22,7 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * @var string
    */
-  protected $activeRepository = 'default';
+  protected $activeWorkspace = 'default';
 
   public function __construct(EntityManagerInterface $entity_manager, Serializer $serializer) {
     $this->entityManager = $entity_manager;
@@ -32,7 +32,7 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public static function requiredRepositoryDefinitions() {
+  public static function requiredWorkspaceDefinitions() {
     $definitions['default'] = array();
     return $definitions;
   }
@@ -44,7 +44,7 @@ class MultiversionManager implements MultiversionManagerInterface {
     $definitions['_revs_info'] = array(
       'label' => 'Revision info',
       'type' => 'revision_info',
-      'cardinality' => FieldDefinitionInterface::CARDINALITY_UNLIMITED,
+      'cardinality' => FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED,
       'revisionable' => TRUE,
       'locked' => TRUE,
     );
@@ -69,13 +69,13 @@ class MultiversionManager implements MultiversionManagerInterface {
    * {@inheritdoc}
    */
   public function ensureRequiredRepositories() {
-    $definitions = self::requiredRepositoryDefinitions();
-    $storage = $this->entityManager->getStorage('repository');
+    $definitions = self::requiredWorkspaceDefinitions();
+    $storage = $this->entityManager->getStorage('workspace');
 
-    foreach ($definitions as $repository_name => $values) {
-      $values['name'] = $repository_name;
-      $repository = $storage->create($values);
-      $repository->save();
+    foreach ($definitions as $workspace_name => $values) {
+      $values['name'] = $workspace_name;
+      $workspace = $storage->create($values);
+      $workspace->save();
     }
   }
 
@@ -91,7 +91,7 @@ class MultiversionManager implements MultiversionManagerInterface {
    */
   public function attachRequiredFields($entity_type, $bundle) {
     $definitions = self::requiredFieldDefinitions();
-    $field_storage = $this->entityManager->getStorage('field_config');
+    $field_storage = $this->entityManager->getStorage('field_storage_config');
     $instance_storage = $this->entityManager->getStorage('field_instance_config');
 
     foreach ($definitions as $field_name => $definition) {
@@ -119,15 +119,15 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getActiveRepositoryName() {
-    return $this->activeRepository;
+  public function getActiveWorkspaceName() {
+    return $this->activeWorkspace;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setActiveRepositoryName($repository_name) {
-    return $this->activeRepository = $repository_name;
+  public function setActiveWorkspaceName($workspace_name) {
+    return $this->activeWorkspace = $workspace_name;
   }
 
   public function newRevisionId(ContentEntityInterface $entity, $index = 0) {

@@ -23,7 +23,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
   }
 
   protected function assertSequence(EntityInterface $entity, $message = '') {
-    $record = db_select('repository__default', 'es')
+    $record = db_select('workspace__default', 'es')
       ->fields('es')
       ->condition('entity_type', $entity->getEntityTypeId())
       ->condition('entity_id', $entity->id())
