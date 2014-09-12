@@ -24,3 +24,6 @@ multiversion.workspace.*:
     label:
       type: string
       label: 'Label'
+    name:
+      type: string
+      label: 'Name'

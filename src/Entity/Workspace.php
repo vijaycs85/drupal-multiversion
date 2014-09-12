@@ -21,18 +21,22 @@ use Drupal\multiversion\Entity\WorkspaceInterface;
  *   config_prefix = "workspace",
  *   entity_keys = {
  *     "id" = "id",
- *     "uuid" = "name",
  *     "label" = "name",
- *     "name" = "name"
+ *     "name" = "name",
  *   }
  * )
  */
 class Workspace extends ConfigEntityBase implements WorkspaceInterface {
 
+  /**
+   * The name of the workspace.
+   *
+   * @var string
+   */
   public $name;
 
   /**
-   * The name (plugin ID) of the workspace.
+   * The ID of the workspace.
    *
    * @var string
    */
@@ -44,6 +48,13 @@ class Workspace extends ConfigEntityBase implements WorkspaceInterface {
    * @var string
    */
   public $label;
+
+  /**
+   * Overrides Entity::__construct().
+   */
+  public function __construct(array $values, $entity_type) {
+    parent::__construct($values, $entity_type);
+  }
 
   /**
    * {@inheritdoc}
