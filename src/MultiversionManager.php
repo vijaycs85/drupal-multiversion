@@ -40,34 +40,6 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public static function requiredFieldDefinitions() {
-    $definitions['_revs_info'] = array(
-      'label' => 'Revision info',
-      'type' => 'revision_info',
-      'cardinality' => FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED,
-      'revisionable' => TRUE,
-      'locked' => TRUE,
-    );
-    $definitions['_deleted'] = array(
-      'label' => 'Deleted flag',
-      'type' => 'deleted_flag',
-      'cardinality' => 1,
-      'revisionable' => TRUE,
-      'locked' => TRUE,
-    );
-    $definitions['_local_seq'] = array(
-      'label' => 'Local sequence ID',
-      'type' => 'local_sequence',
-      'cardinality' => 1,
-      'revisionable' => TRUE,
-      'locked' => TRUE,
-    );
-    return $definitions;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function ensureRequiredRepositories() {
     $definitions = self::requiredWorkspaceDefinitions();
     $storage = $this->entityManager->getStorage('workspace');
@@ -76,43 +48,6 @@ class MultiversionManager implements MultiversionManagerInterface {
       $values['name'] = $workspace_name;
       $workspace = $storage->create($values);
       $workspace->save();
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function ensureRequiredFields() {
-    // @todo
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function attachRequiredFields($entity_type, $bundle) {
-    $definitions = self::requiredFieldDefinitions();
-    $field_storage = $this->entityManager->getStorage('field_storage_config');
-    $instance_storage = $this->entityManager->getStorage('field_config');
-
-    foreach ($definitions as $field_name => $definition) {
-      $field = $field_storage->load("$entity_type.$field_name");
-      $instance = $instance_storage->load("$entity_type.$bundle.$field_name");
-
-      if (empty($field)) {
-        $values = array_merge(array('name' => $field_name, 'entity_type' => $entity_type), $definition);
-        $field = $field_storage->create($values);
-        $field->save();
-      }
-      if (empty($instance)) {
-        $values = array(
-          'field_name' => $field_name,
-          'entity_type' => $entity_type,
-          'bundle' => $bundle,
-          'label' => $definition['label'],
-        );
-        $instance = $instance_storage->create($values);
-        $instance->save();
-      }
     }
   }
 

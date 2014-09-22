@@ -37,7 +37,14 @@ class ContentEntityStorageTest extends MultiversionWebTestBase {
     $entity->save();
     $id = $entity->id();
     entity_delete_multiple('entity_test_rev', array($id));
- 
+
+    $record = db_select('entity_test_rev', 'e')
+      ->fields('e')
+      ->condition('e.id', $id)
+      ->execute()
+      ->fetchObject();
+
+    $this->assertEqual($record->_deleted, '1', 'Deleted entity is still stored but flagged as deleted');
     $entity = entity_load('entity_test_rev', $id);
     $this->assertTrue(empty($entity), 'Deleted entity did not load with entity_load() function.');
   }
@@ -48,12 +55,12 @@ class ContentEntityStorageTest extends MultiversionWebTestBase {
     $id = $entity->id();
     $revision_id = $entity->getRevisionId();
     entity_delete_multiple('entity_test_rev', array($id));
- 
+
     $entity = entity_load_deleted('entity_test_rev', $id);
     $this->assertTrue(!empty($entity), 'Deleted entity loaded with entity_load_deleted() function.');
     $this->assertNotEqual($revision_id, $entity->getRevisionId(), 'New revision was generated when deleting entity.');
- 
+
     $entities = entity_load_multiple_deleted('entity_test_rev', array($id));
-    $this->assertTrue(!empty($entities), 'Deleted entity loaded with entity_load_multiple_deleted() function.'); 
+    $this->assertTrue(!empty($entities), 'Deleted entity loaded with entity_load_multiple_deleted() function.');
   }
 }

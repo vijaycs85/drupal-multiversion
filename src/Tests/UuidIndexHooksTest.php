@@ -9,12 +9,6 @@ namespace Drupal\multiversion\Tests;
  */
 class UuidIndexHooksTest extends UuidIndexTestBase {
 
-  public function testInstallHook() {
-    $user = entity_load('user', 1);
-    $entry = $this->uuidIndex->get($user->uuid());
-    $this->assertIdentical($entry, array('entity_type' => 'user', 'entity_id' => $user->id()), 'Index entries was generated for entities created prior to installing the UUID module.');
-  }
-
   public function testEntityHooks() {
     $keys = $this->uuidIndex->get('foo');
     $this->assertTrue(empty($keys), 'Empty array was returned when fetching non-existing UUID.');

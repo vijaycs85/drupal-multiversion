@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Entity;
 
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage as CoreSqlContentEntityStorage;
 use Drupal\multiversion\Entity\Sequence\DatabaseStorage;
 
@@ -15,17 +16,8 @@ class SqlContentEntityStorage extends CoreSqlContentEntityStorage {
 
   protected function buildQuery($ids, $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $revision_id);
-
-    // @todo Generate the table names with self::_fieldTableName()
-    if ($revision_id) {
-      $table = $this->entityType->id() . '_revision___deleted';
-      $query->join($table, 't', "t.entity_id = base.{$this->idKey} AND t.revision_id = :revisionId", array(':revisionId' => $revision_id));
-    }
-    else {
-      $table = $this->entityType->id() . '___deleted';
-      $query->join($table, 't', "t.entity_id = base.{$this->idKey}");
-    }
-    $query->condition('t._deleted_value', $this->loadDeleted ? 1 : 0);
+    $table = $revision_id ? 'revision' : 'base';
+    $query->condition("$table._deleted", $this->loadDeleted ? 1 : 0);
     return $query;
   }
 }

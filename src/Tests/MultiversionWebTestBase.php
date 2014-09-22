@@ -9,13 +9,26 @@ use Drupal\simpletest\WebTestBase;
  */
 abstract class MultiversionWebTestBase extends WebTestBase {
 
+  /**
+   * The entity manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityManager;
+
+  /**
+   * The entity definition update manager.
+   *
+   * @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface
+   */
+  protected $entityDefinitionUpdateManager;
+
   public static $modules = array('entity_test', 'multiversion');
 
   protected function setUp() {
     parent::setUp();
 
-    // @todo: Remove once multiversion_install() is implemented.
-    \Drupal::service('multiversion.manager')
-      ->attachRequiredFields('entity_test_rev', 'entity_test_rev');
+    $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
+    $this->entityDefinitionUpdateManager->applyUpdates();
   }
 }

@@ -9,9 +9,7 @@ use Drupal\simpletest\WebTestBase;
  *
  * @group multiversion
  */
-class EntityQueryTest extends WebTestBase {
-
-  public static $modules = array('entity_test', 'multiversion');
+class EntityQueryTest extends MultiversionWebTestBase {
 
   /**
    * @var \Drupal\Core\Entity\Query\QueryFactory
@@ -21,30 +19,26 @@ class EntityQueryTest extends WebTestBase {
   public function setUp() {
     parent::setUp();
 
-    // @todo: Remove once multiversion_install() is implemented.
-    \Drupal::service('multiversion.manager')
-      ->attachRequiredFields('entity_test_mulrev', 'entity_test_mulrev');
-
     $this->factory = \Drupal::service('entity.query');
   }
 
   public function testQuery() {
-    $entity = entity_create('entity_test_mulrev');
+    $entity = entity_create('entity_test_rev');
     $entity->save();
 
-    $results = $this->factory->get('entity_test_mulrev')
+    $results = $this->factory->get('entity_test_rev')
       ->execute();
     $this->assertIdentical($results, array(1 => '1'));
 
     $entity->delete();
 
-    $results = $this->factory->get('entity_test_mulrev')
+    $results = $this->factory->get('entity_test_rev')
       ->execute();
     $this->assertIdentical($results, array());
 
-    $results = $this->factory->get('entity_test_mulrev')
-    ->isDeleted()
-    ->execute();
+    $results = $this->factory->get('entity_test_rev')
+      ->isDeleted()
+      ->execute();
     $this->assertIdentical($results, array(2 => '1'));
   }
 }

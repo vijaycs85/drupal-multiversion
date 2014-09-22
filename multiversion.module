@@ -1,6 +1,9 @@
 <?php
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\multiversion\Entity\SqlContentEntityStorage;
 
@@ -18,11 +21,34 @@ function multiversion_entity_type_alter(array &$entity_types) {
 }
 
 /**
- * Implements hook_entity_bundle_create().
+ * Implements hook_entity_base_field_info().
  */
-function multiversion_entity_bundle_create($entity_type, $bundle) {
-  if ($entity_type == 'node') {
-    \Drupal::service('multiversion.manager')->attachRequiredFields($entity_type, $bundle);
+function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
+  if (in_array($entity_type->id(), array('node', 'entity_test_rev', 'entity_test_mulrev'))) {
+    $fields = array();
+    $fields['_deleted'] = BaseFieldDefinition::create('boolean')
+      ->setLabel('Deleted flag')
+      ->setDescription('Indicates if the entity is flagged as deleted or not.')
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setDefaultValue(FALSE)
+      ->setCardinality(1);
+
+    $fields['_local_seq'] = BaseFieldDefinition::create('local_sequence')
+      ->setLabel('Local sequence ID')
+      ->setDescription('The local sequence ID of the entity')
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setCardinality(1);
+
+    $fields['_revs_info'] = BaseFieldDefinition::create('revision_info')
+      ->setLabel('Revision info')
+      ->setDescription('The revision history information for the entity')
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED);
+
+    return $fields;
   }
 }
 
