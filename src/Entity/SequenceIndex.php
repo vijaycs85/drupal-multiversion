@@ -31,7 +31,7 @@ class SequenceIndex implements SequenceIndexInterface {
   public function add(ContentEntityInterface $entity, $parent_revision_id, $conflict = FALSE) {
     $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
     $record = $this->buildRecord($entity, $parent_revision_id, $conflict);
-    $sequence_id = $entity->_local_seq->id;
+    $sequence_id = $entity->_local_seq->value;
     $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->add($sequence_id, $record);
   }
 
@@ -45,7 +45,7 @@ class SequenceIndex implements SequenceIndexInterface {
 
   protected function buildRecord(ContentEntityInterface $entity, $parent_revision_id, $conflict) {
     return array(
-      'local_seq' => $entity->_local_seq->id,
+      'local_seq' => $entity->_local_seq->value,
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'revision_id' => $entity->getRevisionId(),

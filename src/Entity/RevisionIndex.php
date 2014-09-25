@@ -17,8 +17,8 @@ class RevisionIndex extends IndexBase {
     return array(
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
-      'revision_id' => $entity->id(),
-      'local_seq' => $entity->_local_seq->id,
+      'revision_id' => $entity->getRevisionId(),
+      'local_seq' => $entity->_local_seq->value,
     );
   }
 }

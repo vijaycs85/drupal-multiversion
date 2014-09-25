@@ -26,11 +26,11 @@ class LocalSequenceFieldTest extends MultiversionWebTestBase {
 
     $entity->save();
     $this->assertEqual($entity->_local_seq->count(), 1, 'One value after first save.');
-    $first_seq = $entity->_local_seq->get(0)->id;
+    $first_seq = $entity->_local_seq->get(0)->value;
     $this->assertTrue(!empty($first_seq), 'First revision value was generated.');
 
     $entity->save();
-    $second_seq = $entity->_local_seq->get(0)->id;
+    $second_seq = $entity->_local_seq->get(0)->value;
     $this->assertEqual($entity->_local_seq->count(), 1, 'One values after second save.');
     $this->assertTrue(!empty($second_seq), 'Second value was generated.');
     $this->assertNotEqual($first_seq, $second_seq, 'First and second value differ.');

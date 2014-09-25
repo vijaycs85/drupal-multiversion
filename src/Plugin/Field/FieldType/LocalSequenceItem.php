@@ -20,15 +20,8 @@ class LocalSequenceItem extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public static function mainPropertyName() {
-    return 'id';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
-    $properties['id'] = DataDefinition::create('string')
+    $properties['value'] = DataDefinition::create('string')
       ->setLabel(t('Local sequence ID'))
       ->setRequired(TRUE);
 
@@ -41,7 +34,7 @@ class LocalSequenceItem extends FieldItemBase {
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
     return array(
       'columns' => array(
-        'id' => array(
+        'value' => array(
           'type' => 'float',
           'size' => 'big',
           'not null' => TRUE,

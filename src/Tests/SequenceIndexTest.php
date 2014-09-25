@@ -22,19 +22,6 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $this->sequenceIndex = \Drupal::service('entity.sequence_index');
   }
 
-  protected function assertSequence(EntityInterface $entity, $message = '') {
-    $record = db_select('workspace__default', 'es')
-      ->fields('es')
-      ->condition('entity_type', $entity->getEntityTypeId())
-      ->condition('entity_id', $entity->id())
-      ->condition('entity_revision_id', $entity->getRevisionId())
-      ->execute()
-      ->fetchObject();
- 
-    $this->assertTrue(!empty($record), $message);
-    $this->assertEqual((boolean) $record->deleted, $entity->_deleted->value);
-  }
-
   public function testRecord() {
     $entity = entity_create('entity_test_rev');
     // We don't want to save the entity and trigger the hooks in the storage
@@ -52,7 +39,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $entity->id->value = $expected['entity_id'];
     $entity->revision_id->value = $expected['revision_id'];
     $entity->_deleted->value = $expected['deleted'];
-    $entity->_local_seq->id = $expected['local_seq'];
+    $entity->_local_seq->value = $expected['local_seq'];
 
     $this->sequenceIndex->add($entity,  $expected['parent_revision_id']);
 
