@@ -16,8 +16,14 @@ class SqlContentEntityStorage extends CoreSqlContentEntityStorage {
 
   protected function buildQuery($ids, $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $revision_id);
-    $table = $revision_id ? 'revision' : 'base';
-    $query->condition("$table._deleted", $this->loadDeleted ? 1 : 0);
+    if ($revision_id) {
+      $query->join($this->getRevisionDataTable(), 'revision_data', "revision_data.{$this->revisionKey} = revision.{$this->revisionKey} AND revision_data.{$this->revisionKey} = :revisionId");
+    }
+    else {
+      $query->join($this->getRevisionDataTable(), 'revision_data', "revision_data.{$this->revisionKey} = revision.{$this->revisionKey}");
+    }
+    $query->condition('revision_data._deleted', $this->loadDeleted ? 1 : 0);
     return $query;
   }
+
 }
