@@ -15,8 +15,8 @@ class DeletedFlagFieldTest extends MultiversionWebTestBase {
     $entity = entity_create('entity_test_rev');
     $this->assertTrue($entity->_deleted->get(0) instanceof BooleanItem, 'Field item implements correct interface.');
     $this->assertEqual($entity->_deleted->count(), 1, 'Field is created with one field item.');
-    $this->assertTrue(!$entity->_deleted->isEmpty(), 'Field is not created empty.');
-    $this->assertTrue(!$entity->_deleted->get(0)->isEmpty(), 'First field item is not created empty.');
+    $this->assertFalse($entity->_deleted->isEmpty(), 'Field is not created empty.');
+    $this->assertFalse($entity->_deleted->get(0)->isEmpty(), 'First field item is not created empty.');
     $this->assertIdentical($entity->_deleted->get(0)->value, FALSE, 'Field item had correct default value.');
   }
 }

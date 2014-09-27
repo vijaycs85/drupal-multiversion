@@ -52,6 +52,7 @@ class SequenceIndex implements SequenceIndexInterface {
       'parent_revision_id' => $parent_revision_id,
       'deleted' => $entity->_deleted->value,
       'conflict' => $conflict,
+      'local' => $entity->_local->value,
     );
   }
 }

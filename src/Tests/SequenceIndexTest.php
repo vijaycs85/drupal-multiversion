@@ -35,11 +35,13 @@ class SequenceIndexTest extends MultiversionWebTestBase {
       'parent_revision_id' => 0,
       'deleted' => FALSE,
       'conflict' => FALSE,
+      'local' => FALSE,
     );
     $entity->id->value = $expected['entity_id'];
     $entity->revision_id->value = $expected['revision_id'];
     $entity->_deleted->value = $expected['deleted'];
     $entity->_local_seq->value = $expected['local_seq'];
+    $entity->_local->value = $expected['local'];
 
     $this->sequenceIndex->add($entity,  $expected['parent_revision_id']);
 
