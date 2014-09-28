@@ -14,6 +14,8 @@ interface MultiversionManagerInterface {
 
   public function setActiveWorkspaceName($workspace_name);
 
+  public function newSequenceId();
+
   public function newRevisionId(ContentEntityInterface $entity, $index = 0);
 
 }

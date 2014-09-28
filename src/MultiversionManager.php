@@ -65,6 +65,13 @@ class MultiversionManager implements MultiversionManagerInterface {
     return $this->activeWorkspace = $workspace_name;
   }
 
+  public function newSequenceId() {
+    // Multiply the microtime by 1 million to ensure we get an accurate integer.
+    // Credit goes to @letharion and @logaritmisk for this simple but genius
+    // solution.
+    return (int) (microtime(TRUE) * 1000000);
+  }
+
   public function newRevisionId(ContentEntityInterface $entity, $index = 0) {
     $deleted = $entity->_deleted->value;
     $old_rev = $entity->_revs_info->rev;

@@ -29,8 +29,13 @@ trait ContentEntityStorageTrait {
    *   the system depend less on this storage controller.
    */
   public function save(EntityInterface $entity) {
-    // Force new revision. 
-    $entity->setNewRevision();
+    // Force new revision.
+    $entity_type = $entity->getEntityType();
+    // Respect if the entity type has defined itself to be local.
+    // @todo Consider moving this logic into the field itself instead.
+    if ($entity_type->get('local')) {
+      $entity->_local->value = TRUE;
+    }
     // Get the revision ID of the unchanged entity.
     $parent_revision_id = $entity->getRevisionId();
     // Run the normal save method.
@@ -39,6 +44,15 @@ trait ContentEntityStorageTrait {
     \Drupal::service('entity.sequence_index')->add($entity, $parent_revision_id);
     \Drupal::service('entity.rev_index')->add($entity);
     return $return;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function doSave($id, EntityInterface $entity) {
+    // Force new revision.
+    $entity->setNewRevision();
+    return parent::doSave($id, $entity);
   }
 
   public function delete(array $entities) {
