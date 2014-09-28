@@ -29,6 +29,8 @@ class LocalSequenceFieldTest extends MultiversionWebTestBase {
     $first_seq = $entity->_local_seq->get(0)->value;
     $this->assertTrue(!empty($first_seq), 'First revision value was generated.');
 
+    $this->assertTrue(is_float($first_seq), 'Sequence is of the type float.');
+
     $entity->save();
     $second_seq = $entity->_local_seq->get(0)->value;
     $this->assertEqual($entity->_local_seq->count(), 1, 'One values after second save.');

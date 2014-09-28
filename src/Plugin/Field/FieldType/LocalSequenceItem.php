@@ -21,7 +21,7 @@ class LocalSequenceItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public static function propertyDefinitions(FieldStorageDefinitionInterface $field_definition) {
-    $properties['value'] = DataDefinition::create('string')
+    $properties['value'] = DataDefinition::create('float')
       ->setLabel(t('Local sequence ID'))
       ->setRequired(TRUE);
 
