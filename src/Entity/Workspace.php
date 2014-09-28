@@ -8,9 +8,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 
 /**
- * The content workspace entity class.
- *
- * It's config entity not a content entity because those are contained within a workspace itself.
+ * The workspace entity class.
  *
  * @ConfigEntityType(
  *   id = "workspace",

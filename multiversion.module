@@ -13,7 +13,7 @@ use Drupal\multiversion\Entity\SqlContentEntityStorage;
 function multiversion_entity_type_alter(array &$entity_types) {
   // @todo: Loop over all entity types and load the plugin info to look at the
   // 'bundle_of' property to only alter content entity types.
-  foreach (array('node', 'entity_test_rev', 'entity_test_mulrev') as $entity_type) {
+  foreach (array('node', 'entity_test_rev', 'entity_test_mulrev', 'replication_log') as $entity_type) {
     if (isset($entity_types[$entity_type])) {
       $entity_types[$entity_type]->setStorageClass('Drupal\multiversion\Entity\SqlContentEntityStorage');
     }
@@ -24,7 +24,7 @@ function multiversion_entity_type_alter(array &$entity_types) {
  * Implements hook_entity_base_field_info().
  */
 function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
-  if (in_array($entity_type->id(), array('node', 'entity_test_rev', 'entity_test_mulrev'))) {
+  if (in_array($entity_type->id(), array('node', 'entity_test_rev', 'entity_test_mulrev', 'replication_log'))) {
     $fields = array();
     $fields['_deleted'] = BaseFieldDefinition::create('boolean')
       ->setLabel('Deleted flag')
@@ -66,6 +66,7 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
  * Implements hook_cron().
  */
 function multiversion_cron() {
+  // @todo Need tests
   if (\Drupal::config('multiversion.settings')->get('compaction_on_cron')) {
     \Drupal::service('entity.compaction.manager')->compact();
   }
