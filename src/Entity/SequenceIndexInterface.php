@@ -21,4 +21,6 @@ interface SequenceIndexInterface {
    */
   public function getRange($start, $stop = NULL);
 
+  public function useWorkspace($name);
+
 }

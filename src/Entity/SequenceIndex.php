@@ -29,7 +29,12 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function add(ContentEntityInterface $entity, $parent_revision_id, $conflict = FALSE) {
-    $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
+    if (isset($this->workspaceName)) {
+      $workspace_name = $this->workspaceName;
+    }
+    else {
+      $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
+    }
     $record = $this->buildRecord($entity, $parent_revision_id, $conflict);
     $sequence_id = $entity->_local_seq->value;
     $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->add($sequence_id, $record);
@@ -39,8 +44,18 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function getRange($start, $stop = NULL) {
-    $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
+    if (isset($this->workspaceName)) {
+      $workspace_name = $this->workspaceName;
+    }
+    else {
+      $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
+    }
     return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getRange($start, $stop);
+  }
+
+  public function useWorkspace($name) {
+    $this->workspaceName = $name;
+    return $this;
   }
 
   protected function buildRecord(ContentEntityInterface $entity, $parent_revision_id, $conflict) {
@@ -53,6 +68,7 @@ class SequenceIndex implements SequenceIndexInterface {
       'deleted' => $entity->_deleted->value,
       'conflict' => $conflict,
       'local' => $entity->_local->value,
+      'rev' => $entity->_revs_info->rev,
     );
   }
 }
