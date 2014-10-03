@@ -43,6 +43,11 @@ class SequenceIndex implements SequenceIndexInterface {
     return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getRange($start, $stop);
   }
 
+  public function useWorkspace($name) {
+    $this->workspaceName = $name;
+    return $this;
+  }
+
   protected function buildRecord(ContentEntityInterface $entity, $parent_revision_id, $conflict) {
     return array(
       'local_seq' => $entity->_local_seq->value,
@@ -53,6 +58,7 @@ class SequenceIndex implements SequenceIndexInterface {
       'deleted' => $entity->_deleted->value,
       'conflict' => $conflict,
       'local' => $entity->_local->value,
+      'rev' => $entity->_revs_info->rev,
     );
   }
 }
