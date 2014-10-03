@@ -20,34 +20,20 @@ class WorkspaceTest extends WebTestBase {
   }
 
   public function testOperations() {
-    $name = $this->randomMachineName();
-    $entity = $this->createWorkspace($name);
+    $id = $this->randomMachineName();
+    $entity = entity_create('workspace', array('id' => $id));
 
     $this->assertTrue($entity instanceof WorkspaceInterface, 'Workspace entity was created.');
 
     $entity->save();
-    $this->assertEqual($entity->name(), $name, 'Workspace entity was saved.');
+    $this->assertEqual($entity->id(), $id, 'Workspace entity was saved.');
 
     $entity = entity_load('workspace', $entity->id());
-    $this->assertEqual($entity->name(), $name, 'Workspace entity was loaded by ID.');
+    $this->assertEqual($entity->id(), $id, 'Workspace entity was loaded by ID.');
 
-    $entity = \Drupal::entityManager()->loadEntityByUuid('workspace', $name);
-    $this->assertEqual($entity->name(), $name, 'Workspace entity was loaded by UUID.');
-
-    $this->assertEqual($entity->label(), $name, 'Label method returns the workspace name.');
-    $this->assertEqual($entity->uuid(), $name, 'UUID method returns the workspace name.');
+    $entity = \Drupal::entityManager()->loadEntityByUuid('workspace', $entity->uuid());
+    $this->assertEqual($entity->id(), $id, 'Workspace entity was loaded by UUID.');
+    $this->assertEqual($entity->label(), $id, 'Label method returns the workspace name.');
   }
 
-  /**
-   * Creates a custom workspace entity.
-   */
-  protected function createWorkspace($name) {
-    $entity = entity_create('workspace', array(
-      'id' => drupal_strtolower($name),
-      'name' => $name,
-      'label' => $name,
-      'uuid' => $name
-    ));
-    return $entity;
-  }
 }
