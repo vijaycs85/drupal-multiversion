@@ -10,6 +10,8 @@ class SequenceIndex implements SequenceIndexInterface {
 
   const COLLECTION_PREFIX = 'entity_sequence_index:';
 
+  public $workspaceName;
+
   /**
    * @var \Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface
    */
@@ -29,7 +31,12 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function add(ContentEntityInterface $entity, $parent_revision_id, $conflict = FALSE) {
-    $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
+    if (isset($this->workspaceName)) {
+      $workspace_name = $this->workspaceName;
+    }
+    else {
+      $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
+    }
     $record = $this->buildRecord($entity, $parent_revision_id, $conflict);
     $sequence_id = $entity->_local_seq->value;
     $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->add($sequence_id, $record);
@@ -39,8 +46,18 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function getRange($start, $stop = NULL) {
-    $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
+    if (isset($this->workspaceName)) {
+      $workspace_name = $this->workspaceName;
+    }
+    else {
+      $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
+    }
     return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getRange($start, $stop);
+  }
+
+  public function useWorkspace($name) {
+    $this->workspaceName = $name;
+    return $this;
   }
 
   protected function buildRecord(ContentEntityInterface $entity, $parent_revision_id, $conflict) {
@@ -48,11 +65,13 @@ class SequenceIndex implements SequenceIndexInterface {
       'local_seq' => $entity->_local_seq->value,
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
+      'entity_uuid' => $entity->uuid(),
       'revision_id' => $entity->getRevisionId(),
       'parent_revision_id' => $parent_revision_id,
       'deleted' => $entity->_deleted->value,
       'conflict' => $conflict,
       'local' => $entity->_local->value,
+      'rev' => $entity->_revs_info->rev,
     );
   }
 }

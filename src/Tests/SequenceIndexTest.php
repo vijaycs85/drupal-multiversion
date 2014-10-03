@@ -31,6 +31,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
       'local_seq' => (string) microtime(TRUE),
       'entity_type' => 'entity_test_rev',
       'entity_id' => 1,
+      'entity_uuid' => $entity->uuid(),
       'revision_id' => 1,
       'parent_revision_id' => 0,
       'deleted' => FALSE,
@@ -43,7 +44,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $entity->_local_seq->value = $expected['local_seq'];
     $entity->_local->value = $expected['local'];
 
-    $this->sequenceIndex->add($entity,  $expected['parent_revision_id']);
+    $this->sequenceIndex->add($entity, $expected['parent_revision_id']);
 
     $values = $this->sequenceIndex->getRange(0);
     $this->assertEqual(count($values), 1, 'One index entry was added.');
@@ -51,5 +52,26 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     foreach ($expected as $key => $value) {
       $this->assertIdentical($values[0][$key], $value, String::format('Index entry key !key have value !value', array('!key' => $key, '!value' => $value)));
     }
+
+    $entity = entity_create('entity_test_rev');
+    $workspace_name = $this->randomMachineName();
+    $this->createWorkspace($workspace_name);
+    $this->sequenceIndex->useWorkspace($workspace_name)->add($entity, 0);
+
+    $values = $this->sequenceIndex->getRange(1);
+    $this->assertEqual(count($values), 1, 'One index entry was added to the new workspace.');
+  }
+
+  /**
+   * Creates a custom workspace entity.
+   */
+  protected function createWorkspace($name) {
+    $entity = entity_create('workspace', array(
+        'id' => drupal_strtolower($name),
+        'name' => $name,
+        'label' => $name,
+        'uuid' => $name
+      ));
+    return $entity;
   }
 }
