@@ -17,6 +17,13 @@ abstract class MultiversionWebTestBase extends WebTestBase {
   protected $entityManager;
 
   /**
+   * The multiversion manager.
+   *
+   * @var \Drupal\multiversion\MultiversionManagerInterface
+   */
+  protected $multiversionManager;
+
+  /**
    * The entity definition update manager.
    *
    * @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface
@@ -28,7 +35,9 @@ abstract class MultiversionWebTestBase extends WebTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
-    $this->entityDefinitionUpdateManager->applyUpdates();
+    $this->multiversionManager = $this->container->get('multiversion.manager');
+
+    $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager')
+      ->applyUpdates();
   }
 }

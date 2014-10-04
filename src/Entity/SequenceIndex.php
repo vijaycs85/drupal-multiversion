@@ -10,7 +10,10 @@ class SequenceIndex implements SequenceIndexInterface {
 
   const COLLECTION_PREFIX = 'entity_sequence_index:';
 
-  public $workspaceName;
+  /**
+   * @var string
+   */
+  protected $workspaceName;
 
   /**
    * @var \Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface
@@ -31,7 +34,7 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function add(ContentEntityInterface $entity, $parent_revision_id, $conflict = FALSE) {
-    if (isset($this->workspaceName)) {
+    if (!empty($this->workspaceName)) {
       $workspace_name = $this->workspaceName;
     }
     else {
@@ -46,7 +49,7 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function getRange($start, $stop = NULL) {
-    if (isset($this->workspaceName)) {
+    if (!empty($this->workspaceName)) {
       $workspace_name = $this->workspaceName;
     }
     else {
