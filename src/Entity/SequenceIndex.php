@@ -34,12 +34,7 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function add(ContentEntityInterface $entity, $parent_revision_id, $conflict = FALSE) {
-    if (!empty($this->workspaceName)) {
-      $workspace_name = $this->workspaceName;
-    }
-    else {
-      $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
-    }
+    $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
     $record = $this->buildRecord($entity, $parent_revision_id, $conflict);
     $sequence_id = $entity->_local_seq->value;
     $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->add($sequence_id, $record);
@@ -49,12 +44,7 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function getRange($start, $stop = NULL) {
-    if (!empty($this->workspaceName)) {
-      $workspace_name = $this->workspaceName;
-    }
-    else {
-      $workspace_name = $this->multiversionManager->getActiveWorkspaceName();
-    }
+    $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
     return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getRange($start, $stop);
   }
 
