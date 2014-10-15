@@ -13,3 +13,8 @@ This module is part of [the content staging suite for D8](https://www.drupal.org
 
 - https://austin2014.drupal.org/session/content-staging-drupal-8
 - https://amsterdam2014.drupal.org/session/content-staging-drupal-8-continued
+
+## Development
+
+Tests require drupal core patch from https://www.drupal.org/node/2335879 to not
+throw exceptions.
