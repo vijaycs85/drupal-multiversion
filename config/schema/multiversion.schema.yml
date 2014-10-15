@@ -27,3 +27,6 @@ multiversion.workspace.*:
     name:
       type: string
       label: 'Name'
+    created:
+      type: string
+      label: 'Created'
