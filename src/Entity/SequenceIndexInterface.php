@@ -23,4 +23,9 @@ interface SequenceIndexInterface {
 
   public function useWorkspace($name);
 
+  /**
+   * @return float
+   */
+  public function getLastSequenceId();
+
 }

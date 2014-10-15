@@ -29,4 +29,12 @@ class Workspace extends ConfigEntityBase implements WorkspaceInterface {
    */
   public $id;
 
+  /**
+   * Returns the last sequence ID in the workspace's sequence index.
+   *
+   * @return float
+   */
+  public function getUpdateSeq() {
+    return \Drupal::service('entity.sequence_index')->useWorkspace($this->id)->getLastSequenceId();
+  }
 }
