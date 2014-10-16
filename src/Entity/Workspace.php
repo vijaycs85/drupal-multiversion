@@ -48,7 +48,7 @@ class Workspace extends ConfigEntityBase implements WorkspaceInterface {
    * {@inheritdoc}
    */
   public function setCreatedTime($created) {
-    $this->created = $created;
+    $this->created = (int) $created;
     return $this;
   }
 
@@ -64,7 +64,7 @@ class Workspace extends ConfigEntityBase implements WorkspaceInterface {
    */
   public function save() {
     if (is_null($this->getStartTime())) {
-      $this->setCreatedTime(REQUEST_TIME);
+      $this->setCreatedTime(microtime(TRUE) * 1000000);
     }
     parent::save();
   }
