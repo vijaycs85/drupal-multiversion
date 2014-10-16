@@ -34,6 +34,13 @@ class WorkspaceTest extends WebTestBase {
     $entity = \Drupal::entityManager()->loadEntityByUuid('workspace', $entity->uuid());
     $this->assertEqual($entity->id(), $id, 'Workspace entity was loaded by UUID.');
     $this->assertEqual($entity->label(), $id, 'Label method returns the workspace name.');
+
+    $created = $entity->getStartTime();
+    $this->assertNotNull($created, "The value for 'created' field is not null.");
+
+    $new_created_time = microtime(TRUE) * 1000000;
+    $entity->setCreatedTime((int) $new_created_time);
+    $this->assertEqual($entity->getStartTime(), $new_created_time, "Correct value for 'created' field.");
   }
 
 }
