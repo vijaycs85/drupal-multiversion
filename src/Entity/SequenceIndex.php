@@ -53,6 +53,14 @@ class SequenceIndex implements SequenceIndexInterface {
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getLastSequenceId() {
+    $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
+    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getMaxScore();
+  }
+
   protected function buildRecord(ContentEntityInterface $entity, $parent_revision_id, $conflict) {
     return array(
       'local_seq' => $entity->_local_seq->value,

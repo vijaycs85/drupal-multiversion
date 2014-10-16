@@ -17,6 +17,7 @@ use Drupal\multiversion\Entity\WorkspaceInterface;
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "id",
+ *     "created" = "created",
  *   }
  * )
  */
@@ -29,4 +30,42 @@ class Workspace extends ConfigEntityBase implements WorkspaceInterface {
    */
   public $id;
 
+  /**
+   * The UNIX timestamp of when the workspace has been created.
+   *
+   * @var int
+   */
+  public $created;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUpdateSeq() {
+    return \Drupal::service('entity.sequence_index')->useWorkspace($this->id)->getLastSequenceId();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setCreatedTime($created) {
+    $this->created = (int) $created;
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getStartTime() {
+    return $this->created;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function save() {
+    if (is_null($this->getStartTime())) {
+      $this->setCreatedTime(microtime(TRUE) * 1000000);
+    }
+    parent::save();
+  }
 }
