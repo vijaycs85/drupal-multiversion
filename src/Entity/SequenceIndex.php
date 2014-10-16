@@ -58,7 +58,7 @@ class SequenceIndex implements SequenceIndexInterface {
    */
   public function getLastSequenceId() {
     $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
-    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getLastSequenceId();
+    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getMaxScore();
   }
 
   protected function buildRecord(ContentEntityInterface $entity, $parent_revision_id, $conflict) {
