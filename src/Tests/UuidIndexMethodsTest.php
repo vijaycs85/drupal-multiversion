@@ -7,7 +7,7 @@ namespace Drupal\multiversion\Tests;
  *
  * @group multiversion
  */
-class UuidIndexMethodsTest extends UuidIndexTestBase {
+class UuidIndexMethodsTest extends MultiversionWebTestBase {
 
   public function testMethods() {
     $entity = entity_create('entity_test');

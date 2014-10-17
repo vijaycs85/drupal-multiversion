@@ -7,7 +7,7 @@ namespace Drupal\multiversion\Tests;
  *
  * @group multiversion
  */
-class UuidIndexHooksTest extends UuidIndexTestBase {
+class UuidIndexHooksTest extends MultiversionWebTestBase {
 
   public function testEntityHooks() {
     $keys = $this->uuidIndex->get('foo');
