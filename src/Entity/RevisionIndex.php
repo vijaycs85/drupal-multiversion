@@ -5,7 +5,7 @@ namespace Drupal\multiversion\Entity;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 
-class RevisionIndex extends IndexBase {
+class RevisionIndex extends IndexBase implements RevisionIndexInterface {
 
   const COLLECTION_NAME = 'entity_rev_index';
 

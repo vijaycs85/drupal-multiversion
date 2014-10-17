@@ -3,6 +3,7 @@
 namespace Drupal\multiversion\Entity\Query;
 
 trait QueryTrait {
+
   protected $isDeleted = FALSE;
 
   public function isDeleted() {
@@ -20,4 +21,5 @@ trait QueryTrait {
     $this->condition('_deleted', (string) $this->isDeleted);
     return $this;
   }
+
 }

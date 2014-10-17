@@ -4,6 +4,7 @@ namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
+use Drupal\multiversion\Entity\Index\IndexInterface;
 
 abstract class IndexBase implements IndexInterface {
 

@@ -13,7 +13,7 @@ use Drupal\Component\Utility\String;
 class SequenceIndexTest extends MultiversionWebTestBase {
 
   /**
-   * @var \Drupal\multiversion\Entity\SequenceIndexInterface
+   * @var \Drupal\multiversion\Entity\Index\SequenceIndexInterface
    */
   protected $sequenceIndex;
 

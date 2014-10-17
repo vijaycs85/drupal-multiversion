@@ -4,6 +4,7 @@ namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface;
+use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\MultiversionManagerInterface;
 
 class SequenceIndex implements SequenceIndexInterface {

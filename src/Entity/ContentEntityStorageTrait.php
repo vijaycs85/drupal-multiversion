@@ -11,21 +11,33 @@ trait ContentEntityStorageTrait {
    */
   protected $loadDeleted = FALSE;
 
+  /**
+   * {@inheritdoc}
+   */
   public function load($id) {
     $this->loadDeleted = FALSE;
     return parent::load($id);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function loadMultiple(array $ids = NULL) {
     $this->loadDeleted = FALSE;
     return parent::loadMultiple($ids);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function loadDeleted($id) {
     $entities = $this->loadMultipleDeleted(array($id));
     return isset($entities[$id]) ? $entities[$id] : NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function loadMultipleDeleted(array $ids = NULL) {
     $this->loadDeleted = TRUE;
     return parent::loadMultiple($ids);
@@ -34,7 +46,7 @@ trait ContentEntityStorageTrait {
   /**
    * {@inhertidoc}
    *
-   * @todo Conflict detection.
+   * @todo Transaction detection.
    * @todo Consider implementing hook_entity_insert/update for this to make
    *   the system depend less on this storage controller.
    */
@@ -65,6 +77,9 @@ trait ContentEntityStorageTrait {
     return parent::doSave($id, $entity);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function delete(array $entities) {
     // Deleting an entity is simply a matter of setting the deleted flag and
     // saving a new revision.
@@ -74,10 +89,16 @@ trait ContentEntityStorageTrait {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function deleteRevision($revision_id) {
     // Do nothing, by design.
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function purge($entities) {
     return parent::delete($entities);
   }
