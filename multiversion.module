@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -9,22 +10,40 @@ use Drupal\multiversion\Entity\SqlContentEntityStorage;
 
 /**
  * Implements hook_entity_type_alter().
+ *
+ * @param \Drupal\Core\Entity\EntityTypeInterface[] $entity_types
  */
 function multiversion_entity_type_alter(array &$entity_types) {
-  // @todo: Loop over all entity types and load the plugin info to look at the
-  // 'bundle_of' property to only alter content entity types.
-  foreach (array('node', 'entity_test_rev', 'entity_test_mulrev', 'replication_log') as $entity_type) {
-    if (isset($entity_types[$entity_type])) {
-      $entity_types[$entity_type]->setStorageClass('Drupal\multiversion\Entity\SqlContentEntityStorage');
+  /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
+  $manager = \Drupal::service('multiversion.manager');
+
+  foreach ($entity_types as $entity_type) {
+    if ($manager->isSupportedEntityType($entity_type)) {
+      // Make all content entity types revisionable.
+      if (!$entity_type->isRevisionable()) {
+        // We only need to set the revision key to make an entity type
+        // revisionable. The table names will be handled by the storage class.
+        // @see \Drupal\Core\Entity\Sql\SqlContentEntityStorage::initTableLayout
+        $keys = $entity_type->getKeys();
+        $keys['revision'] = 'revision_id';
+        $entity_type->set('entity_keys', $keys);
+      }
+      $entity_type->setStorageClass('Drupal\multiversion\Entity\SqlContentEntityStorage');
     }
   }
 }
 
 /**
  * Implements hook_entity_base_field_info().
+ *
+ * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+ * @return \Drupal\Core\Field\BaseFieldDefinition[]
  */
 function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
-  if (in_array($entity_type->id(), array('node', 'entity_test_rev', 'entity_test_mulrev', 'replication_log'))) {
+  /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
+  $manager = \Drupal::service('multiversion.manager');
+
+  if ($manager->isSupportedEntityType($entity_type)) {
     $fields = array();
     $fields['_deleted'] = BaseFieldDefinition::create('boolean')
       ->setLabel('Deleted flag')
@@ -57,6 +76,15 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setTranslatable(TRUE)
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setReadOnly(TRUE);
+
+    // This will essentially overwrite the revision field definition but also
+    // ensure that entity types that we enabled revisions for get a revision
+    // field definition of a type that we expect.
+    $fields[$entity_type->getKey('revision')] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Revision ID'))
+      ->setDescription(t('The local revision ID of the entity.'))
+      ->setReadOnly(TRUE)
+      ->setSetting('unsigned', TRUE);
 
     return $fields;
   }

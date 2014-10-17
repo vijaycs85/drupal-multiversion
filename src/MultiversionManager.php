@@ -3,7 +3,9 @@
 namespace Drupal\multiversion;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Symfony\Component\Serializer\Serializer;
 
@@ -23,6 +25,30 @@ class MultiversionManager implements MultiversionManagerInterface {
    * @var string
    */
   protected $activeWorkspace = 'default';
+
+  /**
+   * Entity types that Multiversion won't support.
+   *
+   * This list will mostly contain edge case entity test types that break
+   * Multiversion's tests in really strange ways.
+   *
+   * @var array
+   * @todo Fix these some day. Some contrib modules might behave the same way?
+   */
+  protected $entityTypeBlackList = array(
+    'entity_test_no_id',
+    'entity_test_base_field_display',
+  );
+
+  /**
+   * Entity types that Multiversion should support but currently does not.
+   *
+   * @var array
+   * @todo The 'user' entity type needs a migration of existing entities.
+   */
+  protected $entityTypeToDo = array(
+    'user',
+  );
 
   public function __construct(EntityManagerInterface $entity_manager, Serializer $serializer) {
     $this->entityManager = $entity_manager;
@@ -70,6 +96,18 @@ class MultiversionManager implements MultiversionManagerInterface {
     // Credit goes to @letharion and @logaritmisk for this simple but genius
     // solution.
     return (int) (microtime(TRUE) * 1000000);
+  }
+
+  public function isSupportedEntityType(EntityTypeInterface $entity_type) {
+    $entity_type_id = $entity_type->id();
+    if (in_array($entity_type_id, $this->entityTypeBlackList)) {
+      return FALSE;
+    }
+    // @todo Remove this when there are no entity types left to implement.
+    if (in_array($entity_type_id, $this->entityTypeToDo)) {
+      return FALSE;
+    }
+    return ($entity_type instanceof ContentEntityTypeInterface);
   }
 
   public function newRevisionId(ContentEntityInterface $entity, $index = 0) {

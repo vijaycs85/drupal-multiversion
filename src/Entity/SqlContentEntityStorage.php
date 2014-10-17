@@ -15,9 +15,7 @@ class SqlContentEntityStorage extends CoreSqlContentEntityStorage {
   protected function buildQuery($ids, $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $revision_id);
 
-    $translatable = $this->entityType->isTranslatable();
-
-    if ($translatable) {
+    if ($this->entityType->isTranslatable()) {
       $table = $this->getRevisionDataTable();
       $alias = 'revision_data';
       if ($revision_id) {

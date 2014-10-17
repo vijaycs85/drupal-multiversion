@@ -10,6 +10,11 @@ use Drupal\simpletest\WebTestBase;
 abstract class MultiversionWebTestBase extends WebTestBase {
 
   /**
+   * @var \Drupal\multiversion\Entity\UuidIndex;
+   */
+  protected $uuidIndex;
+
+  /**
    * The entity manager service.
    *
    * @var \Drupal\Core\Entity\EntityManagerInterface
@@ -35,9 +40,11 @@ abstract class MultiversionWebTestBase extends WebTestBase {
   protected function setUp() {
     parent::setUp();
 
+    $this->uuidIndex = $this->container->get('entity.uuid_index');
     $this->multiversionManager = $this->container->get('multiversion.manager');
+    $this->entityManager = $this->container->get('entity.manager');
+    $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
 
-    $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager')
-      ->applyUpdates();
+    $this->entityDefinitionUpdateManager->applyUpdates();
   }
 }

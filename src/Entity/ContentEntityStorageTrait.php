@@ -11,6 +11,16 @@ trait ContentEntityStorageTrait {
    */
   protected $loadDeleted = FALSE;
 
+  public function load($id) {
+    $this->loadDeleted = FALSE;
+    return parent::load($id);
+  }
+
+  public function loadMultiple(array $ids = NULL) {
+    $this->loadDeleted = FALSE;
+    return parent::loadMultiple($ids);
+  }
+
   public function loadDeleted($id) {
     $entities = $this->loadMultipleDeleted(array($id));
     return isset($entities[$id]) ? $entities[$id] : NULL;
