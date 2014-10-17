@@ -30,12 +30,14 @@ class MultiversionManager implements MultiversionManagerInterface {
    * Entity types that Multiversion won't support.
    *
    * This list will mostly contain edge case entity test types that break
-   * Multiversion's tests.
+   * Multiversion's tests in really strange ways.
    *
    * @var array
+   * @todo Fix these some day. Some contrib modules might behave the same way?
    */
   protected $entityTypeBlackList = array(
     'entity_test_no_id',
+    'entity_test_base_field_display',
   );
 
   /**

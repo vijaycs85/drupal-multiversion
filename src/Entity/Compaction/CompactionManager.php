@@ -39,7 +39,6 @@ class CompactionManager implements CompactionManagerInterface {
     $limit = $this->configFactory->get('multiversion.settings')->get('compaction_batch_size');
 
     foreach ($this->entityManager->getDefinitions() as $entity_type_id => $entity_type) {
-      // @todo: Figure out how to detect content entity types here.
       if ($this->multiversionManager->isSupportedEntityType($entity_type)) {
         // Query deleted entities.
         $ids = $this->queryFactory->get($entity_type_id)
