@@ -29,23 +29,23 @@ class EntityStorageTest extends MultiversionWebTestBase {
     ),
   );
 
-  public function testSave() {
-    foreach ($this->entityTypes as $entity_type_id => $info) {
-      $entity = entity_create($entity_type_id);
-      $return = $entity->save();
-      $this->assertEqual($return, SAVED_NEW, "$entity_type_id was saved.");
-    }
-  }
-
-  public function testLoad() {
+  public function testSaveAndLoad() {
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $ids = array();
       $entity = entity_create($entity_type_id);
-      $entity->save();
-      $ids[] = $entity->id();
+      $return = $entity->save();
+      $this->assertEqual($return, SAVED_NEW, "$entity_type_id was saved.");
 
-      $entity = entity_load($entity_type_id, $ids[0]);
-      $this->assertEqual($ids[0], $entity->id(), "Single $entity_type_id was loaded.");
+      $ids[] = $entity->id();
+      $loaded = entity_load($entity_type_id, $ids[0]);
+      $this->assertEqual($ids[0], $loaded->id(), "Single $entity_type_id was loaded.");
+
+      // Update and save a new revision.
+      $entity->name->value = $this->randomMachineName();
+      $entity->save();
+      /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
+      $revision = entity_revision_load($entity_type_id, 1);
+      $this->assertTrue(($revision->getRevisionId() == 1 && !$revision->isDefaultRevision()), "Old revision of $entity_type_id was loaded.");
 
       $entity = entity_create($entity_type_id);
       $entity->save();
@@ -61,6 +61,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $entity = entity_create($entity_type_id);
       $entity->save();
       $id = $entity->id();
+      $revision_id = $entity->getRevisionId();
       entity_delete_multiple($entity_type_id, array($id));
 
       $record = db_select($info['revision_table'], 'e')
@@ -73,16 +74,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertEqual($record->_deleted, '1', "Deleted $entity_type_id is still stored but flagged as deleted");
       $entity = entity_load($entity_type_id, $id);
       $this->assertTrue(empty($entity), "Deleted $entity_type_id did not load with entity_load() function.");
-    }
-  }
-
-  public function testLoadDeleted() {
-    foreach ($this->entityTypes as $entity_type_id => $info) {
-      $entity = entity_create($entity_type_id);
-      $entity->save();
-      $id = $entity->id();
-      $revision_id = $entity->getRevisionId();
-      entity_delete_multiple($entity_type_id, array($id));
 
       $entity = entity_load_deleted($entity_type_id, $id);
       $this->assertTrue(!empty($entity), "Deleted $entity_type_id loaded with entity_load_deleted() function.");
@@ -92,4 +83,5 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertTrue(!empty($entities), "Deleted $entity_type_id loaded with entity_load_multiple_deleted() function.");
     }
   }
+
 }
