@@ -3,6 +3,7 @@
 namespace Drupal\multiversion;
 
 use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 
 interface MultiversionManagerInterface {
 
@@ -13,6 +14,8 @@ interface MultiversionManagerInterface {
   public function getActiveWorkspaceName();
 
   public function setActiveWorkspaceName($workspace_name);
+
+  public function isSupportedEntityType(EntityTypeInterface $entity_type);
 
   public function newSequenceId();
 

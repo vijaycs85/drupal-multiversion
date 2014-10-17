@@ -36,8 +36,10 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     parent::setUp();
 
     $this->multiversionManager = $this->container->get('multiversion.manager');
+    $this->entityManager = $this->container->get('entity.manager');
+    $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
 
-    $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager')
-      ->applyUpdates();
+    $this->entityManager->clearCachedDefinitions();
+    $this->entityDefinitionUpdateManager->applyUpdates();
   }
 }
