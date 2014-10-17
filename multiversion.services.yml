@@ -1,7 +1,7 @@
 services:
   entity.compaction.manager:
     class: Drupal\multiversion\Entity\Compaction\CompactionManager
-    arguments: ['@config.factory', '@entity.manager', '@entity.query']
+    arguments: ['@config.factory', '@entity.manager', '@multiversion.manager', '@entity.query']
   entity.sequence_index:
     class: Drupal\multiversion\Entity\SequenceIndex
     arguments: ['@keyvalue.sorted_set', '@multiversion.manager']

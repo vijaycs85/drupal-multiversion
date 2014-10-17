@@ -20,6 +20,13 @@ class UuidIndexHooksTest extends MultiversionWebTestBase {
 
     entity_delete_multiple('entity_test', array($entity->id()));
     $keys = $this->uuidIndex->get($entity->uuid());
-    $this->assertTrue(empty($keys), 'Index entry was deleted by delete hook.');
+    $this->assertTrue(!empty($keys), 'Index entry should not be removed when an entity is deleted.');
+
+    /** @var \Drupal\multiversion\Entity\Compaction\CompactionManagerInterface $compaction */
+    $compaction = \Drupal::service('entity.compaction.manager');
+    $compaction->compact();
+
+    $keys = $this->uuidIndex->get($entity->uuid());
+    $this->assertTrue(empty($keys), 'Index entry was removed when an entity was purged.');
   }
 }
