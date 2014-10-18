@@ -3,9 +3,7 @@
 namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\Entity;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\multiversion\Entity\WorkspaceInterface;
 
 /**
  * The workspace entity class.

@@ -1,16 +1,10 @@
 <?php
 
-namespace Drupal\multiversion\Entity;
+namespace Drupal\multiversion\Entity\Storage;
 
 use Drupal\Core\Entity\EntityStorageInterface;
-use Drupal\multiversion\Entity\Transaction\TransactionManagerInterface;
 
 interface ContentEntityStorageInterface extends EntityStorageInterface {
-
-  /**
-   * @return \Drupal\multiversion\Entity\Transaction\TransactionManagerInterface
-   */
-  public function getTransactionManager();
 
   /**
    * @param integer $id

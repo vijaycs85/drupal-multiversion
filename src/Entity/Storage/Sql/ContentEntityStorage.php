@@ -1,16 +1,18 @@
 <?php
 
-namespace Drupal\multiversion\Entity;
+namespace Drupal\multiversion\Entity\Storage\Sql;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Entity\Sql\SqlContentEntityStorage as CoreSqlContentEntityStorage;
+use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
 use Drupal\multiversion\Entity\Transaction\TransactionManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class SqlContentEntityStorage extends CoreSqlContentEntityStorage implements ContentEntityStorageInterface {
+class ContentEntityStorage extends SqlContentEntityStorage implements ContentEntityStorageInterface {
 
   use ContentEntityStorageTrait;
 

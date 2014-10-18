@@ -18,7 +18,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
     'entity_test' => array(
       'revision_table' => 'entity_test_revision',
     ),
-    'entity_test_rev' => array(
+    /*'entity_test_rev' => array(
       'revision_table' => 'entity_test_rev_revision',
     ),
     'entity_test_mul' => array(
@@ -26,7 +26,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
     ),
     'entity_test_mulrev' => array(
       'revision_table' => 'entity_test_mulrev_property_revision',
-    ),
+    ),*/
   );
 
   public function testSaveAndLoad() {

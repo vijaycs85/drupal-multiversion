@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\multiversion\Entity;
+namespace Drupal\multiversion\Entity\Storage;
 
 use Drupal\Core\Entity\EntityInterface;
 
