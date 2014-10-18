@@ -61,30 +61,36 @@ abstract class IndexBase implements IndexInterface {
    * @see \Drupal\Core\State\State::getMultiple()
    */
   public function getMultiple(array $keys) {
+    $ws = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
+    // Initialize the cache storage.
+    if (!isset($this->cache[$ws])) {
+      $this->cache[$ws] = array();
+    }
+
     $values = array();
     $load = array();
     foreach ($keys as $key) {
       // Check if we have a value in the cache.
-      if (isset($this->cache[$key])) {
-        $values[$key] = $this->cache[$key];
+      if (isset($this->cache[$ws][$key])) {
+        $values[$key] = $this->cache[$ws][$key];
       }
       // Load the value if we don't have an explicit NULL value.
-      elseif (!array_key_exists($key, $this->cache)) {
+      elseif (!array_key_exists($key, $this->cache[$ws])) {
         $load[] = $key;
       }
     }
 
     if ($load) {
-      $loaded_values = $this->keyValueStore()->getMultiple($load);
+      $loaded_values = $this->keyValueStore($ws)->getMultiple($load);
       foreach ($load as $key) {
         // If we find a value, even one that is NULL, add it to the cache and
         // return it.
         if (isset($loaded_values[$key]) || array_key_exists($key, $loaded_values)) {
           $values[$key] = $loaded_values[$key];
-          $this->cache[$key] = $loaded_values[$key];
+          $this->cache[$ws][$key] = $loaded_values[$key];
         }
         else {
-          $this->cache[$key] = NULL;
+          $this->cache[$ws][$key] = NULL;
         }
       }
     }
@@ -103,14 +109,15 @@ abstract class IndexBase implements IndexInterface {
    * {@inheritdoc}
    */
   public function addMultiple(array $entities) {
+    $ws = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
     $values = array();
     foreach ($entities as $entity) {
       $key = $this->buildKey($entity);
       $value = $this->buildValue($entity);
       $values[$key] = $value;
-      $this->cache[$key] = $value;
+      $this->cache[$ws][$key] = $value;
     }
-    $this->keyValueStore()->setMultiple($values);
+    $this->keyValueStore($ws)->setMultiple($values);
   }
 
   /**
@@ -124,25 +131,27 @@ abstract class IndexBase implements IndexInterface {
    * {@inheritdoc}
    */
   public function deleteMultiple(array $keys) {
+    $ws = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
     foreach ($keys as $key) {
-      unset($this->cache[$key]);
+      unset($this->cache[$ws][$key]);
     }
-    $this->keyValueStore()->deleteMultiple($keys);
+    $this->keyValueStore($ws)->deleteMultiple($keys);
   }
 
   /**
    * {@inheritdoc}
    */
   public function deleteAll() {
-    $this->cache = array();
-    $this->keyValueStore()->deleteAll();
+    $ws = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
+    $this->cache[$ws] = array();
+    $this->keyValueStore($ws)->deleteAll();
   }
 
   /**
+   * @param string $workspace_name
    * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
    */
-  protected function keyValueStore() {
-    $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
+  protected function keyValueStore($workspace_name) {
     return $this->keyValueFactory->get(self::COLLECTION_PREFIX . $workspace_name);
   }
 
