@@ -26,6 +26,10 @@ class SequenceIndex implements SequenceIndexInterface {
    */
   protected $multiversionManager;
 
+  /**
+   * @param \Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface $sorted_set_factory
+   * @param \Drupal\multiversion\MultiversionManagerInterface $multiversion_manager
+   */
   public function __construct(KeyValueSortedSetFactoryInterface $sorted_set_factory, MultiversionManagerInterface $multiversion_manager) {
     $this->sortedSetFactory = $sorted_set_factory;
     $this->multiversionManager = $multiversion_manager;
@@ -34,21 +38,6 @@ class SequenceIndex implements SequenceIndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function add(ContentEntityInterface $entity, $conflict = FALSE) {
-    $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
-    $record = $this->buildRecord($entity, $conflict);
-    $sequence_id = $entity->_local_seq->value;
-    $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->add($sequence_id, $record);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getRange($start, $stop = NULL) {
-    $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
-    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getRange($start, $stop);
-  }
-
   public function useWorkspace($name) {
     $this->workspaceName = $name;
     return $this;
@@ -57,11 +46,39 @@ class SequenceIndex implements SequenceIndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function getLastSequenceId() {
-    $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
-    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getMaxScore();
+  public function add(ContentEntityInterface $entity, $conflict = FALSE) {
+    $record = $this->buildRecord($entity, $conflict);
+    $sequence_id = $entity->_local_seq->value;
+    $this->sortedSetStore()->add($sequence_id, $record);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getRange($start, $stop = NULL) {
+    return $this->sortedSetStore()->getRange($start, $stop);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getLastSequenceId() {
+    return $this->sortedSetStore()->getMaxScore();
+  }
+
+  /**
+   * @return \Drupal\key_value\KeyValueStore\KeyValueStoreSortedSetInterface
+   */
+  protected function sortedSetStore() {
+    $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
+    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name);
+  }
+
+  /**
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
+   * @param $conflict
+   * @return array
+   */
   protected function buildRecord(ContentEntityInterface $entity, $conflict) {
     return array(
       'local_seq' => $entity->_local_seq->value,

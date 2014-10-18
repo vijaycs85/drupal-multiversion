@@ -8,12 +8,18 @@ use Drupal\multiversion\Entity\Index\RevisionIndexInterface;
 
 class RevisionIndex extends IndexBase implements RevisionIndexInterface {
 
-  const COLLECTION_NAME = 'entity_rev_index';
+  const COLLECTION_PREFIX = 'entity_rev_index:';
 
+  /**
+   * {@inheritdoc}
+   */
   protected function buildKey(EntityInterface $entity) {
     return $entity->uuid() . ':' . $entity->_revs_info->rev;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function buildValue(EntityInterface $entity) {
     return array(
       'entity_type' => $entity->getEntityTypeId(),

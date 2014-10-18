@@ -4,16 +4,26 @@ namespace Drupal\multiversion\Entity\Index;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
-use Drupal\multiversion\Entity\Index\IndexInterface;
+use Drupal\multiversion\MultiversionManagerInterface;
 
 abstract class IndexBase implements IndexInterface {
 
-  const COLLECTION_NAME = 'entity_index';
+  const COLLECTION_PREFIX = 'entity_index:';
 
   /**
-   * @var \Drupal\Core\KeyValueStore\KeyValueStoreInterface
+   * @var \Drupal\Core\KeyValueStore\KeyValueFactoryInterface
    */
-  protected $keyValueStore;
+  protected $keyValueFactory;
+
+  /**
+   * @var \Drupal\multiversion\MultiversionManagerInterface
+   */
+  protected $multiversionManager;
+
+  /**
+   * @var string
+   */
+  protected $workspaceName;
 
   /**
    * @var array
@@ -21,10 +31,20 @@ abstract class IndexBase implements IndexInterface {
   protected $cache = array();
 
   /**
+   * @param \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $key_value_factory
+   * @param \Drupal\multiversion\MultiversionManagerInterface $multiversion_manager
+   */
+  function __construct(KeyValueFactoryInterface $key_value_factory, MultiversionManagerInterface $multiversion_manager) {
+    $this->keyValueFactory = $key_value_factory;
+    $this->multiversionManager = $multiversion_manager;
+  }
+
+  /**
    * {@inheritdoc}
    */
-  function __construct(KeyValueFactoryInterface $key_value_factory) {
-    $this->keyValueStore = $key_value_factory->get(self::COLLECTION_NAME);
+  public function useWorkspace($name) {
+    $this->workspaceName = $name;
+    return $this;
   }
 
   /**
@@ -55,7 +75,7 @@ abstract class IndexBase implements IndexInterface {
     }
 
     if ($load) {
-      $loaded_values = $this->keyValueStore->getMultiple($load);
+      $loaded_values = $this->keyValueStore()->getMultiple($load);
       foreach ($load as $key) {
         // If we find a value, even one that is NULL, add it to the cache and
         // return it.
@@ -90,7 +110,7 @@ abstract class IndexBase implements IndexInterface {
       $values[$key] = $value;
       $this->cache[$key] = $value;
     }
-    $this->keyValueStore->setMultiple($values);
+    $this->keyValueStore()->setMultiple($values);
   }
 
   /**
@@ -107,7 +127,7 @@ abstract class IndexBase implements IndexInterface {
     foreach ($keys as $key) {
       unset($this->cache[$key]);
     }
-    $this->keyValueStore->deleteMultiple($keys);
+    $this->keyValueStore()->deleteMultiple($keys);
   }
 
   /**
@@ -115,11 +135,27 @@ abstract class IndexBase implements IndexInterface {
    */
   public function deleteAll() {
     $this->cache = array();
-    $this->keyValueStore->deleteAll();
+    $this->keyValueStore()->deleteAll();
   }
 
+  /**
+   * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
+   */
+  protected function keyValueStore() {
+    $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
+    return $this->keyValueFactory->get(self::COLLECTION_PREFIX . $workspace_name);
+  }
+
+  /**
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @return string
+   */
   abstract protected function buildKey(EntityInterface $entity);
 
+  /**
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @return mixed
+   */
   abstract protected function buildValue(EntityInterface $entity);
 
 }

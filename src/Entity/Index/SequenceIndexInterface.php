@@ -7,6 +7,12 @@ use Drupal\Core\Entity\ContentEntityInterface;
 interface SequenceIndexInterface {
 
   /**
+   * @param $name
+   * @return \Drupal\multiversion\Entity\SequenceIndex
+   */
+  public function useWorkspace($name);
+
+  /**
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    * @param boolean $conflict
    */
@@ -19,8 +25,6 @@ interface SequenceIndexInterface {
    * @return array
    */
   public function getRange($start, $stop = NULL);
-
-  public function useWorkspace($name);
 
   /**
    * @return float

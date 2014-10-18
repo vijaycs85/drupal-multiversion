@@ -18,7 +18,7 @@ interface IndexInterface {
    *
    * @return array
    */
-  public function getMultiple(array $uuids);
+  public function getMultiple(array $keys);
 
   /**
    * @param \Drupal\Core\Entity\EntityInterface $entity

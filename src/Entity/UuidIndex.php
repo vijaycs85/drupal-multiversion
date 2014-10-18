@@ -7,12 +7,18 @@ use Drupal\multiversion\Entity\Index\IndexBase;
 
 class UuidIndex extends IndexBase {
 
-  const COLLECTION_NAME = 'entity_uuid_index';
+  const COLLECTION_PREFIX = 'entity_uuid_index:';
 
+  /**
+   * {@inheritdoc}
+   */
   protected function buildKey(EntityInterface $entity) {
     return $entity->uuid();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   protected function buildValue(EntityInterface $entity) {
     // @todo: Rename 'entity_type' to 'entity_type_id' for consistency.
     return array(

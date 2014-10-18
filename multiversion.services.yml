@@ -10,10 +10,10 @@ services:
     arguments: ['@keyvalue.sorted_set', '@multiversion.manager']
   entity.uuid_index:
     class: Drupal\multiversion\Entity\UuidIndex
-    arguments: ['@keyvalue']
+    arguments: ['@keyvalue', '@multiversion.manager']
   entity.rev_index:
     class: Drupal\multiversion\Entity\RevisionIndex
-    arguments: ['@keyvalue']
+    arguments: ['@keyvalue', '@multiversion.manager']
   entity.query.sql.multiversion:
     class: Drupal\multiversion\Entity\Query\Sql\QueryFactory
     arguments: ['@database']
