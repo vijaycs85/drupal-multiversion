@@ -2,9 +2,6 @@
 
 namespace Drupal\multiversion\Tests;
 
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Component\Utility\String;
-
 /**
  * Test the entity sequence functionality.
  *
@@ -23,6 +20,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
   }
 
   public function testRecord() {
+    /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
     $entity = entity_create('entity_test_rev');
     // We don't want to save the entity and trigger the hooks in the storage
     // controller. We just want to test the sequence storage here, so we mock
@@ -46,13 +44,13 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $entity->_local->value = $expected['local'];
     $entity->_revs_info->rev = $expected['rev'];
 
-    $this->sequenceIndex->add($entity, $expected['parent_revision_id']);
+    $this->sequenceIndex->add($entity);
 
     $values = $this->sequenceIndex->getRange(0);
     $this->assertEqual(count($values), 1, 'One index entry was added.');
 
     foreach ($expected as $key => $value) {
-      $this->assertIdentical($values[0][$key], $value, String::format('Index entry key !key have value !value', array('!key' => $key, '!value' => $value)));
+      $this->assertIdentical($values[0][$key], $value, "Index entry key $key have value $value");
     }
 
     $entity = entity_create('entity_test_rev');
@@ -60,7 +58,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     entity_create('workspace', array('name' => $workspace_name));
     // Generate a new sequence ID.
     $entity->_local_seq->value = $this->multiversionManager->newSequenceId();
-    $this->sequenceIndex->useWorkspace($workspace_name)->add($entity, 0);
+    $this->sequenceIndex->useWorkspace($workspace_name)->add($entity);
 
     $values = $this->sequenceIndex->getRange(0);
     $this->assertEqual(count($values), 1, 'One index entry was added to the new workspace.');

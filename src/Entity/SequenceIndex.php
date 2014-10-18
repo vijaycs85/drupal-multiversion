@@ -34,9 +34,9 @@ class SequenceIndex implements SequenceIndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function add(ContentEntityInterface $entity, $parent_revision_id, $conflict = FALSE) {
+  public function add(ContentEntityInterface $entity, $conflict = FALSE) {
     $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
-    $record = $this->buildRecord($entity, $parent_revision_id, $conflict);
+    $record = $this->buildRecord($entity, $conflict);
     $sequence_id = $entity->_local_seq->value;
     $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->add($sequence_id, $record);
   }
@@ -62,14 +62,14 @@ class SequenceIndex implements SequenceIndexInterface {
     return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name)->getMaxScore();
   }
 
-  protected function buildRecord(ContentEntityInterface $entity, $parent_revision_id, $conflict) {
+  protected function buildRecord(ContentEntityInterface $entity, $conflict) {
     return array(
       'local_seq' => $entity->_local_seq->value,
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'entity_uuid' => $entity->uuid(),
       'revision_id' => $entity->getRevisionId(),
-      'parent_revision_id' => $parent_revision_id,
+      'parent_revision_id' => ($entity->_revs_info->count() > 1) ? $entity->_revs_info[1]->rev : 0,
       'deleted' => $entity->_deleted->value,
       'conflict' => $conflict,
       'local' => $entity->_local->value,

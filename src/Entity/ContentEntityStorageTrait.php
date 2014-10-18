@@ -58,12 +58,10 @@ trait ContentEntityStorageTrait {
     if ($entity_type->get('local')) {
       $entity->_local->value = TRUE;
     }
-    // Get the revision ID of the unchanged entity.
-    $parent_revision_id = $entity->getRevisionId();
     // Run the normal save method.
     $return = parent::save($entity);
     // Index the event.
-    \Drupal::service('entity.sequence_index')->add($entity, $parent_revision_id);
+    \Drupal::service('entity.sequence_index')->add($entity);
     \Drupal::service('entity.rev_index')->add($entity);
     return $return;
   }

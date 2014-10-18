@@ -25,10 +25,9 @@ interface TransactionManagerInterface {
    * Stages an entity for commit.
    *
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   * @param integer $parent_revision_id
    * @return \Drupal\multiversion\Entity\Transaction\TransactionManagerInterface
    */
-  public function stage(ContentEntityInterface $entity, $parent_revision_id);
+  public function stage(ContentEntityInterface $entity);
 
   /**
    * Commits all stacked entities to the sequence index.

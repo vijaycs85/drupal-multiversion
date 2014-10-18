@@ -3,7 +3,8 @@
 namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
+use Drupal\multiversion\Entity\Index\IndexBase;
+use Drupal\multiversion\Entity\Index\RevisionIndexInterface;
 
 class RevisionIndex extends IndexBase implements RevisionIndexInterface {
 

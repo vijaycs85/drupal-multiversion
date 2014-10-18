@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\multiversion\Entity;
+namespace Drupal\multiversion\Entity\Index;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;

@@ -6,11 +6,10 @@ use Drupal\Component\Utility\String;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\multiversion\Entity\Exception\ConflictException;
-use Drupal\multiversion\Entity\Index\HeadIndexInterface;
 use Drupal\multiversion\Entity\Index\RevisionIndexInterface;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 
-class TranscationManager implements TransactionManagerInterface {
+class TransactionManager implements TransactionManagerInterface {
 
   /**
    * @var \Drupal\Core\Entity\EntityManagerInterface 
@@ -26,11 +25,6 @@ class TranscationManager implements TransactionManagerInterface {
    * @var \Drupal\multiversion\Entity\Index\RevisionIndexInterface
    */
   protected $revIndex;
-
-  /**
-   * @var \Drupal\multiversion\Entity\Index\HeadIndexInterface
-   */
-  protected $headIndex;
 
   /**
    * @var \Drupal\Core\Entity\ContentEntityInterface[]
@@ -51,13 +45,11 @@ class TranscationManager implements TransactionManagerInterface {
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    * @param \Drupal\multiversion\Entity\Index\SequenceIndexInterface $seq_index
    * @param \Drupal\multiversion\Entity\Index\RevisionIndexInterface $rev_index
-   * @param \Drupal\multiversion\Entity\Index\HeadIndexInterface $head_index
    */
-  public function __construct(EntityManagerInterface $entity_manager, SequenceIndexInterface $seq_index, RevisionIndexInterface $rev_index, HeadIndexInterface $head_index) {
+  public function __construct(EntityManagerInterface $entity_manager, SequenceIndexInterface $seq_index, RevisionIndexInterface $rev_index) {
     $this->entityManager = $entity_manager;
-    $this->seqIndex = $sequence_index;
+    $this->seqIndex = $seq_index;
     $this->revIndex = $rev_index;
-    $this->headIndex = $head_index;
   }
 
   /**
@@ -103,7 +95,6 @@ class TranscationManager implements TransactionManagerInterface {
     foreach ($this->stack as $entity) {
       $this->seqIndex->add($entity);
       $this->revIndex->add($entity);
-      $this->headIndex->add($entity);
     }
   }
 

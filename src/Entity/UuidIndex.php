@@ -3,6 +3,7 @@
 namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\multiversion\Entity\Index\IndexBase;
 
 class UuidIndex extends IndexBase {
 
