@@ -6,6 +6,14 @@ use Drupal\Core\Entity\EntityStorageInterface;
 
 interface ContentEntityStorageInterface extends EntityStorageInterface {
 
+  const STATUS_MISSING = 0;
+
+  const STATUS_IN_TRANSACTION = 1;
+
+  const STATUS_AVAILABLE = 2;
+
+  const STATUS_DELETED = 3;
+
   /**
    * @param integer $id
    * @return \Drupal\Core\Entity\ContentEntityInterface|null

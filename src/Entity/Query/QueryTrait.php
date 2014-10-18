@@ -2,23 +2,28 @@
 
 namespace Drupal\multiversion\Entity\Query;
 
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
+
 trait QueryTrait {
 
-  protected $isDeleted = FALSE;
+  /**
+   * @var int
+   */
+  protected $storageStatus = NULL;
 
   public function isDeleted() {
-    $this->isDeleted = TRUE;
+    $this->storageStatus = ContentEntityStorageInterface::STATUS_DELETED;
     return $this;
   }
 
   public function isNotDeleted() {
-    $this->isDeleted = FALSE;
+    $this->storageStatus = ContentEntityStorageInterface::STATUS_AVAILABLE;
     return $this;
   }
 
   public function prepare() {
     parent::prepare();
-    $this->condition('_deleted', (string) $this->isDeleted);
+    $this->condition('_status', $this->storageStatus ?: ContentEntityStorageInterface::STATUS_AVAILABLE);
     return $this;
   }
 

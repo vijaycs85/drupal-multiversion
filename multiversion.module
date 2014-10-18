@@ -5,6 +5,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\multiversion\Entity\SqlContentEntityStorage;
 
@@ -45,17 +46,10 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
 
   if ($manager->isSupportedEntityType($entity_type)) {
     $fields = array();
-    $fields['_deleted'] = BaseFieldDefinition::create('boolean')
-      ->setLabel('Deleted flag')
-      ->setDescription('Indicates if the entity is flagged as deleted or not.')
-      ->setRevisionable(TRUE)
-      ->setTranslatable(TRUE)
-      ->setDefaultValue(FALSE)
-      ->setCardinality(1);
 
     $fields['_local'] = BaseFieldDefinition::create('boolean')
       ->setLabel('Local flag')
-      ->setDescription('Indicates if this entity is local and not intended to be moved to other environments.')
+      ->setDescription('Indicates if this entity is local and not intended to be replicated to other environments.')
       ->setRevisionable(FALSE)
       ->setTranslatable(FALSE)
       ->setDefaultValue(FALSE)
@@ -63,7 +57,7 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
 
     $fields['_local_seq'] = BaseFieldDefinition::create('local_sequence')
       ->setLabel('Local sequence ID')
-      ->setDescription('The local sequence ID of the entity.')
+      ->setDescription('The local sequence ID of the entity revision.')
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
       ->setCardinality(1)
@@ -76,6 +70,16 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setTranslatable(TRUE)
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setReadOnly(TRUE);
+
+    $fields['_status'] = BaseFieldDefinition::create('integer')
+      ->setLabel('Storage status flag')
+      ->setDescription('Indicates the storage status of the entity revision.')
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE)
+      ->setDefaultValue(ContentEntityStorageInterface::STATUS_AVAILABLE)
+      ->setSetting('unsigned', TRUE)
+      ->setSetting('size', 'tiny')
+      ->setCardinality(1);
 
     // This will essentially overwrite the revision field definition but also
     // ensure that entity types that we enabled revisions for get a revision

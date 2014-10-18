@@ -7,6 +7,7 @@ use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Symfony\Component\Serializer\Serializer;
 
 class MultiversionManager implements MultiversionManagerInterface {
@@ -93,7 +94,7 @@ class MultiversionManager implements MultiversionManagerInterface {
   }
 
   public function newRevisionId(ContentEntityInterface $entity, $index = 0) {
-    $deleted = $entity->_deleted->value;
+    $deleted = ($entity->_status->value === ContentEntityStorageInterface::STATUS_DELETED);
     $old_rev = $entity->_revs_info->rev;
     $normalized_entity = $this->serializer->normalize($entity);
     // Remove fields internal to the multiversion system.
@@ -104,10 +105,10 @@ class MultiversionManager implements MultiversionManagerInterface {
     }
     // The terms being serialized are:
     // - deleted
-    // - old sequence ID (TBD)
+    // - old sequence ID (@todo)
     // - old revision hash
     // - normalized entity (without revision info field)
-    // - attachments (TBD)
+    // - attachments (@todo)
     return ($index + 1) . '-' . md5($this->termToBinary(array($deleted, 0, $old_rev, $normalized_entity, array())));
   }
 

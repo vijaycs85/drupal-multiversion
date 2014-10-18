@@ -87,7 +87,7 @@ class SequenceIndex implements SequenceIndexInterface {
       'entity_uuid' => $entity->uuid(),
       'revision_id' => $entity->getRevisionId(),
       'parent_revision_id' => ($entity->_revs_info->count() > 1) ? $entity->_revs_info[1]->rev : 0,
-      'deleted' => $entity->_deleted->value,
+      'status' => $entity->_status->value,
       'conflict' => $conflict,
       'local' => $entity->_local->value,
       'rev' => $entity->_revs_info->rev,

@@ -7,23 +7,15 @@ use Drupal\Core\Entity\EntityInterface;
 trait ContentEntityStorageTrait {
 
   /**
-   * @var boolean
+   * @var int
    */
-  protected $loadDeleted = FALSE;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function load($id) {
-    $this->loadDeleted = FALSE;
-    return parent::load($id);
-  }
+  protected $storageStatus = NULL;
 
   /**
    * {@inheritdoc}
    */
   public function loadMultiple(array $ids = NULL) {
-    $this->loadDeleted = FALSE;
+    $this->storageStatus = ContentEntityStorageInterface::STATUS_AVAILABLE;
     return parent::loadMultiple($ids);
   }
 
@@ -39,16 +31,12 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function loadMultipleDeleted(array $ids = NULL) {
-    $this->loadDeleted = TRUE;
+    $this->storageStatus = ContentEntityStorageInterface::STATUS_DELETED;
     return parent::loadMultiple($ids);
   }
 
   /**
    * {@inhertidoc}
-   *
-   * @todo Transaction detection.
-   * @todo Consider implementing hook_entity_insert/update for this to make
-   *   the system depend less on this storage controller.
    */
   public function save(EntityInterface $entity) {
     // Force new revision.
@@ -79,10 +67,10 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function delete(array $entities) {
-    // Deleting an entity is simply a matter of setting the deleted flag and
-    // saving a new revision.
+    // Deleting an entity is simply a matter of updating the storage status flag
+    // and saving a new revision.
     foreach ($entities as $entity) {
-      $entity->_deleted->value = '1';
+      $entity->_status->value = ContentEntityStorageInterface::STATUS_DELETED;
       $this->save($entity);
     }
   }

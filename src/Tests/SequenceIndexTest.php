@@ -2,6 +2,8 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
+
 /**
  * Test the entity sequence functionality.
  *
@@ -32,14 +34,14 @@ class SequenceIndexTest extends MultiversionWebTestBase {
       'entity_uuid' => $entity->uuid(),
       'revision_id' => 1,
       'parent_revision_id' => 0,
-      'deleted' => FALSE,
+      'status' => ContentEntityStorageInterface::STATUS_DELETED,
       'conflict' => FALSE,
       'local' => FALSE,
       'rev' => FALSE,
     );
     $entity->id->value = $expected['entity_id'];
     $entity->revision_id->value = $expected['revision_id'];
-    $entity->_deleted->value = $expected['deleted'];
+    $entity->_status->value = $expected['status'];
     $entity->_local_seq->value = $expected['local_seq'];
     $entity->_local->value = $expected['local'];
     $entity->_revs_info->rev = $expected['rev'];

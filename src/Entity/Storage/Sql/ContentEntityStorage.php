@@ -76,7 +76,7 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
     else {
       $alias = 'revision';
     }
-    $query->condition("$alias._deleted", $this->loadDeleted ? 1 : 0);
+    $query->condition("$alias._status", $this->storageStatus ?: ContentEntityStorageInterface::STATUS_AVAILABLE);
     return $query;
   }
 

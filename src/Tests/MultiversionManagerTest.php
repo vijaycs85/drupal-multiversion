@@ -2,6 +2,8 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
+
 /**
  * Test the MultiversionManager class.
  *
@@ -56,7 +58,7 @@ class MultiversionManagerTest extends MultiversionWebTestBase {
     $this->assertTrue(count($revs) == count(array_unique($revs)), 'Revision ID varies on entity fields.');
 
     $test_entity = clone $entity;
-    $test_entity->_deleted->value = TRUE;
+    $test_entity->_status->value = ContentEntityStorageInterface::STATUS_DELETED;
     $revs[] = $this->multiversionManager->newRevisionId($test_entity, 0);
     $this->assertTrue(count($revs) == count(array_unique($revs)), 'Revision ID varies on deleted flag.');
   }
