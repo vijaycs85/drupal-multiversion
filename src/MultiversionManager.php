@@ -11,6 +11,8 @@ use Symfony\Component\Serializer\Serializer;
 
 class MultiversionManager implements MultiversionManagerInterface {
 
+  const DEFAULT_WORKSPACE_NAME = 'default';
+
   /**
    * @var \Drupal\Core\Entity\EntityManagerInterface
    */
@@ -24,7 +26,7 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * @var string
    */
-  protected $activeWorkspace = 'default';
+  protected $activeWorkspaceName;
 
   /**
    * Entity types that Multiversion won't support.
@@ -60,37 +62,15 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public static function requiredWorkspaceDefinitions() {
-    $definitions['default'] = array();
-    return $definitions;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function ensureRequiredRepositories() {
-    $definitions = self::requiredWorkspaceDefinitions();
-    $storage = $this->entityManager->getStorage('workspace');
-
-    foreach ($definitions as $workspace_name => $values) {
-      $values['name'] = $workspace_name;
-      $workspace = $storage->create($values);
-      $workspace->save();
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getActiveWorkspaceName() {
-    return $this->activeWorkspace;
+    return $this->activeWorkspaceName ?: self::DEFAULT_WORKSPACE_NAME;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setActiveWorkspaceName($workspace_name) {
-    return $this->activeWorkspace = $workspace_name;
+    return $this->activeWorkspaceName = $workspace_name;
   }
 
   public function newSequenceId() {

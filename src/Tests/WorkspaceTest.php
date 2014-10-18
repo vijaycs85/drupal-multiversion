@@ -14,12 +14,9 @@ class WorkspaceTest extends WebTestBase {
 
   public static $modules = array('multiversion');
 
-  protected function setUp() {
-    parent::setUp();
-    //$this->assertTrue(db_table_exists('workspace'), 'Workspace storage table was created during install.');
-  }
-
   public function testOperations() {
+    $default = entity_load('workspace', 'default');
+    $this->assertTrue(!empty($default), 'Default workspace was created when installing Multiversion module.');
     $id = $this->randomMachineName();
     $entity = entity_create('workspace', array('id' => $id));
 

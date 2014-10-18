@@ -30,12 +30,6 @@ class MultiversionManagerTest extends MultiversionWebTestBase {
     $this->assertTrue(preg_match('/' . $index . '\-' . self::REVISION_HASH_REGEX . '/', $value), $message);
   }
 
-  public function testRequiredFields() {
-    $entity = entity_create('entity_test_rev');
-    $this->assertTrue(isset($entity->_deleted), 'Deleted flag field was attached');
-    $this->assertTrue(isset($entity->_revs_info), 'Revision info field was attached');
-  }
-
   public function testRevisionIdGeneration() {
     $entity = entity_create('entity_test_rev');
     $first_rev = $this->multiversionManager->newRevisionId($entity, 0);
