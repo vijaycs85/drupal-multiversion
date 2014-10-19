@@ -39,11 +39,9 @@ trait ContentEntityStorageTrait {
    * {@inhertidoc}
    */
   public function save(EntityInterface $entity) {
-    // Force new revision.
-    $entity_type = $entity->getEntityType();
     // Respect if the entity type has defined itself to be local.
-    // @todo Consider moving this logic into the field itself instead.
-    if ($entity_type->get('local')) {
+    // @todo Maybe move this into the field itself or hook_entity_presave().
+    if ($entity->getEntityType()->get('local')) {
       $entity->_local->value = TRUE;
     }
     // Run the normal save method.

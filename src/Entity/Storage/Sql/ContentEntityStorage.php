@@ -53,10 +53,6 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
     return 'entity.query.sql.multiversion';
   }
 
-  public function getTransactionManager() {
-    return $this->transactionManager;
-  }
-
   /**
    * {@inheritdoc}
    */
