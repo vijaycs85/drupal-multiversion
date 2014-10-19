@@ -2,49 +2,13 @@
 
 namespace Drupal\multiversion\Entity\Storage\Sql;
 
-use Drupal\Core\Cache\CacheBackendInterface;
-use Drupal\Core\Database\Connection;
-use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
-use Drupal\multiversion\Entity\Transaction\TransactionManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ContentEntityStorage extends SqlContentEntityStorage implements ContentEntityStorageInterface {
 
   use ContentEntityStorageTrait;
-
-  /**
-   * @var \Drupal\multiversion\Entity\Transaction\TransactionManagerInterface
-   */
-  protected $transactionManager;
-
-  /**
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   * @param \Drupal\Core\Database\Connection $database
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   * @param \Drupal\Core\Cache\CacheBackendInterface $cache
-   * @param \Drupal\multiversion\Entity\Transaction\TransactionManagerInterface $transaction_manager
-   */
-  public function __construct(EntityTypeInterface $entity_type, Connection $database, EntityManagerInterface $entity_manager, CacheBackendInterface $cache, TransactionManagerInterface $transaction_manager) {
-    parent::__construct($entity_type, $database, $entity_manager, $cache);
-    $this->transactionManager = $transaction_manager;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function createInstance(ContainerInterface $container, EntityTypeInterface $entity_type) {
-    return new static(
-      $entity_type,
-      $container->get('database'),
-      $container->get('entity.manager'),
-      $container->get('cache.entity'),
-      $container->get('entity.transaction.manager')
-    );
-  }
 
   /**
    * {@inheritdoc}
@@ -58,7 +22,7 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
    */
   protected function buildQuery($ids, $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $revision_id);
-
+    $alias = 'revision';
     if ($this->entityType->isTranslatable()) {
       $table = $this->getRevisionDataTable();
       $alias = 'revision_data';
@@ -69,11 +33,27 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
         $query->join($table, $alias, "$alias.{$this->revisionKey} = revision.{$this->revisionKey}");
       }
     }
-    else {
-      $alias = 'revision';
-    }
     $query->condition("$alias._status", $this->storageStatus ?: ContentEntityStorageInterface::STATUS_AVAILABLE);
     return $query;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateStorageStatus(array $updates) {
+    $table = $this->entityType->isTranslatable()
+      ? $this->getRevisionDataTable()
+      : $this->getRevisionTable();
+
+    // @todo Figure out if we can run one query for all status updates.
+    foreach ($updates as $status => $revision_ids) {
+      $this->database->update($table)
+        ->fields(array(
+          '_status' => $status,
+        ))
+        ->condition($this->entityType->getKey('revision'), $revision_ids)
+        ->execute();
+    }
   }
 
 }

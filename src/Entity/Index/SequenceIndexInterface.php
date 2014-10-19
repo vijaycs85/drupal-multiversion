@@ -14,9 +14,13 @@ interface SequenceIndexInterface {
 
   /**
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   * @param boolean $conflict
    */
-  public function add(ContentEntityInterface $entity, $conflict = FALSE);
+  public function add(ContentEntityInterface $entity);
+
+  /**
+   * @param \Drupal\Core\Entity\ContentEntityInterface[] $entities
+   */
+  public function addMultiple(array $entities);
 
   /**
    * @param float $start

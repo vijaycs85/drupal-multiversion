@@ -17,7 +17,7 @@ class MultiversionException extends \Exception implements MultiversionExceptionI
    * @param int $code
    * @param \Exception $previous
    */
-  public function __construct(EntityInterface $entity, $message = NULL, $code = 0, \Exception $previous = NULL) {
+  public function __construct(EntityInterface $entity = NULL, $message = NULL, $code = 0, \Exception $previous = NULL) {
     $this->entity = $entity;
 
     parent::__construct($message, $code, $previous);

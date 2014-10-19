@@ -32,4 +32,9 @@ interface ContentEntityStorageInterface extends EntityStorageInterface {
    */
   public function purge($entities);
 
+  /**
+   * @param array $updates
+   */
+  public function updateStorageStatus(array $updates);
+
 }

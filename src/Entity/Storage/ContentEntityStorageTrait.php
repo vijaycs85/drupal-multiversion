@@ -3,6 +3,7 @@
 namespace Drupal\multiversion\Entity\Storage;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\multiversion\Entity\Exception\ConflictException;
 
 trait ContentEntityStorageTrait {
 
@@ -36,27 +37,11 @@ trait ContentEntityStorageTrait {
   }
 
   /**
-   * {@inhertidoc}
-   */
-  public function save(EntityInterface $entity) {
-    // Respect if the entity type has defined itself to be local.
-    // @todo Maybe move this into the field itself or hook_entity_presave().
-    if ($entity->getEntityType()->get('local')) {
-      $entity->_local->value = TRUE;
-    }
-    // Run the normal save method.
-    $return = parent::save($entity);
-    // Index the event.
-    \Drupal::service('entity.sequence_index')->add($entity);
-    \Drupal::service('entity.rev_index')->add($entity);
-    return $return;
-  }
-
-  /**
    * {@inheritdoc}
    */
   protected function doSave($id, EntityInterface $entity) {
-    // Force new revision.
+    // Entities are always saved as new revisions when using a Multiversion
+    // storage handler.
     $entity->setNewRevision();
     return parent::doSave($id, $entity);
   }
@@ -65,8 +50,8 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function delete(array $entities) {
-    // Deleting an entity is simply a matter of updating the storage status flag
-    // and saving a new revision.
+    // Entites are always "deleted" as new revisions when using a Multiversion
+    // storage handler.
     foreach ($entities as $entity) {
       $entity->_status->value = ContentEntityStorageInterface::STATUS_DELETED;
       $this->save($entity);
@@ -77,13 +62,16 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function deleteRevision($revision_id) {
-    // Do nothing, by design.
+    throw new ConflictException(NULL, 'Revisions can not be deleted when using a Multiversion storage handler.');
   }
 
   /**
    * {@inheritdoc}
    */
   public function purge($entities) {
+    // Purge equals that of a traditional delete when using a Multiversion
+    // storage handler.
     return parent::delete($entities);
   }
+
 }

@@ -46,10 +46,20 @@ class SequenceIndex implements SequenceIndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function add(ContentEntityInterface $entity, $conflict = FALSE) {
-    $record = $this->buildRecord($entity, $conflict);
-    $sequence_id = $entity->_local_seq->value;
-    $this->sortedSetStore()->add($sequence_id, $record);
+  public function add(ContentEntityInterface $entity) {
+    $this->addMultiple(array($entity));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addMultiple(array $entities) {
+    $pairs = array();
+    foreach ($entities as $entity) {
+      $sequence_id = $entity->_local_seq->value;
+      $pairs[] = array($sequence_id => $this->buildRecord($entity));
+    }
+    $this->sortedSetStore()->addMultiple($pairs);
   }
 
   /**
@@ -76,10 +86,9 @@ class SequenceIndex implements SequenceIndexInterface {
 
   /**
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity
-   * @param $conflict
    * @return array
    */
-  protected function buildRecord(ContentEntityInterface $entity, $conflict) {
+  protected function buildRecord(ContentEntityInterface $entity) {
     return array(
       'local_seq' => $entity->_local_seq->value,
       'entity_type' => $entity->getEntityTypeId(),
@@ -88,7 +97,7 @@ class SequenceIndex implements SequenceIndexInterface {
       'revision_id' => $entity->getRevisionId(),
       'parent_revision_id' => ($entity->_revs_info->count() > 1) ? $entity->_revs_info[1]->rev : 0,
       'status' => $entity->_status->value,
-      'conflict' => $conflict,
+      'conflict' => FALSE, //@todo
       'local' => $entity->_local->value,
       'rev' => $entity->_revs_info->rev,
     );
