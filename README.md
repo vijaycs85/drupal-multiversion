@@ -16,11 +16,11 @@ This module is part of [the content staging suite for D8](https://www.drupal.org
 
 ## Development
 
-Module require following drupal core patches
+Multiversion requires the following Drupal core patches:
 * https://www.drupal.org/node/2335879
 * https://www.drupal.org/node/2342543
 * https://www.drupal.org/node/1869548
 
-There is a drupal core fork with these patches being applied so you can use it
+There is a Drupal core fork with these patches being applied so you can use it
 for development of this module (see .travis.yml).
 git clone --depth 1 --branch 2335879-2342543-1869548 https://github.com/dickolsson/drupal-core.git
