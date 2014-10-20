@@ -14,9 +14,20 @@ class UuidIndex extends IndexBase {
 
   protected function buildValue(EntityInterface $entity) {
     // @todo: Rename 'entity_type' to 'entity_type_id' for consistency.
-    return array(
+    $value = array(
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
     );
+
+    /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
+    $manager = \Drupal::service('multiversion.manager');
+    $entity_type = $entity->getEntityType();
+    if ($manager->isSupportedEntityType($entity_type)) {
+      $value['rev'] = $entity->_revs_info->rev;
+      $value['revision_id'] = $entity->getRevisionId();
+      $value['local_seq'] = $entity->_local_seq->value;
+    }
+
+    return $value;
   }
 }
