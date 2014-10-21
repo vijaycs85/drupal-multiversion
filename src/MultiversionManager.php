@@ -49,6 +49,7 @@ class MultiversionManager implements MultiversionManagerInterface {
    */
   protected $entityTypeToDo = array(
     'user',
+    'file',
   );
 
   public function __construct(EntityManagerInterface $entity_manager, Serializer $serializer) {
