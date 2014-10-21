@@ -14,7 +14,7 @@ class UuidIndex extends IndexBase {
 
   protected function buildValue(EntityInterface $entity) {
     // @todo: Rename 'entity_type' to 'entity_type_id' for consistency.
-    return $value = array(
+    return array(
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'revision_id' => $entity->getRevisionId(),
