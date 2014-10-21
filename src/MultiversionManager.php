@@ -38,6 +38,7 @@ class MultiversionManager implements MultiversionManagerInterface {
   protected $entityTypeBlackList = array(
     'entity_test_no_id',
     'entity_test_base_field_display',
+    'shortcut',
   );
 
   /**

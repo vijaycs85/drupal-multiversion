@@ -101,19 +101,37 @@ function multiversion_cron() {
 }
 
 /**
+ * Implements hook_entity_presave().
+ */
+function multiversion_entity_presave(EntityInterface $entity) {
+  if ($entity->getEntityType()->get('local')) {
+    $entity->_local->value = TRUE;
+  }
+}
+
+/**
  * Implements hook_entity_insert().
  */
 function multiversion_entity_insert(EntityInterface $entity) {
-  if ($entity->uuid()) {
+  $manager = \Drupal::service('multiversion.manager');
+  if ($entity->uuid() && $manager->isSupportedEntityType($entity->getEntityType())) {
     \Drupal::service('entity.uuid_index')->add($entity);
   }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function multiversion_entity_update(EntityInterface $entity) {
+  multiversion_entity_insert($entity);
 }
 
 /**
  * Implements hook_entity_delete().
  */
 function multiversion_entity_delete(EntityInterface $entity) {
-  if ($entity->uuid()) {
+  $manager = \Drupal::service('multiversion.manager');
+  if ($entity->uuid() && $manager->isSupportedEntityType($entity->getEntityType())) {
     \Drupal::service('entity.uuid_index')->delete($entity->uuid());
   }
 }
