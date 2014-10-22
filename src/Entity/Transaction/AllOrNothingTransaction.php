@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\multiversion\Entity\Transaction\Mode;
+namespace Drupal\multiversion\Entity\Transaction;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
@@ -11,7 +11,7 @@ class AllOrNothingTransaction extends TransactionBase {
   /**
    * @var array
    */
-  protected $statuses;
+  protected $statuses = array();
 
   /**
    * {@inheritdoc}
@@ -20,7 +20,10 @@ class AllOrNothingTransaction extends TransactionBase {
     $original_status = $entity->_status->value;
     $entity->_status->value = ContentEntityStorageInterface::STATUS_IN_TRANSACTION;
     $return = $this->storage->save($entity);
-    $this->statuses[$entity->getRevisionId()] = $original_status;
+    if (!isset($this->statuses[$original_status])) {
+      $this->statuses[$original_status] = array();
+    }
+    $this->statuses[$original_status][] = $entity->getRevisionId();
     return $return;
   }
 
@@ -29,6 +32,8 @@ class AllOrNothingTransaction extends TransactionBase {
    */
   public function commit() {
     $this->storage->updateStorageStatus($this->statuses);
+    // Flush all logged statuses.
+    $this->statuses = array();
   }
 
 }

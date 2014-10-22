@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\multiversion\Entity\Transaction\Mode;
+namespace Drupal\multiversion\Entity\Transaction;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\multiversion\Entity\Transaction\TransactionBase;
