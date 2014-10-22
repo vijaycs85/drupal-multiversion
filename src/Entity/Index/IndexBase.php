@@ -8,7 +8,10 @@ use Drupal\multiversion\MultiversionManagerInterface;
 
 abstract class IndexBase implements IndexInterface {
 
-  const COLLECTION_PREFIX = 'entity_index:';
+  /**
+   * @var string
+   */
+  protected $collection_prefix = 'entity.index.';
 
   /**
    * @var \Drupal\Core\KeyValueStore\KeyValueFactoryInterface
@@ -152,7 +155,7 @@ abstract class IndexBase implements IndexInterface {
    * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
    */
   protected function keyValueStore($workspace_name) {
-    return $this->keyValueFactory->get(self::COLLECTION_PREFIX . $workspace_name);
+    return $this->keyValueFactory->get($this->collection_prefix . $workspace_name);
   }
 
   /**

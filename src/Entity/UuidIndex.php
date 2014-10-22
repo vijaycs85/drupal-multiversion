@@ -7,7 +7,10 @@ use Drupal\multiversion\Entity\Index\IndexBase;
 
 class UuidIndex extends IndexBase {
 
-  const COLLECTION_PREFIX = 'entity_uuid_index:';
+  /**
+   * @var string
+   */
+  protected $collection_prefix = 'entity.index.uuid.';
 
   /**
    * {@inheritdoc}

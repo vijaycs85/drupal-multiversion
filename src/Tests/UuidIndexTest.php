@@ -76,7 +76,10 @@ class UuidIndexTest extends MultiversionWebTestBase {
       ->get($entity->uuid());
     $expected = array(
       'entity_type' => $entity->getEntityTypeId(),
-      'entity_id' => $entity->id()
+      'entity_id' => $entity->id(),
+      'revision_id' => $entity->getRevisionId(),
+      'local_seq' => $entity->_local_seq->value,
+      'rev' => $entity->_revs_info->rev,
     );
     $this->assertIdentical($entry, $expected, 'Entry was added and fetched from new workspace.');
   }

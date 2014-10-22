@@ -8,7 +8,10 @@ use Drupal\multiversion\Entity\Index\RevisionIndexInterface;
 
 class RevisionIndex extends IndexBase implements RevisionIndexInterface {
 
-  const COLLECTION_PREFIX = 'entity_rev_index:';
+  /**
+   * @var string
+   */
+  protected $collection_prefix = 'entity.index.rev.';
 
   /**
    * {@inheritdoc}
