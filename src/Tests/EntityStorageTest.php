@@ -73,7 +73,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
         ->execute()
         ->fetchObject();
 
-      $this->assertEqual($record->_status, ContentEntityStorageInterface::STATUS_DELETED, "Deleted $entity_type_id is still stored but flagged as deleted");
+      $this->assertEqual($record->_deleted, 1, "Deleted $entity_type_id is still stored but flagged as deleted");
       $entity = entity_load($entity_type_id, $id);
       $this->assertTrue(empty($entity), "Deleted $entity_type_id did not load with entity_load() function.");
 

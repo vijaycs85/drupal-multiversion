@@ -16,4 +16,14 @@ interface QueryInterface extends CoreQueryInterface {
    */
   public function isNotDeleted();
 
+  /**
+   * @return \Drupal\multiversion\Entity\Query\QueryInterface
+   */
+  public function isTransacting();
+
+  /**
+   * @return \Drupal\multiversion\Entity\Query\QueryInterface
+   */
+  public function isNotTransacting();
+
 }

@@ -94,7 +94,7 @@ class MultiversionManager implements MultiversionManagerInterface {
   }
 
   public function newRevisionId(ContentEntityInterface $entity, $index = 0) {
-    $deleted = ($entity->_status->value === ContentEntityStorageInterface::STATUS_DELETED);
+    $deleted = $entity->_deleted->value;
     $old_rev = $entity->_revs_info->rev;
     $normalized_entity = $this->serializer->normalize($entity);
     // Remove fields internal to the multiversion system.

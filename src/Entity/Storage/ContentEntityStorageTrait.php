@@ -8,15 +8,15 @@ use Drupal\multiversion\Entity\Exception\ConflictException;
 trait ContentEntityStorageTrait {
 
   /**
-   * @var int
+   * @var boolean
    */
-  protected $storageStatus = NULL;
+  protected $isDeleted = FALSE;
 
   /**
    * {@inheritdoc}
    */
   public function loadMultiple(array $ids = NULL) {
-    $this->storageStatus = ContentEntityStorageInterface::STATUS_AVAILABLE;
+    $this->isDeleted = FALSE;
     return parent::loadMultiple($ids);
   }
 
@@ -32,7 +32,7 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function loadMultipleDeleted(array $ids = NULL) {
-    $this->storageStatus = ContentEntityStorageInterface::STATUS_DELETED;
+    $this->isDeleted = TRUE;
     return parent::loadMultiple($ids);
   }
 
@@ -53,7 +53,7 @@ trait ContentEntityStorageTrait {
     // Entites are always "deleted" as new revisions when using a Multiversion
     // storage handler.
     foreach ($entities as $entity) {
-      $entity->_status->value = ContentEntityStorageInterface::STATUS_DELETED;
+      $entity->_deleted->value = TRUE;
       $this->save($entity);
     }
   }

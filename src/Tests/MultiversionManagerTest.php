@@ -58,7 +58,7 @@ class MultiversionManagerTest extends MultiversionWebTestBase {
     $this->assertTrue(count($revs) == count(array_unique($revs)), 'Revision ID varies on entity fields.');
 
     $test_entity = clone $entity;
-    $test_entity->_status->value = ContentEntityStorageInterface::STATUS_DELETED;
+    $test_entity->_deleted->value = TRUE;
     $revs[] = $this->multiversionManager->newRevisionId($test_entity, 0);
     $this->assertTrue(count($revs) == count(array_unique($revs)), 'Revision ID varies on deleted flag.');
   }

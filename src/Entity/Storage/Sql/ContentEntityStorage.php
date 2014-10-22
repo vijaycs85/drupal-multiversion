@@ -33,27 +33,27 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
         $query->join($table, $alias, "$alias.{$this->revisionKey} = revision.{$this->revisionKey}");
       }
     }
-    $query->condition("$alias._status", $this->storageStatus ?: ContentEntityStorageInterface::STATUS_AVAILABLE);
+    $query->condition("$alias._deleted", (int) $this->isDeleted);
+    // Entities in transaction can only be queried with the Entity Query API
+    // and not by the storage handler itself.
+    $query->condition("$alias._trx", 0);
     return $query;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function updateStorageStatus(array $updates) {
+  public function onTransactionCommit(array $revision_ids) {
     $table = $this->entityType->isTranslatable()
       ? $this->getRevisionDataTable()
       : $this->getRevisionTable();
 
-    // @todo Figure out if we can run one query for all status updates.
-    foreach ($updates as $status => $revision_ids) {
-      $this->database->update($table)
-        ->fields(array(
-          '_status' => $status,
-        ))
-        ->condition($this->entityType->getKey('revision'), $revision_ids)
-        ->execute();
-    }
+    $this->database->update($table)
+      ->fields(array(
+        '_trx' => 0,
+      ))
+      ->condition($this->entityType->getKey('revision'), $revision_ids)
+      ->execute();
   }
 
 }

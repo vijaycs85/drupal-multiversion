@@ -11,19 +11,15 @@ class AllOrNothingTransaction extends TransactionBase {
   /**
    * @var array
    */
-  protected $statuses = array();
+  protected $revisionIds = array();
 
   /**
    * {@inheritdoc}
    */
   public function save(ContentEntityInterface $entity) {
-    $original_status = $entity->_status->value;
-    $entity->_status->value = ContentEntityStorageInterface::STATUS_IN_TRANSACTION;
+    $entity->_trx->value = TRUE;
     $return = $this->storage->save($entity);
-    if (!isset($this->statuses[$original_status])) {
-      $this->statuses[$original_status] = array();
-    }
-    $this->statuses[$original_status][] = $entity->getRevisionId();
+    $this->revisionIds[] = $entity->getRevisionId();
     return $return;
   }
 
@@ -31,9 +27,9 @@ class AllOrNothingTransaction extends TransactionBase {
    * {@inheritdoc}
    */
   public function commit() {
-    $this->storage->updateStorageStatus($this->statuses);
-    // Flush all logged statuses.
-    $this->statuses = array();
+    $this->storage->onTransactionCommit($this->revisionIds);
+    // Reset the stored revisions.
+    $this->revisionIds = array();
   }
 
 }
