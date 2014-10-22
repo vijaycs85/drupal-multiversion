@@ -42,6 +42,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $loaded = entity_load($entity_type_id, $ids[0]);
       $this->assertEqual($ids[0], $loaded->id(), "Single $entity_type_id was loaded.");
 
+      // @todo Test loadEntityByUuid
       // Update and save a new revision.
       $entity->name->value = $this->randomMachineName();
       $entity->save();
@@ -83,6 +84,48 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       $entities = entity_load_multiple_deleted($entity_type_id, array($id));
       $this->assertTrue(!empty($entities), "Deleted $entity_type_id loaded with entity_load_multiple_deleted() function.");
+    }
+  }
+
+  public function testWorkspace() {
+    foreach ($this->entityTypes as $entity_type_id => $info) {
+      $entity = entity_create($entity_type_id);
+      $entity->save();
+      $this->assertEqual($entity->_workspace->target_id, 'default', "$entity_type_id was saved in default workspace.");
+    }
+
+    // Create a new workspace and switch to it.
+    $ws = $this->randomMachineName();
+    entity_create('workspace', array('id' => $ws));
+    $this->multiversionManager->setActiveWorkspaceName($ws);
+
+    foreach ($this->entityTypes as $entity_type_id => $info) {
+      $entity = entity_create($entity_type_id);
+      $entity->save();
+      $this->assertEqual($entity->_workspace->target_id, $ws, "$entity_type_id was saved in new workspace.");
+    }
+
+    $uuids = array();
+    $ids = array();
+    foreach ($this->entityTypes as $entity_type_id => $info) {
+      $entity = entity_create($entity_type_id);
+      $entity->save();
+      $uuids[$entity_type_id] = $entity->uuid();
+      $ids[$entity_type_id] = $entity->id();
+
+      $entity = entity_load($entity_type_id, $ids[$entity_type_id]);
+      $this->assertTrue(!empty($entity), "$entity_type_id was loaded in the workspace it belongs to.");
+      $entity = $this->entityManager->loadEntityByUuid($entity_type_id, $uuids[$entity_type_id]);
+      $this->assertTrue(!empty($entity), "$entity_type_id was loaded by UUID in the workspace it belongs to.");
+    }
+
+    $this->multiversionManager->setActiveWorkspaceName('default');
+
+    foreach ($this->entityTypes as $entity_type_id => $info) {
+      $entity = entity_load($entity_type_id, $ids[$entity_type_id]);
+      $this->assertTrue(empty($entity), "$entity_type_id was not loaded in a workspace it does not belongs to.");
+      $entity = $this->entityManager->loadEntityByUuid($entity_type_id, $uuids[$entity_type_id]);
+      $this->assertTrue(empty($entity), "$entity_type_id was not loaded by UUID in a workspace it does not belong to.");
     }
   }
 

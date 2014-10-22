@@ -85,6 +85,16 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setDefaultValue(0)
       ->setCardinality(1);
 
+    $fields['_workspace'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel('Workspace reference')
+      ->setDescription('The workspace this entity belongs to.')
+      ->setRevisionable(FALSE)
+      ->setTranslatable(FALSE)
+      ->setSetting('target_type', 'workspace')
+      ->setDefaultValueCallback('multiversion_get_active_workspace_id')
+      ->setCardinality(1)
+      ->setReadOnly(TRUE);
+
     // This will essentially overwrite the revision field definition but also
     // ensure that entity types that we enabled revisions for get a revision
     // field definition of a type that we expect.
@@ -182,6 +192,13 @@ function entity_load_multiple_deleted($entity_type, $ids, $reset = FALSE) {
     $controller->resetCache($ids);
   }
   return $controller->loadMultipleDeleted($ids);
+}
+
+/**
+ * Callback for getting the active workspace ID.
+ */
+function multiversion_get_active_workspace_id() {
+  return \Drupal::service('multiversion.manager')->getActiveWorkspaceName();
 }
 
 /**

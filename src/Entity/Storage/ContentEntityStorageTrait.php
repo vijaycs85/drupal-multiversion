@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Entity\Storage;
 
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\multiversion\Entity\Exception\ConflictException;
 
@@ -11,6 +12,13 @@ trait ContentEntityStorageTrait {
    * @var boolean
    */
   protected $isDeleted = FALSE;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getActiveWorkspaceId() {
+    return \Drupal::service('multiversion.manager')->getActiveWorkspaceName();
+  }
 
   /**
    * {@inheritdoc}
@@ -74,4 +82,70 @@ trait ContentEntityStorageTrait {
     return parent::delete($entities);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function resetCache(array $ids = NULL) {
+    $ws = $this->getActiveWorkspaceId();
+    if ($this->entityType->isStaticallyCacheable() && isset($ids)) {
+      foreach ($ids as $id) {
+        unset($this->entities[$ws][$id]);
+      }
+    }
+    else {
+      $this->entities[$ws] = array();
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getFromStaticCache(array $ids) {
+    $ws = $this->getActiveWorkspaceId();
+    $entities = array();
+    // Load any available entities from the internal cache.
+    if ($this->entityType->isStaticallyCacheable() && !empty($this->entities[$ws])) {
+      $entities += array_intersect_key($this->entities[$ws], array_flip($ids));
+    }
+    return $entities;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setStaticCache(array $entities) {
+    if ($this->entityType->isStaticallyCacheable()) {
+      $ws = $this->getActiveWorkspaceId();
+      if (!isset($this->entities[$ws])) {
+        $this->entities[$ws] = array();
+      }
+      $this->entities[$ws] += $entities;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function buildCacheId($id) {
+    $ws = $this->getActiveWorkspaceId();
+    return "values:{$this->entityTypeId}:$id:$ws";
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setPersistentCache($entities) {
+    if (!$this->entityType->isPersistentlyCacheable()) {
+      return;
+    }
+    $ws = $this->getActiveWorkspaceId();
+    $cache_tags = array(
+      $this->entityTypeId . '_values',
+      'entity_field_info',
+      'workspace_' . $ws,
+    );
+    foreach ($entities as $id => $entity) {
+      $this->cacheBackend->set($this->buildCacheId($id), $entity, CacheBackendInterface::CACHE_PERMANENT, $cache_tags);
+    }
+  }
 }

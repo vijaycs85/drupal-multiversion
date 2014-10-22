@@ -15,6 +15,11 @@ interface ContentEntityStorageInterface extends EntityStorageInterface {
   const STATUS_DELETED = 3;
 
   /**
+   * @return string
+   */
+  public function getActiveWorkspaceId();
+
+  /**
    * @param integer $id
    * @return \Drupal\Core\Entity\ContentEntityInterface|null
    */

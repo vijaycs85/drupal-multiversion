@@ -5,6 +5,11 @@ namespace Drupal\multiversion\Entity\Query;
 trait QueryTrait {
 
   /**
+   * @var null|string
+   */
+  protected $workspaceId = NULL;
+
+  /**
    * @var boolean
    */
   protected $isDeleted = FALSE;
@@ -13,6 +18,14 @@ trait QueryTrait {
    * @var boolean
    */
   protected $isTransacting = FALSE;
+
+  /**
+   *
+   */
+  public function useWorkspace($id) {
+    $this->workspaceId = $id;
+    return $this;
+  }
 
   /**
    * @see \Drupal\multiversion\Entity\Query\QueryInterface::isDeleted()
@@ -50,6 +63,7 @@ trait QueryTrait {
     parent::prepare();
     $this->condition('_deleted', (int) $this->isDeleted);
     $this->condition('_trx', (int) $this->isTransacting);
+    $this->condition('_workspace', $this->workspaceId ?: \Drupal::service('multiversion.manager')->getActiveWorkspaceName());
     return $this;
   }
 
