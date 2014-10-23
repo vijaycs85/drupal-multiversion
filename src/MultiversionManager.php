@@ -74,6 +74,12 @@ class MultiversionManager implements MultiversionManagerInterface {
     return $this->activeWorkspaceName = $workspace_name;
   }
 
+  /**
+   * {@inheritdoc}
+   *
+   * @todo Consider using the nextId API to generate more sequential IDs.
+   * @see \Drupal\Core\Database\Connection::nextId
+   */
   public function newSequenceId() {
     // Multiply the microtime by 1 million to ensure we get an accurate integer.
     // Credit goes to @letharion and @logaritmisk for this simple but genius
