@@ -23,14 +23,8 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
   protected function buildQuery($ids, $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $revision_id);
 
-    $data_alias = 'base';
     $revision_alias = 'revision';
     if ($this->entityType->isTranslatable()) {
-      // Join the data table in order to set the workspace condition.
-      $data_table = $this->getDataTable();
-      $data_alias = 'data';
-      $query->join($data_table, $data_alias, "$data_alias.{$this->idKey} = base.{$this->idKey}");
-
       // Join the revision data table in order to set the delete condition.
       $revision_table = $this->getRevisionDataTable();
       $revision_alias = 'revision_data';
@@ -47,7 +41,7 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
     $query->condition("$revision_alias._trx", 0);
     // Entities in other workspaces than the active one can only be queried with
     // the Entity Query API and not by the storage handler itself.
-    $query->condition("$data_alias._workspace", $this->getActiveWorkspaceId());
+    $query->condition("$revision_alias._workspace", $this->getActiveWorkspaceId());
     return $query;
   }
 

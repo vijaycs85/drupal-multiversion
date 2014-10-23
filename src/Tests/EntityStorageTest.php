@@ -96,9 +96,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $entity = entity_create($entity_type_id);
       $entity->save();
       $entity_id = $entity->id();
-
       $this->assertEqual($entity->_workspace->target_id, 'default', "The workspace reference was saved for $entity_type_id.");
-
       $record = db_select($info['data_table'], 'e')
         ->fields('e')
         ->condition('e.id', $entity->id())
@@ -107,11 +105,19 @@ class EntityStorageTest extends MultiversionWebTestBase {
         ->fetchObject();
       $this->assertEqual($record->_workspace, 'default', "The workspace reference was stored for saved $entity_type_id.");
 
+      $entity = entity_load($entity_type_id, $entity_id);
+      $this->assertEqual($entity->_workspace->target_id, 'default', "The workspace reference is retained for loaded $entity_type_id.");
+      $record = db_select($info['data_table'], 'e')
+        ->fields('e')
+        ->condition('e.id', $entity->id())
+        ->condition('e.revision_id', $entity->getRevisionId())
+        ->execute()
+        ->fetchObject();
+      $this->assertEqual($record->_workspace, 'default', "The workspace reference was stored for loaded $entity_type_id.");
+
       entity_delete_multiple($entity_type_id, array($entity_id));
       $entity = entity_load_deleted($entity_type_id, $entity_id);
-
       $this->assertEqual($entity->_workspace->target_id, 'default', "The workspace reference is retained for deleted $entity_type_id.");
-
       $record = db_select($info['data_table'], 'e')
         ->fields('e')
         ->condition('e.id', $entity->id())
@@ -119,7 +125,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
         ->execute()
         ->fetchObject();
       $this->assertEqual($record->_workspace, 'default', "The workspace reference was stored for deleted $entity_type_id.");
-
     }
 
     // Create a new workspace and switch to it.
