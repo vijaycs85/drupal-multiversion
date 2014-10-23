@@ -18,15 +18,19 @@ class EntityStorageTest extends MultiversionWebTestBase {
    */
   protected $entityTypes = array(
     'entity_test' => array(
+      'data_table' => 'entity_test',
       'revision_table' => 'entity_test_revision',
     ),
     'entity_test_rev' => array(
+      'data_table' => 'entity_test_rev',
       'revision_table' => 'entity_test_rev_revision',
     ),
     'entity_test_mul' => array(
+      'data_table' => 'entity_test_mul_property_data',
       'revision_table' => 'entity_test_mul_field_revision',
     ),
     'entity_test_mulrev' => array(
+      'data_table' => 'entity_test_mulrev_property_data',
       'revision_table' => 'entity_test_mulrev_property_revision',
     ),
   );
@@ -91,7 +95,31 @@ class EntityStorageTest extends MultiversionWebTestBase {
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $entity = entity_create($entity_type_id);
       $entity->save();
-      $this->assertEqual($entity->_workspace->target_id, 'default', "$entity_type_id was saved in default workspace.");
+      $entity_id = $entity->id();
+
+      $this->assertEqual($entity->_workspace->target_id, 'default', "The workspace reference was saved for $entity_type_id.");
+
+      $record = db_select($info['data_table'], 'e')
+        ->fields('e')
+        ->condition('e.id', $entity->id())
+        ->condition('e.revision_id', $entity->getRevisionId())
+        ->execute()
+        ->fetchObject();
+      $this->assertEqual($record->_workspace, 'default', "The workspace reference was stored for saved $entity_type_id.");
+
+      entity_delete_multiple($entity_type_id, array($entity_id));
+      $entity = entity_load_deleted($entity_type_id, $entity_id);
+
+      $this->assertEqual($entity->_workspace->target_id, 'default', "The workspace reference is retained for deleted $entity_type_id.");
+
+      $record = db_select($info['data_table'], 'e')
+        ->fields('e')
+        ->condition('e.id', $entity->id())
+        ->condition('e.revision_id', $entity->getRevisionId())
+        ->execute()
+        ->fetchObject();
+      $this->assertEqual($record->_workspace, 'default', "The workspace reference was stored for deleted $entity_type_id.");
+
     }
 
     // Create a new workspace and switch to it.

@@ -88,8 +88,6 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
     $fields['_workspace'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel('Workspace reference')
       ->setDescription('The workspace this entity belongs to.')
-      ->setRevisionable(FALSE)
-      ->setTranslatable(FALSE)
       ->setSetting('target_type', 'workspace')
       ->setDefaultValueCallback('multiversion_get_active_workspace_id')
       ->setCardinality(1)
