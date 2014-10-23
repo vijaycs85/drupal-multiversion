@@ -10,9 +10,9 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
    * @var array
    */
   protected $entityTypes = array(
-    'entity_test' => NULL,
-    'entity_test_rev' => NULL,
-    'entity_test_mul' => NULL,
+//    'entity_test' => NULL,
+//    'entity_test_rev' => NULL,
+//    'entity_test_mul' => NULL,
     'entity_test_mulrev' => NULL,
   );
 
@@ -55,12 +55,12 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
       $entity_id = $entity->id();
       $entity = entity_load($entity_type_id, $entity_id);
 
-      $this->assertTrue(isset($entity->{$this->fieldName}), "Field was attached on loaded $entity_type_id.");
+      $this->assertFalse($entity->{$this->fieldName}->isEmpty(), "Field was attached on loaded $entity_type_id.");
 
       entity_delete_multiple($entity_type_id, array($entity_id));
       $entity = entity_load_deleted($entity_type_id, $entity_id);
 
-      $this->assertTrue(isset($entity->{$this->fieldName}), "Field was attached on deleted $entity_type_id.");
+      $this->assertFalse($entity->{$this->fieldName}->isEmpty(), "Field was attached on deleted $entity_type_id.");
     }
   }
 

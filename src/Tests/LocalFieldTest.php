@@ -27,6 +27,11 @@ class LocalFieldTest extends FieldTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $itemClass = '\Drupal\Core\Field\Plugin\Field\FieldType\BooleanItem';
+  protected $itemClass = '\Drupal\multiversion\Plugin\Field\FieldType\LocalFlagItem';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $itemListClass = '\Drupal\multiversion\Plugin\Field\FieldType\LocalFlagItemList';
 
 }
