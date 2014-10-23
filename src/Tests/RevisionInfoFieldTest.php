@@ -10,28 +10,39 @@ use Drupal\multiversion\Plugin\Field\FieldType\RevisionInfoItemList;
  *
  * @group multiversion
  */
-class RevisionInfoFieldTest extends MultiversionWebTestBase {
+class RevisionInfoFieldTest extends FieldTestBase {
 
-  public function testFieldCreation() {
-    $entity = entity_create('entity_test_rev');
-    $this->assertTrue($entity->_revs_info instanceof RevisionInfoItemList, 'Field was attached to content entity.');
-    $this->assertTrue($entity->_revs_info->get(0) instanceof RevisionInfoItem, 'Field item implements correct interface.');
-    $this->assertTrue($entity->_revs_info->isEmpty(), 'Field is created empty.');
-    $this->assertTrue($entity->_revs_info->get(0)->isEmpty(), 'First field item is created empty.');
-    $this->assertEqual($entity->_revs_info->count(), 1, 'Field is created with one field item.');
-  }
+  /**
+   * {@inheritdoc}
+   */
+  protected $fieldName = '_revs_info';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $createdEmpty = TRUE;
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $itemListClass = '\Drupal\multiversion\Plugin\Field\FieldType\RevisionInfoItemList';
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $itemClass = '\Drupal\multiversion\Plugin\Field\FieldType\RevisionInfoItem';
 
   public function testFieldOperations() {
     $entity = entity_create('entity_test_rev');
 
     $entity->save();
-    $this->assertEqual($entity->_revs_info->count(), 1, 'One value after first save.');
-    $first_rev = $entity->_revs_info->get(0)->rev;
+    $this->assertEqual($entity->{$this->fieldName}->count(), 1, 'One value after first save.');
+    $first_rev = $entity->{$this->fieldName}->get(0)->rev;
     $this->assertTrue(!empty($first_rev), 'First revision value was generated.');
 
     $entity->save();
-    $this->assertEqual($entity->_revs_info->count(), 2, 'Two values after second save.');
-    $this->assertTrue(!empty($entity->_revs_info->get(0)->rev), 'Second value was generated.');
-    $this->assertEqual($first_rev, $entity->_revs_info->get(1)->rev, 'First value was pushed to last delta.');
+    $this->assertEqual($entity->{$this->fieldName}->count(), 2, 'Two values after second save.');
+    $this->assertTrue(!empty($entity->{$this->fieldName}->get(0)->rev), 'Second value was generated.');
+    $this->assertEqual($first_rev, $entity->{$this->fieldName}->get(1)->rev, 'First value was pushed to last delta.');
   }
 }
