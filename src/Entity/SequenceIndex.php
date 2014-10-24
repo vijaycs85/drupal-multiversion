@@ -6,15 +6,16 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\MultiversionManagerInterface;
+use Drupal\multiversion\WorkspaceManagerInterface;
 
 class SequenceIndex implements SequenceIndexInterface {
 
-  const COLLECTION_PREFIX = 'entity_sequence_index:';
+  const COLLECTION_PREFIX = 'entity.index.sequence.';
 
   /**
    * @var string
    */
-  protected $workspaceName;
+  protected $workspaceId;
 
   /**
    * @var \Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface
@@ -22,24 +23,24 @@ class SequenceIndex implements SequenceIndexInterface {
   protected $sortedSetFactory;
 
   /**
-   * @var \Drupal\multiversion\MultiversionManagerInterface
+   * @var \Drupal\multiversion\WorkspaceManagerInterface
    */
-  protected $multiversionManager;
+  protected $workspaceManager;
 
   /**
    * @param \Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface $sorted_set_factory
-   * @param \Drupal\multiversion\MultiversionManagerInterface $multiversion_manager
+   * @param \Drupal\multiversion\WorkspaceManagerInterface $workspace_manager
    */
-  public function __construct(KeyValueSortedSetFactoryInterface $sorted_set_factory, MultiversionManagerInterface $multiversion_manager) {
+  public function __construct(KeyValueSortedSetFactoryInterface $sorted_set_factory, WorkspaceManagerInterface $workspace_manager) {
     $this->sortedSetFactory = $sorted_set_factory;
-    $this->multiversionManager = $multiversion_manager;
+    $this->workspaceManager = $workspace_manager;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function useWorkspace($name) {
-    $this->workspaceName = $name;
+  public function useWorkspace($id) {
+    $this->workspaceId = $id;
     return $this;
   }
 
@@ -80,8 +81,8 @@ class SequenceIndex implements SequenceIndexInterface {
    * @return \Drupal\key_value\KeyValueStore\KeyValueStoreSortedSetInterface
    */
   protected function sortedSetStore() {
-    $workspace_name = $this->workspaceName ?: $this->multiversionManager->getActiveWorkspaceName();
-    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_name);
+    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveId();
+    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_id);
   }
 
   /**

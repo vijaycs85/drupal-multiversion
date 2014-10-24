@@ -7,10 +7,10 @@ use Drupal\Core\Entity\ContentEntityInterface;
 interface SequenceIndexInterface {
 
   /**
-   * @param $name
+   * @param $id
    * @return \Drupal\multiversion\Entity\SequenceIndex
    */
-  public function useWorkspace($name);
+  public function useWorkspace($id);
 
   /**
    * @param \Drupal\Core\Entity\ContentEntityInterface $entity

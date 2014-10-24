@@ -1,19 +1,26 @@
+parameters:
+  workspace.default: default
+
 services:
   entity.compaction.manager:
     class: Drupal\multiversion\Entity\Compaction\CompactionManager
     arguments: ['@config.factory', '@entity.manager', '@multiversion.manager', '@entity.query']
   entity.sequence_index:
     class: Drupal\multiversion\Entity\SequenceIndex
-    arguments: ['@keyvalue.sorted_set', '@multiversion.manager']
+    arguments: ['@keyvalue.sorted_set', '@workspace.manager']
   entity.uuid_index:
     class: Drupal\multiversion\Entity\UuidIndex
-    arguments: ['@keyvalue', '@multiversion.manager']
+    arguments: ['@keyvalue', '@workspace.manager']
   entity.rev_index:
     class: Drupal\multiversion\Entity\RevisionIndex
-    arguments: ['@keyvalue', '@multiversion.manager']
+    arguments: ['@keyvalue', '@workspace.manager']
   entity.query.sql.multiversion:
     class: Drupal\multiversion\Entity\Query\Sql\QueryFactory
     arguments: ['@database']
   multiversion.manager:
     class: Drupal\multiversion\MultiversionManager
     arguments: ['@entity.manager', '@serializer']
+  workspace.manager:
+    class: Drupal\multiversion\WorkspaceManager
+    calls:
+      - [setContainer, ['@service_container']]

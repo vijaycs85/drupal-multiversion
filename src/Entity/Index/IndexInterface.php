@@ -7,6 +7,12 @@ use Drupal\Core\Entity\EntityInterface;
 interface IndexInterface {
 
   /**
+   * @param $id
+   * @return \Drupal\multiversion\Entity\Index\IndexInterface
+   */
+  public function useWorkspace($id);
+
+  /**
    * @param string $key
    *
    * @return array
