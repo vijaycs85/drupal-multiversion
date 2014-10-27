@@ -45,6 +45,14 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   /**
    * {@inheritdoc}
    */
+  public function addNegotiator(WorkspaceNegotiatorInterface $negotiator, $priority) {
+    $this->negotiators[$priority][] = $negotiator;
+    $this->sortedNegotiators = NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getActiveWorkspace() {
     if (!isset($this->activeWorkspace)) {
       foreach ($this->getSortedNegotiators() as $negotiator) {
@@ -72,9 +80,14 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function addNegotiator(WorkspaceNegotiatorInterface $negotiator, $priority) {
-    $this->negotiators[$priority][] = $negotiator;
-    $this->sortedNegotiators = NULL;
+  public function getWorkspaceSwitchLinks() {
+    foreach ($this->getSortedNegotiators() as $negotiator) {
+      if ($negotiator instanceof WorkspaceSwitcherInterface && $negotiator->applies($this->routeMatch)) {
+        if ($links = $negotiator->getWorkspaceSwitchLinks($this->routeMatch)) {
+          return $links;
+        }
+      }
+    }
   }
 
   /**

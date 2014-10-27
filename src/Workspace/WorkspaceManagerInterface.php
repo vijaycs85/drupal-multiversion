@@ -7,6 +7,12 @@ use Drupal\multiversion\Entity\WorkspaceInterface;
 interface WorkspaceManagerInterface {
 
   /**
+   * @param \Drupal\multiversion\Workspace\WorkspaceNegotiatorInterface $negotiator
+   * @param int $priority
+   */
+  public function addNegotiator(WorkspaceNegotiatorInterface $negotiator, $priority);
+
+  /**
    * @return \Drupal\multiversion\Entity\WorkspaceInterface
    */
   public function getActiveWorkspace();
@@ -18,9 +24,8 @@ interface WorkspaceManagerInterface {
   public function setActiveWorkspace(WorkspaceInterface $workspace);
 
   /**
-   * @param \Drupal\multiversion\Workspace\WorkspaceNegotiatorInterface $negotiator
-   * @param int $priority
+   * @return array
    */
-  public function addNegotiator(WorkspaceNegotiatorInterface $negotiator, $priority);
+  public function getWorkspaceSwitchLinks();
 
 }
