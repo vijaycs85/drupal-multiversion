@@ -128,14 +128,13 @@ class EntityStorageTest extends MultiversionWebTestBase {
     }
 
     // Create a new workspace and switch to it.
-    $ws = $this->randomMachineName();
-    entity_create('workspace', array('id' => $ws));
-    $this->multiversionManager->setActiveWorkspaceName($ws);
+    $workspace = entity_create('workspace', array('id' => $this->randomMachineName()));
+    $this->workspaceManager->setActiveWorkspace($workspace);
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $entity = entity_create($entity_type_id);
       $entity->save();
-      $this->assertEqual($entity->_workspace->target_id, $ws, "$entity_type_id was saved in new workspace.");
+      $this->assertEqual($entity->_workspace->target_id, $workspace->id(), "$entity_type_id was saved in new workspace.");
     }
 
     $uuids = array();

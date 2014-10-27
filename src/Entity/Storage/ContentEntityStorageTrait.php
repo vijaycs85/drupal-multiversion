@@ -17,7 +17,7 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function getActiveWorkspaceId() {
-    return \Drupal::service('multiversion.manager')->getActiveWorkspaceName();
+    return \Drupal::service('workspace.manager')->getActiveWorkspace()->id();
   }
 
   /**

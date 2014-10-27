@@ -10,14 +10,14 @@ interface MultiversionManagerInterface {
   /**
    * @return string
    * @deprecated Should no longer be used.
-   * @see \Drupal\multiversion\WorkspaceManager::getActiveId()
+   * @see \Drupal\multiversion\Workspace\WorkspaceManager::getActiveWorkspace()
    */
   public function getActiveWorkspaceName();
 
   /**
    * @param string $id
    * @deprecated Should no longer be used.
-   * @see \Drupal\multiversion\WorkspaceManager::setActiveId()
+   * @see \Drupal\multiversion\Workspace\WorkspaceManager::setActiveWorkspace()
    */
   public function setActiveWorkspaceName($id);
 

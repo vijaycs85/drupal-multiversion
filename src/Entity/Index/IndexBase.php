@@ -4,7 +4,7 @@ namespace Drupal\multiversion\Entity\Index;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
-use Drupal\multiversion\WorkspaceManagerInterface;
+use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
 abstract class IndexBase implements IndexInterface {
 
@@ -19,7 +19,7 @@ abstract class IndexBase implements IndexInterface {
   protected $keyValueFactory;
 
   /**
-   * @var \Drupal\multiversion\WorkspaceManagerInterface
+   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
    */
   protected $workspaceManager;
 
@@ -35,7 +35,7 @@ abstract class IndexBase implements IndexInterface {
 
   /**
    * @param \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $key_value_factory
-   * @param \Drupal\multiversion\WorkspaceManagerInterface $workspace_manager
+   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
    */
   function __construct(KeyValueFactoryInterface $key_value_factory, WorkspaceManagerInterface $workspace_manager) {
     $this->keyValueFactory = $key_value_factory;
@@ -64,7 +64,7 @@ abstract class IndexBase implements IndexInterface {
    * @see \Drupal\Core\State\State::getMultiple()
    */
   public function getMultiple(array $keys) {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveId();
+    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
     // Initialize the cache storage.
     if (!isset($this->cache[$workspace_id])) {
       $this->cache[$workspace_id] = array();
@@ -112,7 +112,7 @@ abstract class IndexBase implements IndexInterface {
    * {@inheritdoc}
    */
   public function addMultiple(array $entities) {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveId();
+    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
     $values = array();
     foreach ($entities as $entity) {
       $key = $this->buildKey($entity);
@@ -134,7 +134,7 @@ abstract class IndexBase implements IndexInterface {
    * {@inheritdoc}
    */
   public function deleteMultiple(array $keys) {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveId();
+    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
     foreach ($keys as $key) {
       unset($this->cache[$workspace_id][$key]);
     }
@@ -145,7 +145,7 @@ abstract class IndexBase implements IndexInterface {
    * {@inheritdoc}
    */
   public function deleteAll() {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveId();
+    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
     $this->cache[$workspace_id] = array();
     $this->keyValueStore($workspace_id)->deleteAll();
   }

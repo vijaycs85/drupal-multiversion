@@ -5,8 +5,7 @@ namespace Drupal\multiversion\Entity;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
-use Drupal\multiversion\MultiversionManagerInterface;
-use Drupal\multiversion\WorkspaceManagerInterface;
+use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
 class SequenceIndex implements SequenceIndexInterface {
 
@@ -23,13 +22,13 @@ class SequenceIndex implements SequenceIndexInterface {
   protected $sortedSetFactory;
 
   /**
-   * @var \Drupal\multiversion\WorkspaceManagerInterface
+   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
    */
   protected $workspaceManager;
 
   /**
    * @param \Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface $sorted_set_factory
-   * @param \Drupal\multiversion\WorkspaceManagerInterface $workspace_manager
+   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
    */
   public function __construct(KeyValueSortedSetFactoryInterface $sorted_set_factory, WorkspaceManagerInterface $workspace_manager) {
     $this->sortedSetFactory = $sorted_set_factory;
@@ -81,7 +80,7 @@ class SequenceIndex implements SequenceIndexInterface {
    * @return \Drupal\key_value\KeyValueStore\KeyValueStoreSortedSetInterface
    */
   protected function sortedSetStore() {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveId();
+    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
     return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_id);
   }
 

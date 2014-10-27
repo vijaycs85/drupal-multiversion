@@ -29,6 +29,13 @@ abstract class MultiversionWebTestBase extends WebTestBase {
   protected $multiversionManager;
 
   /**
+   * The workspace manager.
+   *
+   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
+   */
+  protected $workspaceManager;
+
+  /**
    * The entity definition update manager.
    *
    * @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface
@@ -42,6 +49,7 @@ abstract class MultiversionWebTestBase extends WebTestBase {
 
     $this->uuidIndex = $this->container->get('entity.uuid_index');
     $this->multiversionManager = $this->container->get('multiversion.manager');
+    $this->workspaceManager = $this->container->get('workspace.manager');
     $this->entityManager = $this->container->get('entity.manager');
     $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
 

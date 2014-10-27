@@ -57,14 +57,15 @@ class MultiversionManager implements MultiversionManagerInterface {
    * {@inheritdoc}
    */
   public function getActiveWorkspaceName() {
-    return \Drupal::service('workspace.manager')->getActiveId();
+    return \Drupal::service('workspace.manager')->getActiveWorkspace()->id();
   }
 
   /**
    * {@inheritdoc}
    */
   public function setActiveWorkspaceName($id) {
-    return \Drupal::service('workspace.manager')->setActiveId($id);
+    $workspace = entity_load('workspace', $id);
+    return \Drupal::service('workspace.manager')->setActiveWorkspace($workspace);
   }
 
   /**

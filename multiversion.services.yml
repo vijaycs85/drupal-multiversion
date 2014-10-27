@@ -21,6 +21,13 @@ services:
     class: Drupal\multiversion\MultiversionManager
     arguments: ['@entity.manager', '@serializer']
   workspace.manager:
-    class: Drupal\multiversion\WorkspaceManager
+    class: Drupal\multiversion\Workspace\WorkspaceManager
+    arguments: ['@current_route_match', '@entity.manager']
+    tags:
+      - { name: service_collector, tag: workspace_negotiator, call: addNegotiator }
+  workspace.negotiator.default:
+    class: Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator
     calls:
       - [setContainer, ['@service_container']]
+    tags:
+      - { name: workspace_negotiator, priority: 0 }
