@@ -46,11 +46,12 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * {@inheritdoc}
    */
   public function getActiveWorkspace() {
-    if (empty($this->activeWorkspace)) {
+    if (!isset($this->activeWorkspace)) {
       foreach ($this->getSortedNegotiators() as $negotiator) {
         if ($negotiator->applies($this->routeMatch)) {
-          if ($workspace_id = $negotiator->determineActiveWorkspaceId($this->routeMatch)) {
+          if ($workspace_id = $negotiator->getWorkspaceId($this->routeMatch)) {
             if ($workspace = $this->entityManager->getStorage('workspace')->load($workspace_id)) {
+              $negotiator->persist($workspace);
               $this->activeWorkspace = $workspace;
             }
           }
