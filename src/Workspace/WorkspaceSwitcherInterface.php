@@ -2,14 +2,14 @@
 
 namespace Drupal\multiversion\Workspace;
 
-use Drupal\Core\Routing\RouteMatchInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 interface WorkspaceSwitcherInterface {
 
   /**
-   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   * @param \Symfony\Component\HttpFoundation\Request $request
    * @return array
    */
-  public function getWorkspaceSwitchLinks(RouteMatchInterface $route_match);
+  public function getWorkspaceSwitchLinks(Request $request);
 
 }

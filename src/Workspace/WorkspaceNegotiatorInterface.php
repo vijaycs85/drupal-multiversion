@@ -2,22 +2,22 @@
 
 namespace Drupal\multiversion\Workspace;
 
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 interface WorkspaceNegotiatorInterface {
 
   /**
-   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   * @param \Symfony\Component\HttpFoundation\Request $request
    * @return boolean
    */
-  public function applies(RouteMatchInterface $route_match);
+  public function applies(Request $request);
 
   /**
-   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   * @param \Symfony\Component\HttpFoundation\Request $request
    * @return string
    */
-  public function getWorkspaceId(RouteMatchInterface $route_match);
+  public function getWorkspaceId(Request $request);
 
   /**
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace

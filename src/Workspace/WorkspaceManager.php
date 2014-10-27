@@ -5,13 +5,15 @@ namespace Drupal\multiversion\Workspace;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class WorkspaceManager implements WorkspaceManagerInterface {
 
   /**
-   * @var \Drupal\Core\Routing\RouteMatchInterface
+   * @var \Symfony\Component\HttpFoundation\RequestStack
    */
-  protected $routeMatch;
+  protected $requestStack;
 
   /**
    * @var \Drupal\Core\Entity\EntityManagerInterface
@@ -34,11 +36,11 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   protected $activeWorkspace;
 
   /**
-   * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    */
-  public function __construct(RouteMatchInterface $route_match, EntityManagerInterface $entity_manager) {
-    $this->routeMatch = $route_match;
+  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager) {
+    $this->requestStack = $request_stack;
     $this->entityManager = $entity_manager;
   }
 
@@ -55,9 +57,10 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    */
   public function getActiveWorkspace() {
     if (!isset($this->activeWorkspace)) {
+      $request = $this->requestStack->getCurrentRequest();
       foreach ($this->getSortedNegotiators() as $negotiator) {
-        if ($negotiator->applies($this->routeMatch)) {
-          if ($workspace_id = $negotiator->getWorkspaceId($this->routeMatch)) {
+        if ($negotiator->applies($request)) {
+          if ($workspace_id = $negotiator->getWorkspaceId($request)) {
             if ($workspace = $this->entityManager->getStorage('workspace')->load($workspace_id)) {
               $negotiator->persist($workspace);
               $this->activeWorkspace = $workspace;
@@ -82,8 +85,9 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    */
   public function getWorkspaceSwitchLinks() {
     foreach ($this->getSortedNegotiators() as $negotiator) {
-      if ($negotiator instanceof WorkspaceSwitcherInterface && $negotiator->applies($this->routeMatch)) {
-        if ($links = $negotiator->getWorkspaceSwitchLinks($this->routeMatch)) {
+      $request = $this->requestStack->getCurrentRequest();
+      if ($negotiator instanceof WorkspaceSwitcherInterface && $negotiator->applies($request)) {
+        if ($links = $negotiator->getWorkspaceSwitchLinks($request)) {
           return $links;
         }
       }

@@ -22,7 +22,7 @@ services:
     arguments: ['@entity.manager', '@serializer']
   workspace.manager:
     class: Drupal\multiversion\Workspace\WorkspaceManager
-    arguments: ['@current_route_match', '@entity.manager']
+    arguments: ['@request_stack', '@entity.manager']
     tags:
       - { name: service_collector, tag: workspace_negotiator, call: addNegotiator }
   workspace.negotiator.default:
