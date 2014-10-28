@@ -73,6 +73,7 @@ class WorkspaceManager implements WorkspaceManagerInterface {
       foreach ($this->getSortedNegotiators() as $negotiator) {
         if ($negotiator->applies($request)) {
           if ($workspace_id = $negotiator->getWorkspaceId($request)) {
+            /** @var \Drupal\multiversion\Entity\WorkspaceInterface $workspace */
             if ($workspace = $this->entityManager->getStorage('workspace')->load($workspace_id)) {
               $negotiator->persist($workspace);
               $this->activeWorkspace = $workspace;
@@ -97,8 +98,8 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * {@inheritdoc}
    */
   public function getWorkspaceSwitchLinks($path) {
+    $request = $this->requestStack->getCurrentRequest();
     foreach ($this->getSortedNegotiators() as $negotiator) {
-      $request = $this->requestStack->getCurrentRequest();
       if ($negotiator instanceof WorkspaceSwitcherInterface && $negotiator->applies($request)) {
         if ($links = $negotiator->getWorkspaceSwitchLinks($request, $path)) {
           return $links;

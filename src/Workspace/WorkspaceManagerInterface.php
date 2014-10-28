@@ -29,7 +29,7 @@ interface WorkspaceManagerInterface {
 
   /**
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
-   * @return \Drupal\multiversion\WorkspaceManagerInterface
+   * @return \Drupal\multiversion\Workspace\WorkspaceManagerInterface
    */
   public function setActiveWorkspace(WorkspaceInterface $workspace);
 

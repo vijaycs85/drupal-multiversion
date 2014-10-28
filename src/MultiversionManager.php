@@ -4,18 +4,16 @@ namespace Drupal\multiversion;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
+use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\Serializer\Serializer;
 
 class MultiversionManager implements MultiversionManagerInterface {
 
   /**
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
    */
-  protected $entityManager;
+  protected $workspaceManager;
 
   /**
    * @var \Symfony\Component\Serializer\Serializer
@@ -48,8 +46,12 @@ class MultiversionManager implements MultiversionManagerInterface {
     'file',
   );
 
-  public function __construct(EntityManagerInterface $entity_manager, Serializer $serializer) {
-    $this->entityManager = $entity_manager;
+  /**
+   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
+   * @param \Symfony\Component\Serializer\Serializer $serializer
+   */
+  public function __construct(WorkspaceManagerInterface $workspace_manager, Serializer $serializer) {
+    $this->workspaceManager = $workspace_manager;
     $this->serializer = $serializer;
   }
 
@@ -57,15 +59,15 @@ class MultiversionManager implements MultiversionManagerInterface {
    * {@inheritdoc}
    */
   public function getActiveWorkspaceName() {
-    return \Drupal::service('workspace.manager')->getActiveWorkspace()->id();
+    return $this->workspaceManager->getActiveWorkspace()->id();
   }
 
   /**
    * {@inheritdoc}
    */
   public function setActiveWorkspaceName($id) {
-    $workspace = entity_load('workspace', $id);
-    return \Drupal::service('workspace.manager')->setActiveWorkspace($workspace);
+    $workspace = $this->workspaceManager->load($id);
+    return $this->workspaceManager->setActiveWorkspace($workspace);
   }
 
   /**

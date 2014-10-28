@@ -2,12 +2,12 @@
 
 namespace Drupal\multiversion\Workspace;
 
-use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-abstract class WorkspaceNegotiatorBase implements WorkspaceNegotiatorInterface {
+abstract class WorkspaceNegotiatorBase implements WorkspaceNegotiatorInterface, ContainerAwareInterface {
 
   use ContainerAwareTrait;
 

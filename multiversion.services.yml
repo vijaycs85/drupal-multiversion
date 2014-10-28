@@ -19,7 +19,7 @@ services:
     arguments: ['@database']
   multiversion.manager:
     class: Drupal\multiversion\MultiversionManager
-    arguments: ['@entity.manager', '@serializer']
+    arguments: ['@workspace.manager', '@serializer']
   workspace.manager:
     class: Drupal\multiversion\Workspace\WorkspaceManager
     arguments: ['@request_stack', '@entity.manager']
