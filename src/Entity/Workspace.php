@@ -10,7 +10,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *
  * @ConfigEntityType(
  *   id = "workspace",
- *   label = @Translation("Content workspace"),
+ *   label = @Translation("Workspace"),
  *   config_prefix = "workspace",
  *   entity_keys = {
  *     "id" = "id",

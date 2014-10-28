@@ -3,9 +3,7 @@
 namespace Drupal\multiversion\Workspace;
 
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class WorkspaceManager implements WorkspaceManagerInterface {
@@ -55,6 +53,20 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   /**
    * {@inheritdoc}
    */
+  public function load($workspace_id) {
+    return $this->entityManager->getStorage('workspace')->load($workspace_id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function loadMultiple(array $workspace_ids = NULL) {
+    return $this->entityManager->getStorage('workspace')->loadMultiple($workspace_ids);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getActiveWorkspace() {
     if (!isset($this->activeWorkspace)) {
       $request = $this->requestStack->getCurrentRequest();
@@ -64,6 +76,7 @@ class WorkspaceManager implements WorkspaceManagerInterface {
             if ($workspace = $this->entityManager->getStorage('workspace')->load($workspace_id)) {
               $negotiator->persist($workspace);
               $this->activeWorkspace = $workspace;
+              break;
             }
           }
         }
@@ -83,11 +96,11 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getWorkspaceSwitchLinks() {
+  public function getWorkspaceSwitchLinks($path) {
     foreach ($this->getSortedNegotiators() as $negotiator) {
       $request = $this->requestStack->getCurrentRequest();
       if ($negotiator instanceof WorkspaceSwitcherInterface && $negotiator->applies($request)) {
-        if ($links = $negotiator->getWorkspaceSwitchLinks($request)) {
+        if ($links = $negotiator->getWorkspaceSwitchLinks($request, $path)) {
           return $links;
         }
       }

@@ -25,9 +25,21 @@ services:
     arguments: ['@request_stack', '@entity.manager']
     tags:
       - { name: service_collector, tag: workspace_negotiator, call: addNegotiator }
+
+  # @todo Simplify the container definition for negotiators
   workspace.negotiator.default:
     class: Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator
     calls:
       - [setContainer, ['@service_container']]
+      - [setCurrentUser, ['@current_user']]
+      - [setWorkspaceManager, ['@workspace.manager']]
     tags:
       - { name: workspace_negotiator, priority: 0 }
+  workspace.negotiator.session:
+    class: Drupal\multiversion\Workspace\SessionWorkspaceNegotiator
+    calls:
+      - [setContainer, ['@service_container']]
+      - [setCurrentUser, ['@current_user']]
+      - [setWorkspaceManager, ['@workspace.manager']]
+    tags:
+      - { name: workspace_negotiator, priority: 100 }

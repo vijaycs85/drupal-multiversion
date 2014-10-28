@@ -8,8 +8,9 @@ interface WorkspaceSwitcherInterface {
 
   /**
    * @param \Symfony\Component\HttpFoundation\Request $request
+   * @param string $path
    * @return array
    */
-  public function getWorkspaceSwitchLinks(Request $request);
+  public function getWorkspaceSwitchLinks(Request $request, $path);
 
 }

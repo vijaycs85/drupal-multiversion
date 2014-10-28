@@ -13,6 +13,16 @@ interface WorkspaceManagerInterface {
   public function addNegotiator(WorkspaceNegotiatorInterface $negotiator, $priority);
 
   /**
+   * @param string $workspace_id
+   */
+  public function load($workspace_id);
+
+  /**
+   * @param array|null $workspace_ids
+   */
+  public function loadMultiple(array $workspace_ids = NULL);
+
+  /**
    * @return \Drupal\multiversion\Entity\WorkspaceInterface
    */
   public function getActiveWorkspace();
@@ -24,8 +34,9 @@ interface WorkspaceManagerInterface {
   public function setActiveWorkspace(WorkspaceInterface $workspace);
 
   /**
+   * @param string $path
    * @return array
    */
-  public function getWorkspaceSwitchLinks();
+  public function getWorkspaceSwitchLinks($path);
 
 }
