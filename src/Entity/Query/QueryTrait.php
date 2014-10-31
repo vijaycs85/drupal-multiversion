@@ -63,7 +63,7 @@ trait QueryTrait {
     parent::prepare();
     $this->condition('_deleted', (int) $this->isDeleted);
     $this->condition('_trx', (int) $this->isTransacting);
-    $this->condition('_workspace', $this->workspaceId ?: \Drupal::service('multiversion.manager')->getActiveWorkspaceName());
+    $this->condition('_workspace', $this->workspaceId ?: \Drupal::service('multiversion.manager')->getActiveWorkspaceId());
     return $this;
   }
 
