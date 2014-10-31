@@ -58,14 +58,14 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getActiveWorkspaceName() {
+  public function getActiveWorkspaceId() {
     return $this->workspaceManager->getActiveWorkspace()->id();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function setActiveWorkspaceName($id) {
+  public function setActiveWorkspaceId($id) {
     $workspace = $this->workspaceManager->load($id);
     return $this->workspaceManager->setActiveWorkspace($workspace);
   }

@@ -151,7 +151,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertTrue(!empty($entity), "$entity_type_id was loaded by UUID in the workspace it belongs to.");
     }
 
-    $this->multiversionManager->setActiveWorkspaceName('default');
+    $this->multiversionManager->setActiveWorkspaceId('default');
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $entity = entity_load($entity_type_id, $ids[$entity_type_id]);
