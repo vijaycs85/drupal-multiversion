@@ -10,7 +10,7 @@ use Drupal\simpletest\WebTestBase;
 abstract class MultiversionWebTestBase extends WebTestBase {
 
   /**
-   * @var \Drupal\multiversion\Entity\UuidIndex;
+   * @var \Drupal\multiversion\Entity\Index\UuidIndex;
    */
   protected $uuidIndex;
 
