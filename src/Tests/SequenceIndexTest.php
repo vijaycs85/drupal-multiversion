@@ -18,7 +18,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
 
   protected function setUp() {
     parent::setUp();
-    $this->sequenceIndex = \Drupal::service('entity.sequence_index');
+    $this->sequenceIndex = \Drupal::service('entity.index.sequence');
   }
 
   public function testRecord() {

@@ -4,5 +4,5 @@
  * Implements hook_uninstall().
  */
 function multiversion_uninstall() {
-  \Drupal::service('entity.uuid_index')->deleteAll();
+  \Drupal::service('entity.index.uuid')->deleteAll();
 }

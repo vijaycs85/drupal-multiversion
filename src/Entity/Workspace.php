@@ -39,7 +39,7 @@ class Workspace extends ConfigEntityBase implements WorkspaceInterface {
    * {@inheritdoc}
    */
   public function getUpdateSeq() {
-    return \Drupal::service('entity.sequence_index')->useWorkspace($this->id)->getLastSequenceId();
+    return \Drupal::service('entity.index.sequence')->useWorkspace($this->id)->getLastSequenceId();
   }
 
   /**

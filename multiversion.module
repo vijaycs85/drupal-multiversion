@@ -127,9 +127,9 @@ function multiversion_cron() {
 function multiversion_entity_insert(EntityInterface $entity) {
   $manager = \Drupal::service('multiversion.manager');
   if ($entity->uuid() && $manager->isSupportedEntityType($entity->getEntityType())) {
-    \Drupal::service('entity.sequence_index')->add($entity);
-    \Drupal::service('entity.uuid_index')->add($entity);
-    \Drupal::service('entity.rev_index')->add($entity);
+    \Drupal::service('entity.index.sequence')->add($entity);
+    \Drupal::service('entity.index.uuid')->add($entity);
+    \Drupal::service('entity.index.rev')->add($entity);
   }
 }
 
@@ -146,14 +146,14 @@ function multiversion_entity_update(EntityInterface $entity) {
 function multiversion_entity_delete(EntityInterface $entity) {
   $manager = \Drupal::service('multiversion.manager');
   if ($entity->uuid() && $manager->isSupportedEntityType($entity->getEntityType())) {
-    \Drupal::service('entity.uuid_index')->delete($entity->uuid());
+    \Drupal::service('entity.index.uuid')->delete($entity->uuid());
     // @todo Need tests.
     if (\Drupal::service('multiversion.manager')->isSupportedEntityType($entity->getEntityType())) {
       $keys = array();
       foreach ($entity->_revs_info as $item) {
         $keys[] = $entity->uuid() . ':' . $item->rev;
       }
-      \Drupal::service('entity.rev_index')->deleteMultiple($keys);
+      \Drupal::service('entity.index.rev')->deleteMultiple($keys);
     }
   }
 }
