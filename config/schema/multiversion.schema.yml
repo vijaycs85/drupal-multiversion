@@ -18,3 +18,15 @@ multiversion.workspace.*:
     id:
       type: string
       label: 'Workspace identifier'
+    uuid:
+      type: string
+      label: 'UUID'
+    label:
+      type: string
+      label: 'Label'
+    name:
+      type: string
+      label: 'Name'
+    created:
+      type: string
+      label: 'Created'
