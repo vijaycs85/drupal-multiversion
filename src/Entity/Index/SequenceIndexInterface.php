@@ -8,7 +8,7 @@ interface SequenceIndexInterface {
 
   /**
    * @param $id
-   * @return \Drupal\multiversion\Entity\SequenceIndex
+   * @return \Drupal\multiversion\Entity\Index\SequenceIndex
    */
   public function useWorkspace($id);
 
