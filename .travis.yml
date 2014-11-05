@@ -56,4 +56,6 @@ script:
   # Simpletest does not exit with code 0 on success, so we will need to analyze
   # the output to ascertain whether the tests passed.
   - TEST_SIMPLETEST=$(! egrep -i "([0-9]+ fails)|(PHP Fatal error)|([0-9]+ exceptions)" /tmp/test.txt > /dev/null)$?
-  - if [ $TEST_EXIT -eq 0 ] && [ $TEST_SIMPLETEST -eq 0 ]; then exit 0; else exit 1; fi
+  - cd $TRAVIS_BUILD_DIR/../drupal/core
+  - ./vendor/bin/phpunit --group Multiversion --verbose --debug --coverage-text | tee ; export TEST_PHPUNIT=${PIPESTATUS[0]} ; echo $TEST_PHPUNIT
+  - if [ $TEST_EXIT -eq 0 ] && [ $TEST_SIMPLETEST -eq 0 ] && [ $TEST_PHPUNIT -eq 0 ]; then exit 0; else exit 1; fi
