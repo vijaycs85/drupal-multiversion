@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\Tests\multiversion\Unit\WorkspaceManagerTest;
+ * Contains Drupal\Tests\multiversion\Unit\WorkspaceManagerTest.
  */
 
 namespace Drupal\Tests\multiversion\Unit;
@@ -10,10 +10,11 @@ namespace Drupal\Tests\multiversion\Unit;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Tests\UnitTestCase;
 use Drupal\multiversion\Workspace\WorkspaceManager;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @coversDefaultClass \Drupal\multiversion\Workspace\WorkspaceManager
- * @group Multiversion
+ * @group multiversion
  */
 class WorkspaceManagerTest extends UnitTestCase {
 
@@ -67,13 +68,6 @@ class WorkspaceManagerTest extends UnitTestCase {
   protected $entityType;
 
   /**
-   * The workspace manager.
-   *
-   * @var \Drupal\multiversion\Workspace\WorkspaceManager|\PHPUnit_Framework_MockObject_MockObject
-   */
-  protected $workspaceManager;
-
-  /**
    * The workspace negotiators.
    *
    * @var array
@@ -109,14 +103,6 @@ class WorkspaceManagerTest extends UnitTestCase {
       ->with($this->entityTypeId)
       ->will($this->returnValue($this->entityType));
     $this->requestStack = $this->getMock('\Symfony\Component\HttpFoundation\RequestStack');
-
-    $methods = get_class_methods('\Drupal\multiversion\Workspace\WorkspaceManager');
-    $this->workspaceManager = $this->getMock(
-      '\Drupal\multiversion\Workspace\WorkspaceManager',
-      $methods,
-      array($this->requestStack, $this->entityManager
-      )
-    );
 
     $container = new ContainerBuilder();
     $container->set('entity.manager', $this->entityManager);
@@ -214,7 +200,45 @@ class WorkspaceManagerTest extends UnitTestCase {
    * @covers ::getWorkspaceSwitchLinks()
    */
   public function testGetWorkspaceSwitchLinks() {
-    // @todo Add test
+    $path = '<front>';
+    $request = Request::create($path);
+    $query = array();
+    parse_str($request->getQueryString(), $query);
+    $expected_links = array(
+      $this->values[1]['id'] => array(
+        'href' => '<front>',
+        'title' => $this->values[0]['id'],
+        'query' => $query,
+      ),
+    );
+
+    $this->requestStack->expects($this->once())
+      ->method('getCurrentRequest')
+      ->will($this->returnValue($request));
+
+    $request = $this->requestStack->getCurrentRequest();
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager);
+    $workspace_manager->addNegotiator($this->workspaceNegotiators[1][0], 3);
+
+    $method = new \ReflectionMethod('\Drupal\multiversion\Workspace\WorkspaceManager', 'getSortedNegotiators');
+    $method->setAccessible(TRUE);
+
+    $result_links = array();
+    $sorted_negotiators = $method->invoke($workspace_manager);
+    foreach ($sorted_negotiators as $negotiator) {
+      $negotiator->expects($this->once())
+        ->method('applies')
+        ->will($this->returnValue(TRUE));
+      if ($negotiator->applies($request)) {
+        $negotiator->expects($this->once())
+          ->method('getWorkspaceSwitchLinks')
+          ->will($this->returnValue($expected_links));
+        if ($links = $negotiator->getWorkspaceSwitchLinks($request, $path)) {
+          $result_links = $links;
+        }
+      }
+    }
+    $this->assertSame($expected_links, $result_links);
   }
 
   /**
