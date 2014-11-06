@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\Tests\multiversion\Unit\DefaultWorkspaceNegotiatorTest.
+ * Contains \Drupal\Tests\multiversion\Unit\DefaultWorkspaceNegotiatorTest.
  */
 
 namespace Drupal\Tests\multiversion\Unit;
