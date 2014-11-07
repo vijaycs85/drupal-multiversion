@@ -46,11 +46,43 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
    * @var string
    */
   protected $id;
+
+  /**
+   * The entity manager.
+   *
+   * @var \Drupal\Core\Entity\EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
   protected $entityManager;
+
+  /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack|\PHPUnit_Framework_MockObject_MockObject
+   */
   protected $requestStack;
+
+  /**
+   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
   protected $workspaceManager;
+
+  /**
+   * The path used for testing.
+   *
+   * @var string
+   */
   protected $path;
+
+  /**
+   * The entity type used for testing.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
   protected $entityType;
+
+  /**
+   * @var \Drupal\multiversion\Workspace\SessionWorkspaceNegotiator|PHPUnit_Framework_MockObject_MockObject
+   */
   protected $negotiator;
 
   /**
@@ -68,33 +100,6 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
 
     $methods = get_class_methods('\Drupal\multiversion\Entity\Workspace');
     $this->workspace = $this->getMock('\Drupal\multiversion\Entity\Workspace', $methods, array($values, 'workspace'));
-
-    $new_id = $this->randomMachineName();
-    $new_values = array(
-      'id' => $new_id,
-      'label' => $new_id,
-      'created' => (int) microtime(TRUE) * 1000000,
-    );
-    $new_expected_links = array(
-      $this->id => array(
-        'href' => $this->path,
-        'title' => $this->id,
-        'query' => array(),
-        'attributes' => array(
-          'class' => array('session-active'),
-        ),
-      ),
-      $new_id => array(
-        'href' => $new_id,
-        'title' => $new_id,
-        'query' => array(
-          'workspace' => $new_id
-        ),
-      ),
-    );
-
-    $methods = get_class_methods('\Drupal\multiversion\Entity\Workspace');
-    $this->workspace = $this->getMock('\Drupal\multiversion\Entity\Workspace', $methods, array($new_values, 'workspace'));
 
     $this->path = '<front>';
     $this->request = Request::create($this->path);
@@ -160,7 +165,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
    *
    * @covers ::getWorkspaceSwitchLinks()
    *
-   * @todo Add tests for more than one workspace
+   * @todo Test with more than one entity
    */
   public function testGetWorkspaceSwitchLinks() {
     $query = array();

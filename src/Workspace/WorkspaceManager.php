@@ -6,9 +6,6 @@ use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * @todo Needs tests
- */
 class WorkspaceManager implements WorkspaceManagerInterface {
 
   /**

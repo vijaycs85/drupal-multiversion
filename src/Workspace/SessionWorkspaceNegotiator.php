@@ -5,9 +5,6 @@ namespace Drupal\multiversion\Workspace;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @todo Needs tests
- */
 class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements WorkspaceSwitcherInterface {
 
   /**

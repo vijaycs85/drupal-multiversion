@@ -4,9 +4,6 @@ namespace Drupal\multiversion\Workspace;
 
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @todo Needs tests
- */
 class DefaultWorkspaceNegotiator extends WorkspaceNegotiatorBase {
 
   /**
