@@ -52,10 +52,10 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements Work
       $workspace_id = $workspace->id();
       $links[$workspace_id] = array(
         'href' => $path,
-        'title' => $workspace->id(),
+        'title' => $workspace_id,
         'query' => $query,
       );
-      if ($workspace->id() != $active_workspace_id) {
+      if ($workspace_id != $active_workspace_id) {
         $links[$workspace_id]['query']['workspace'] = $workspace_id;
       }
       else {
