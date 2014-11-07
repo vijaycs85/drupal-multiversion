@@ -181,8 +181,6 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
    * Tests the getWorkspaceSwitchLinks() method.
    *
    * @covers ::getWorkspaceSwitchLinks()
-   *
-   * @todo Test with more than one entity
    */
   public function testGetWorkspaceSwitchLinks() {
     $query = array();
