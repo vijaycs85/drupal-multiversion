@@ -26,7 +26,7 @@ class WorkspaceManagerTest extends UnitTestCase {
   protected $entities;
 
   /**
-   * The entity values.
+   * The entities values.
    *
    * @var array
    */

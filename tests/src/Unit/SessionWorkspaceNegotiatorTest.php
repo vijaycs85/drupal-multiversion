@@ -34,20 +34,6 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
   protected $request;
 
   /**
-   * The workspace entity.
-   *
-   * @var \Drupal\multiversion\Entity\Workspace|\PHPUnit_Framework_MockObject_MockObject
-   */
-  protected $workspace;
-
-  /**
-   * The workspace id.
-   *
-   * @var string
-   */
-  protected $id;
-
-  /**
    * The entity manager.
    *
    * @var \Drupal\Core\Entity\EntityManagerInterface|\PHPUnit_Framework_MockObject_MockObject
@@ -86,20 +72,51 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
   protected $negotiator;
 
   /**
+   * The entities values.
+   *
+   * @var array
+   */
+  protected $values;
+
+  /**
+   * The id of the default entity.
+   *
+   * @var string
+   */
+  protected $defaultId = 'default';
+
+  /**
+   * The entity type used for testing.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
+  protected $entityTypeId;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
 
-    $this->id = $this->randomMachineName();
-    $values = array(
-      'id' => $this->id,
-      'label' => $this->id,
-      'created' => (int) microtime(TRUE) * 1000000,
+    $this->entityTypeId = 'workspace';
+    $second_id = $this->randomMachineName();
+    $this->values = array(
+      array(
+        'id' => $this->defaultId,
+        'label' => $this->defaultId,
+        'created' => (int) microtime(TRUE) * 1000000,
+      ),
+      array(
+        'id' => $second_id,
+        'label' => $second_id,
+        'created' => (int) microtime(TRUE) * 1000000,
+      ),
     );
 
     $methods = get_class_methods('\Drupal\multiversion\Entity\Workspace');
-    $this->workspace = $this->getMock('\Drupal\multiversion\Entity\Workspace', $methods, array($values, 'workspace'));
+    foreach ($this->values as $value) {
+      $this->entities[] = $this->getMock('\Drupal\multiversion\Entity\Workspace', $methods, array($value, $this->entityTypeId));
+    }
 
     $this->path = '<front>';
     $this->request = Request::create($this->path);
@@ -108,7 +125,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
     $this->entityManager = $this->getMock('\Drupal\Core\Entity\EntityManagerInterface');
     $this->entityManager->expects($this->any())
       ->method('getDefinition')
-      ->with('workspace')
+      ->with($this->entityTypeId)
       ->will($this->returnValue($this->entityType));
     $this->requestStack = $this->getMock('\Symfony\Component\HttpFoundation\RequestStack');
 
@@ -120,7 +137,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
     );
 
     $container = new ContainerBuilder();
-    $container->setParameter('workspace.default', 'default');
+    $container->setParameter('workspace.default', $this->defaultId);
     $container->set('entity.manager', $this->entityManager);
     $container->set('workspace.manager', $this->workspaceManager);
     $container->set('request_stack', $this->requestStack);
@@ -145,7 +162,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
    * @covers ::getWorkspaceId()
    */
   public function testGetWorkspaceId() {
-    $this->assertSame('default', $this->workspaceNegotiator->getWorkspaceId($this->request));
+    $this->assertSame($this->defaultId, $this->workspaceNegotiator->getWorkspaceId($this->request));
   }
 
   /**
@@ -154,10 +171,10 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
    * @covers ::persist()
    */
   public function testPersist() {
-    $this->workspace->expects($this->once())
+    $this->entities[0]->expects($this->once())
       ->method('id')
-      ->will($this->returnValue($this->id));
-    $this->assertTrue($this->workspaceNegotiator->persist($this->workspace));
+      ->will($this->returnValue($this->defaultId));
+    $this->assertTrue($this->workspaceNegotiator->persist($this->entities[0]));
   }
 
   /**
@@ -170,19 +187,27 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
   public function testGetWorkspaceSwitchLinks() {
     $query = array();
     parse_str($this->request->getQueryString(), $query);
+    $second_id = $this->values[1]['id'];
     $expected_links = array(
-      $this->id => array(
+      $this->defaultId => array(
         'href' => $this->path,
-        'title' => $this->id,
+        'title' => $this->defaultId,
         'query' => $query,
         'attributes' => array(
           'class' => array('session-active'),
         ),
       ),
+      $second_id => array(
+        'href' => $this->path,
+        'title' => $second_id,
+        'query' => array(
+          'workspace' => $second_id,
+        ),
+      ),
     );
 
     $this->workspaceManager->addNegotiator($this->workspaceNegotiator, 1);
-    $this->workspaceManager->setActiveWorkspace($this->workspace);
+    $this->workspaceManager->setActiveWorkspace($this->entities[0]);
 
     $methods = get_class_methods('\Drupal\multiversion\Workspace\SessionWorkspaceNegotiator');
     $this->negotiator = $this->getMock('\Drupal\multiversion\Workspace\SessionWorkspaceNegotiator', $methods);
@@ -191,20 +216,22 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
       ->method('setWorkspaceManager')
       ->with($this->workspaceManager);
 
-    $this->workspace->expects($this->any())
-      ->method('id')
-      ->will($this->returnValue($this->id));
+    foreach ($this->values as $key => $value) {
+      $this->entities[$key]->expects($this->any())
+        ->method('id')
+        ->will($this->returnValue($value['id']));
+    }
 
     $this->negotiator->expects($this->any())
       ->method('getActiveWorkspace')
       ->with($this->requestStack, $this->entityManager)
-      ->will($this->returnValue($this->id));
+      ->will($this->returnValue($this->defaultId));
 
     $storage = $this->getMock('\Drupal\Core\Entity\EntityStorageInterface');
     $storage->expects($this->any())
       ->method('loadMultiple')
       ->with()
-      ->will($this->returnValue(array($this->workspace)));
+      ->will($this->returnValue($this->entities));
 
     $this->entityManager->expects($this->any())
       ->method('getStorage')
@@ -214,11 +241,11 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
     $this->workspaceManager->expects($this->any())
       ->method('loadMultiple')
       ->with()
-      ->will($this->returnValue(array($this->workspace)));
+      ->will($this->returnValue(array($this->entities)));
 
     $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager);
     $workspace_manager->addNegotiator($this->workspaceNegotiator, 1);
-    $workspace_manager->setActiveWorkspace($this->workspace);
+    $workspace_manager->setActiveWorkspace($this->entities[0]);
     $negotiator = new SessionWorkspaceNegotiator();
     $negotiator->setWorkspaceManager($workspace_manager);
 
