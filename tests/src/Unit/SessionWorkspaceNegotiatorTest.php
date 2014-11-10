@@ -8,6 +8,7 @@
 namespace Drupal\Tests\multiversion\Unit;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Core\Url;
 use Drupal\multiversion\Workspace\SessionWorkspaceNegotiator;
 use Drupal\multiversion\Workspace\WorkspaceManager;
 use Drupal\Tests\UnitTestCase;
@@ -186,9 +187,10 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
     $query = array();
     parse_str($this->request->getQueryString(), $query);
     $second_id = $this->values[1]['id'];
+    $url = Url::fromRoute($this->path);
     $expected_links = array(
       $this->defaultId => array(
-        'href' => $this->path,
+        'url' => $url,
         'title' => $this->defaultId,
         'query' => $query,
         'attributes' => array(
@@ -196,7 +198,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
         ),
       ),
       $second_id => array(
-        'href' => $this->path,
+        'url' => $url,
         'title' => $second_id,
         'query' => array(
           'workspace' => $second_id,
@@ -247,7 +249,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
     $negotiator = new SessionWorkspaceNegotiator();
     $negotiator->setWorkspaceManager($workspace_manager);
 
-    $links = $negotiator->getWorkspaceSwitchLinks($this->request, $this->path);
+    $links = $negotiator->getWorkspaceSwitchLinks($this->request, $url);
     $this->assertSame($expected_links, $links);
   }
 }

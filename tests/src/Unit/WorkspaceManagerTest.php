@@ -8,6 +8,7 @@
 namespace Drupal\Tests\multiversion\Unit;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Core\Url;
 use Drupal\Tests\UnitTestCase;
 use Drupal\multiversion\Workspace\WorkspaceManager;
 use Symfony\Component\HttpFoundation\Request;
@@ -206,7 +207,7 @@ class WorkspaceManagerTest extends UnitTestCase {
     parse_str($request->getQueryString(), $query);
     $expected_links = array(
       $this->values[1]['id'] => array(
-        'href' => '<front>',
+        'href' => Url::fromRoute('<front>'),
         'title' => $this->values[0]['id'],
         'query' => $query,
       ),
@@ -233,7 +234,7 @@ class WorkspaceManagerTest extends UnitTestCase {
         $negotiator->expects($this->once())
           ->method('getWorkspaceSwitchLinks')
           ->will($this->returnValue($expected_links));
-        if ($links = $negotiator->getWorkspaceSwitchLinks($request, $path)) {
+        if ($links = $negotiator->getWorkspaceSwitchLinks($request, Url::fromRoute($path))) {
           $result_links = $links;
         }
       }
