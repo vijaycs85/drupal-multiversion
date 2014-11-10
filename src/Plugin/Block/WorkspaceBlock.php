@@ -13,7 +13,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Workspace switcher"),
  *   category = @Translation("Multiversion"),
  * )
- * @todo Needs tests
  */
 class WorkspaceBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
