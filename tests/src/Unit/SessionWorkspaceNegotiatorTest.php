@@ -128,12 +128,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
       ->with($this->entityTypeId)
       ->will($this->returnValue($this->entityType));
     $this->requestStack = $this->getMock('\Symfony\Component\HttpFoundation\RequestStack');
-
-    $this->workspaceManager = $this->getMock(
-      '\Drupal\multiversion\Workspace\WorkspaceManagerInterface',
-      array(),
-      array($this->requestStack, $this->entityManager)
-    );
+    $this->workspaceManager = $this->getMock('\Drupal\multiversion\Workspace\WorkspaceManagerInterface');
 
     $container = new ContainerBuilder();
     $container->setParameter('workspace.default', $this->defaultId);
