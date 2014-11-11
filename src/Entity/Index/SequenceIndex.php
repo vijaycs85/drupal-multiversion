@@ -105,7 +105,6 @@ class SequenceIndex implements SequenceIndexInterface {
       'parent_revision_id' => ($entity->_revs_info->count() > 1) ? $entity->_revs_info[1]->rev : 0,
       'deleted' => $entity->_deleted->value,
       'conflict' => FALSE, //@todo
-      'local' => $entity->_local->value,
       'rev' => $entity->_revs_info->rev,
     );
   }

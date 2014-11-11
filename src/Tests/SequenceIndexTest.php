@@ -41,7 +41,6 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $entity->id->value = $expected['entity_id'];
     $entity->revision_id->value = $expected['revision_id'];
     $entity->_deleted->value = $expected['deleted'];
-    $entity->_local->value = $expected['local'];
     $entity->_revs_info->rev = $expected['rev'];
 
     $this->sequenceIndex->add($entity);
