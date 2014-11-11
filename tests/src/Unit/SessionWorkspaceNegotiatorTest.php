@@ -206,12 +206,8 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
     );
 
     $this->workspaceManager->addNegotiator($this->workspaceNegotiator, 1);
-    $this->workspaceManager->setActiveWorkspace($this->entities[0]);
     $this->negotiator = $this->getMock('\Drupal\multiversion\Workspace\SessionWorkspaceNegotiator');
     $this->negotiator->setWorkspaceManager($this->workspaceManager);
-    $this->negotiator->expects($this->any())
-      ->method('setWorkspaceManager')
-      ->with($this->workspaceManager);
 
     foreach ($this->values as $key => $value) {
       $this->entities[$key]->expects($this->any())
