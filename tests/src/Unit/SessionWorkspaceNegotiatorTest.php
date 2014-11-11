@@ -172,10 +172,11 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
    * @covers ::persist()
    */
   public function testPersist() {
-    $this->entities[0]->expects($this->once())
+    $this->entities[0]->expects($this->any())
       ->method('id')
       ->will($this->returnValue($this->defaultId));
     $this->assertTrue($this->workspaceNegotiator->persist($this->entities[0]));
+    $this->assertSame($this->entities[0]->id(), $_SESSION['workspace']);
   }
 
   /**
