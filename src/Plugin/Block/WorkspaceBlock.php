@@ -4,6 +4,7 @@ namespace Drupal\multiversion\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Url;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -13,7 +14,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   admin_label = @Translation("Workspace switcher"),
  *   category = @Translation("Multiversion"),
  * )
- * @todo Needs tests
  */
 class WorkspaceBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
@@ -50,8 +50,8 @@ class WorkspaceBlock extends BlockBase implements ContainerFactoryPluginInterfac
    */
   public function build() {
     $build = array();
-    $path = drupal_is_front_page() ? '<front>' : current_path();
-    $links = $this->workspaceManager->getWorkspaceSwitchLinks($path);
+    $route_name = drupal_is_front_page() ? '<front>' : '<current>';
+    $links = $this->workspaceManager->getWorkspaceSwitchLinks(Url::fromRoute($route_name));
 
     if (isset($links)) {
       $build = array(

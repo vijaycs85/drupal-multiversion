@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Workspace;
 
+use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 
 interface WorkspaceManagerInterface {
@@ -34,9 +35,9 @@ interface WorkspaceManagerInterface {
   public function setActiveWorkspace(WorkspaceInterface $workspace);
 
   /**
-   * @param string $path
+   * @param \Drupal\Core\Url $url
    * @return array
    */
-  public function getWorkspaceSwitchLinks($path);
+  public function getWorkspaceSwitchLinks(Url $url);
 
 }

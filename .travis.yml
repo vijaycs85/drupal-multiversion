@@ -51,9 +51,12 @@ script:
   # Enable Simpletest and run Simpletest tests.
   - drush en --yes simpletest
   - drush cr
+  - cd $TRAVIS_BUILD_DIR/../drupal/core
+  - ./vendor/bin/phpunit --group multiversion --verbose --debug --coverage-text | tee ; export TEST_PHPUNIT=${PIPESTATUS[0]}
+  - if [ $TEST_PHPUNIT -eq 1 ]; then exit 1; fi
   - cd $TRAVIS_BUILD_DIR/../drupal
   - php core/scripts/run-tests.sh --verbose --color --concurrency 4 --php `which php` --url http://localhost "key_value,multiversion" | tee /tmp/test.txt ; export TEST_EXIT=${PIPESTATUS[0]}
   # Simpletest does not exit with code 0 on success, so we will need to analyze
   # the output to ascertain whether the tests passed.
   - TEST_SIMPLETEST=$(! egrep -i "([0-9]+ fails)|(PHP Fatal error)|([0-9]+ exceptions)" /tmp/test.txt > /dev/null)$?
-  - if [ $TEST_EXIT -eq 0 ] && [ $TEST_SIMPLETEST -eq 0 ]; then exit 0; else exit 1; fi
+  - if [ $TEST_EXIT -eq 0 ] && [ $TEST_SIMPLETEST -eq 0 ] && [ $TEST_PHPUNIT -eq 0 ]; then exit 0; else exit 1; fi

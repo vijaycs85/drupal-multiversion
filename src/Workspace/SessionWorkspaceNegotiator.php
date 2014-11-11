@@ -2,12 +2,10 @@
 
 namespace Drupal\multiversion\Workspace;
 
+use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @todo Needs tests
- */
 class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements WorkspaceSwitcherInterface {
 
   /**
@@ -40,7 +38,7 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements Work
   /**
    * {@inheritdoc}
    */
-  public function getWorkspaceSwitchLinks(Request $request, $path) {
+  public function getWorkspaceSwitchLinks(Request $request, Url $url) {
     $links = array();
     $active_workspace_id = $this->workspaceManager->getActiveWorkspace($request)->id();
     $query = array();
@@ -51,11 +49,11 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements Work
     foreach ($workspaces as $workspace) {
       $workspace_id = $workspace->id();
       $links[$workspace_id] = array(
-        'href' => $path,
-        'title' => $workspace->id(),
+        'url' => $url,
+        'title' => $workspace_id,
         'query' => $query,
       );
-      if ($workspace->id() != $active_workspace_id) {
+      if ($workspace_id != $active_workspace_id) {
         $links[$workspace_id]['query']['workspace'] = $workspace_id;
       }
       else {

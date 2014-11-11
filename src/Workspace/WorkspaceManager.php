@@ -3,12 +3,10 @@
 namespace Drupal\multiversion\Workspace;
 
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * @todo Needs tests
- */
 class WorkspaceManager implements WorkspaceManagerInterface {
 
   /**
@@ -100,11 +98,11 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getWorkspaceSwitchLinks($path) {
+  public function getWorkspaceSwitchLinks(Url $url) {
     $request = $this->requestStack->getCurrentRequest();
     foreach ($this->getSortedNegotiators() as $negotiator) {
       if ($negotiator instanceof WorkspaceSwitcherInterface && $negotiator->applies($request)) {
-        if ($links = $negotiator->getWorkspaceSwitchLinks($request, $path)) {
+        if ($links = $negotiator->getWorkspaceSwitchLinks($request, $url)) {
           return $links;
         }
       }
