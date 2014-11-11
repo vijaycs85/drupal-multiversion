@@ -10,8 +10,6 @@ interface WorkspaceSwitcherInterface {
   /**
    * @param \Symfony\Component\HttpFoundation\Request $request
    * @param \Drupal\Core\Url $url
-   *
-   * @internal param string $path
    * @return array
    */
   public function getWorkspaceSwitchLinks(Request $request, Url $url);
