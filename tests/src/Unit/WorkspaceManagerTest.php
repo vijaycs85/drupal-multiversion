@@ -203,10 +203,10 @@ class WorkspaceManagerTest extends UnitTestCase {
     $path = '<front>';
     $request = Request::create($path);
     $query = array();
-    parse_str($request->getQueryString(), $query);
+    $url = Url::fromRoute('<front>');
     $expected_links = array(
-      $this->values[1]['id'] => array(
-        'href' => Url::fromRoute('<front>'),
+      $this->values[0]['id'] => array(
+        'href' => $url,
         'title' => $this->values[0]['id'],
         'query' => $query,
       ),
@@ -216,28 +216,19 @@ class WorkspaceManagerTest extends UnitTestCase {
       ->method('getCurrentRequest')
       ->will($this->returnValue($request));
 
-    $request = $this->requestStack->getCurrentRequest();
     $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager);
-    $workspace_manager->addNegotiator($this->workspaceNegotiators[1][0], 3);
+    $workspace_manager->addNegotiator($this->workspaceNegotiators[1][0], 1);
 
-    $method = new \ReflectionMethod('\Drupal\multiversion\Workspace\WorkspaceManager', 'getSortedNegotiators');
-    $method->setAccessible(TRUE);
+    $this->workspaceNegotiators[1][0]->expects($this->any())
+      ->method('applies')
+      ->with($request)
+      ->will($this->returnValue(TRUE));
+    $this->workspaceNegotiators[1][0]->expects($this->once())
+      ->method('getWorkspaceSwitchLinks')
+      ->with($request, $url)
+      ->will($this->returnValue($expected_links));
 
-    $result_links = array();
-    $sorted_negotiators = $method->invoke($workspace_manager);
-    foreach ($sorted_negotiators as $negotiator) {
-      $negotiator->expects($this->once())
-        ->method('applies')
-        ->will($this->returnValue(TRUE));
-      if ($negotiator->applies($request)) {
-        $negotiator->expects($this->once())
-          ->method('getWorkspaceSwitchLinks')
-          ->will($this->returnValue($expected_links));
-        if ($links = $negotiator->getWorkspaceSwitchLinks($request, Url::fromRoute($path))) {
-          $result_links = $links;
-        }
-      }
-    }
+    $result_links = $workspace_manager->getWorkspaceSwitchLinks($url);
     $this->assertSame($expected_links, $result_links);
   }
 
