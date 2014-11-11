@@ -5,6 +5,7 @@ namespace Drupal\multiversion\Entity\Index;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
+use Drupal\multiversion\MultiversionManagerInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
 class SequenceIndex implements SequenceIndexInterface {
@@ -27,12 +28,19 @@ class SequenceIndex implements SequenceIndexInterface {
   protected $workspaceManager;
 
   /**
-   * @param \Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface $sorted_set_factory
-   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
+   * @var \Drupal\multiversion\MultiversionManagerInterface
    */
-  public function __construct(KeyValueSortedSetFactoryInterface $sorted_set_factory, WorkspaceManagerInterface $workspace_manager) {
+  protected $multiversionManager;
+
+  /**
+   * @param \Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface $sorted_set_factory
+   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface          $workspace_manager
+   * @param \Drupal\multiversion\MultiversionManagerInterface                 $multiversion_manager
+   */
+  public function __construct(KeyValueSortedSetFactoryInterface $sorted_set_factory, WorkspaceManagerInterface $workspace_manager, MultiversionManagerInterface $multiversion_manager) {
     $this->sortedSetFactory = $sorted_set_factory;
     $this->workspaceManager = $workspace_manager;
+    $this->multiversionManager = $multiversion_manager;
   }
 
   /**
@@ -56,7 +64,7 @@ class SequenceIndex implements SequenceIndexInterface {
   public function addMultiple(array $entities) {
     $pairs = array();
     foreach ($entities as $entity) {
-      $sequence_id = $entity->_local_seq->value;
+      $sequence_id = $this->multiversionManager->newSequenceId();
       $pairs[] = array($sequence_id => $this->buildRecord($entity));
     }
     $this->sortedSetStore()->addMultiple($pairs);
@@ -90,7 +98,6 @@ class SequenceIndex implements SequenceIndexInterface {
    */
   protected function buildRecord(ContentEntityInterface $entity) {
     return array(
-      'local_seq' => $entity->_local_seq->value,
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'entity_uuid' => $entity->uuid(),

@@ -7,7 +7,7 @@ services:
     arguments: ['@config.factory', '@entity.manager', '@multiversion.manager', '@entity.query']
   entity.index.sequence:
     class: Drupal\multiversion\Entity\Index\SequenceIndex
-    arguments: ['@keyvalue.sorted_set', '@workspace.manager']
+    arguments: ['@keyvalue.sorted_set', '@workspace.manager', '@multiversion.manager']
   entity.index.uuid:
     class: Drupal\multiversion\Entity\Index\UuidIndex
     arguments: ['@keyvalue', '@workspace.manager']
