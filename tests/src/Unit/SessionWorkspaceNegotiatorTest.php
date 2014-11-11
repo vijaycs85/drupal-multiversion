@@ -114,9 +114,8 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
       ),
     );
 
-    $methods = get_class_methods('\Drupal\multiversion\Entity\Workspace');
     foreach ($this->values as $value) {
-      $this->entities[] = $this->getMock('\Drupal\multiversion\Entity\Workspace', $methods, array($value, $this->entityTypeId));
+      $this->entities[] = $this->getMock('\Drupal\multiversion\Entity\Workspace', array(), array($value, $this->entityTypeId));
     }
 
     $this->path = '<front>';
@@ -130,10 +129,9 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
       ->will($this->returnValue($this->entityType));
     $this->requestStack = $this->getMock('\Symfony\Component\HttpFoundation\RequestStack');
 
-    $methods = get_class_methods('\Drupal\multiversion\Workspace\WorkspaceManagerInterface');
     $this->workspaceManager = $this->getMock(
       '\Drupal\multiversion\Workspace\WorkspaceManagerInterface',
-      $methods,
+      array(),
       array($this->requestStack, $this->entityManager)
     );
 
@@ -209,9 +207,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
 
     $this->workspaceManager->addNegotiator($this->workspaceNegotiator, 1);
     $this->workspaceManager->setActiveWorkspace($this->entities[0]);
-
-    $methods = get_class_methods('\Drupal\multiversion\Workspace\SessionWorkspaceNegotiator');
-    $this->negotiator = $this->getMock('\Drupal\multiversion\Workspace\SessionWorkspaceNegotiator', $methods);
+    $this->negotiator = $this->getMock('\Drupal\multiversion\Workspace\SessionWorkspaceNegotiator');
     $this->negotiator->setWorkspaceManager($this->workspaceManager);
     $this->negotiator->expects($this->any())
       ->method('setWorkspaceManager')

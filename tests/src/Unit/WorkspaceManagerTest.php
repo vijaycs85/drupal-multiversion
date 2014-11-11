@@ -110,9 +110,8 @@ class WorkspaceManagerTest extends UnitTestCase {
     $container->set('request_stack', $this->requestStack);
     \Drupal::setContainer($container);
 
-    $methods = get_class_methods('\Drupal\multiversion\Entity\Workspace');
     foreach ($this->values as $value) {
-      $this->entities[] = $this->getMock('\Drupal\multiversion\Entity\Workspace', $methods, array($value, $this->entityTypeId));
+      $this->entities[] = $this->getMock('\Drupal\multiversion\Entity\Workspace', array(), array($value, $this->entityTypeId));
     }
 
     $this->workspaceNegotiators[] = array($this->getMock('\Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator'));
