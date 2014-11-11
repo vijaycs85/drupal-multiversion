@@ -28,7 +28,6 @@ class RevisionIndex extends IndexBase implements RevisionIndexInterface {
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'revision_id' => $entity->getRevisionId(),
-      'local_seq' => $entity->_local_seq->value,
       'rev' => $entity->_revs_info->rev,
     );
   }
