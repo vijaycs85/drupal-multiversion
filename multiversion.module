@@ -71,14 +71,6 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setReadOnly(TRUE);
 
-    $fields['_trx'] = BaseFieldDefinition::create('boolean')
-      ->setLabel('Transaction flag')
-      ->setDescription('Indicates if the entity revision is in a transaction or not.')
-      ->setRevisionable(TRUE)
-      ->setTranslatable(TRUE)
-      ->setDefaultValue(0)
-      ->setCardinality(1);
-
     // @todo Make this not revisionable, currently it's not possible.
     // @see https://www.drupal.org/node/2362433
     $fields['_workspace'] = BaseFieldDefinition::create('workspace_reference')
