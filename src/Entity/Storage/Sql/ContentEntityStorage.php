@@ -36,9 +36,6 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
       }
     }
     $query->condition("$revision_alias._deleted", (int) $this->isDeleted);
-    // Entities in transaction can only be queried with the Entity Query API
-    // and not by the storage handler itself.
-    $query->condition("$revision_alias._trx", 0);
     // Entities in other workspaces than the active one can only be queried with
     // the Entity Query API and not by the storage handler itself.
     $query->condition("$revision_alias._workspace", $this->getActiveWorkspaceId());
@@ -49,16 +46,14 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
    * {@inheritdoc}
    */
   public function onTransactionCommit(array $revision_ids) {
-    $table = $this->entityType->isTranslatable()
-      ? $this->getRevisionDataTable()
-      : $this->getRevisionTable();
-
-    $this->database->update($table)
-      ->fields(array(
-        '_trx' => 0,
-      ))
-      ->condition($this->entityType->getKey('revision'), $revision_ids)
-      ->execute();
+    foreach ($revision_ids as $id => $revision) {
+      $this->database->update($this->baseTable)
+        ->fields(array(
+            $this->revisionKey => $revision,
+          ))
+        ->condition($this->idKey, $id)
+        ->execute();
+    }
   }
 
 }
