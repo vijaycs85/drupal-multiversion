@@ -36,6 +36,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
       'deleted' => FALSE,
       'conflict' => FALSE,
       'rev' => FALSE,
+      'local' => (boolean) $entity->getEntityType()->get('local'),
     );
     $entity->id->value = $expected['entity_id'];
     $entity->revision_id->value = $expected['revision_id'];

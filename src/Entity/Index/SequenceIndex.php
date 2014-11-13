@@ -106,6 +106,7 @@ class SequenceIndex implements SequenceIndexInterface {
       'deleted' => $entity->_deleted->value,
       'conflict' => FALSE, //@todo
       'rev' => $entity->_revs_info->rev,
+      'local' => (boolean) $entity->getEntityType()->get('local'),
     );
   }
 }
