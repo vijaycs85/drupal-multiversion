@@ -11,11 +11,6 @@ class AllOrNothingTransaction extends TransactionBase {
   /**
    * @var array
    */
-  protected $revisionIds = array();
-
-  /**
-   * @var array
-   */
   protected $makeDefaultOnCommit = array();
 
   /**
