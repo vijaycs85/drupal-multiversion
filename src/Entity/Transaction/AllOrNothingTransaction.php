@@ -11,15 +11,20 @@ class AllOrNothingTransaction extends TransactionBase {
   /**
    * @var array
    */
-  protected $revisionIds = array();
+  protected $makeDefaultOnCommit = array();
 
   /**
    * {@inheritdoc}
    */
   public function save(ContentEntityInterface $entity) {
-    $entity->_trx->value = TRUE;
+    $was_default_revision = $entity->isDefaultRevision();
+    $entity->isDefaultRevision(FALSE);
     $return = $this->storage->save($entity);
-    $this->revisionIds[] = $entity->getRevisionId();
+
+    $id = $entity->id();
+    if ($was_default_revision) {
+      $this->makeDefaultOnCommit[$id] = $entity->getRevisionId();
+    }
     return $return;
   }
 
@@ -27,9 +32,9 @@ class AllOrNothingTransaction extends TransactionBase {
    * {@inheritdoc}
    */
   public function commit() {
-    $this->storage->onTransactionCommit($this->revisionIds);
+    $this->storage->onTransactionCommit($this->makeDefaultOnCommit);
     // Reset the stored revisions.
-    $this->revisionIds = array();
+    $this->makeDefaultOnCommit = array();
   }
 
 }
