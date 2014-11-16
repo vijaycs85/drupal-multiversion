@@ -53,16 +53,6 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setDefaultValue(FALSE)
       ->setCardinality(1);
 
-    // @todo Make this not revisionable, currently it's not possible.
-    // @see https://www.drupal.org/node/2362433
-    $fields['_local'] = BaseFieldDefinition::create('local_flag')
-      ->setLabel('Local flag')
-      ->setDescription('Indicates if this entity is local and not intended to be replicated to other environments.')
-      ->setRevisionable(TRUE)
-      ->setTranslatable(FALSE)
-      ->setDefaultValue(FALSE)
-      ->setCardinality(1);
-
     $fields['_revs_info'] = BaseFieldDefinition::create('revision_info')
       ->setLabel('Revision info')
       ->setDescription('The revision history information for the entity.')
