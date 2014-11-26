@@ -38,7 +38,7 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
     $query->condition("$revision_alias._deleted", (int) $this->isDeleted);
     // Entities in other workspaces than the active one can only be queried with
     // the Entity Query API and not by the storage handler itself.
-    $query->condition("$revision_alias._workspace", $this->getActiveWorkspaceId());
+    $query->condition("$revision_alias.workspace", $this->getActiveWorkspaceId());
     return $query;
   }
 
