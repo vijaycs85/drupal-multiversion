@@ -63,7 +63,7 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
 
     // @todo Make this not revisionable, currently it's not possible.
     // @see https://www.drupal.org/node/2362433
-    $fields['_workspace'] = BaseFieldDefinition::create('workspace_reference')
+    $fields['workspace'] = BaseFieldDefinition::create('workspace_reference')
       ->setLabel('Workspace reference')
       ->setDescription('The workspace this entity belongs to.')
       ->setSetting('target_type', 'workspace')
