@@ -18,6 +18,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'entity_id' => $entity->id(),
       'revision_id' => $entity->getRevisionId(),
       'rev' => $entity->_revs_info->rev,
+      'uuid' => $entity->uuid(),
     );
     $this->assertIdentical($entry, $expected, 'Index entry was added and fetched.');
 
@@ -31,12 +32,14 @@ class UuidIndexTest extends MultiversionWebTestBase {
         'entity_id' => $entities[0]->id(),
         'revision_id' => $entities[0]->getRevisionId(),
         'rev' => $entities[0]->_revs_info->rev,
+        'uuid' => $entities[0]->uuid(),
       ),
       $entities[1]->uuid() => array(
         'entity_type' => $entities[1]->getEntityTypeId(),
         'entity_id' => $entities[1]->id(),
         'revision_id' => $entities[1]->getRevisionId(),
         'rev' => $entities[1]->_revs_info->rev,
+        'uuid' => $entities[1]->uuid(),
       ),
     );
     $entries = $this->uuidIndex->getMultiple(array($entities[0]->uuid(), $entities[1]->uuid()));
@@ -76,6 +79,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'entity_id' => $entity->id(),
       'revision_id' => $entity->getRevisionId(),
       'rev' => $entity->_revs_info->rev,
+      'uuid' => $entity->uuid(),
     );
     $this->assertIdentical($entry, $expected, 'Entry was added and fetched from new workspace.');
   }

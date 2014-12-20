@@ -23,6 +23,7 @@ class UuidIndexHooksTest extends MultiversionWebTestBase {
         'entity_id' => $entity->id(),
         'revision_id' => $entity->getRevisionId(),
         'rev' => $entity->_revs_info->rev,
+        'uuid' => $entity->uuid(),
       ),
       'Index entry was created by insert hook.'
     );
