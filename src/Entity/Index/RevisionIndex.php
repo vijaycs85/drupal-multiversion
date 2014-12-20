@@ -3,10 +3,8 @@
 namespace Drupal\multiversion\Entity\Index;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\multiversion\Entity\Index\IndexBase;
-use Drupal\multiversion\Entity\Index\RevisionIndexInterface;
 
-class RevisionIndex extends IndexBase implements RevisionIndexInterface {
+class RevisionIndex extends EntityIndex implements RevisionIndexInterface {
 
   /**
    * @var string
@@ -18,17 +16,5 @@ class RevisionIndex extends IndexBase implements RevisionIndexInterface {
    */
   protected function buildKey(EntityInterface $entity) {
     return $entity->uuid() . ':' . $entity->_revs_info->rev;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function buildValue(EntityInterface $entity) {
-    return array(
-      'entity_type' => $entity->getEntityTypeId(),
-      'entity_id' => $entity->id(),
-      'revision_id' => $entity->getRevisionId(),
-      'rev' => $entity->_revs_info->rev,
-    );
   }
 }

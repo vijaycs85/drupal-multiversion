@@ -3,9 +3,8 @@
 namespace Drupal\multiversion\Entity\Index;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\multiversion\Entity\Index\IndexBase;
 
-class UuidIndex extends IndexBase {
+class UuidIndex extends EntityIndex {
 
   /**
    * @var string
@@ -17,18 +16,5 @@ class UuidIndex extends IndexBase {
    */
   protected function buildKey(EntityInterface $entity) {
     return $entity->uuid();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function buildValue(EntityInterface $entity) {
-    // @todo: Rename 'entity_type' to 'entity_type_id' for consistency.
-    return array(
-      'entity_type' => $entity->getEntityTypeId(),
-      'entity_id' => $entity->id(),
-      'revision_id' => $entity->getRevisionId(),
-      'rev' => $entity->_revs_info->rev,
-    );
   }
 }

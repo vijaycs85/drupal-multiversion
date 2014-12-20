@@ -102,6 +102,7 @@ function multiversion_entity_insert(EntityInterface $entity) {
   $manager = \Drupal::service('multiversion.manager');
   if ($entity->uuid() && $manager->isSupportedEntityType($entity->getEntityType())) {
     \Drupal::service('entity.index.sequence')->add($entity);
+    \Drupal::service('entity.index.id')->add($entity);
     \Drupal::service('entity.index.uuid')->add($entity);
     \Drupal::service('entity.index.rev')->add($entity);
   }
