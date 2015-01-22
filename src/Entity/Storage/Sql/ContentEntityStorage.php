@@ -29,7 +29,7 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
       $revision_table = $this->getRevisionDataTable();
       $revision_alias = 'revision_data';
       if ($revision_id) {
-        $query->join($revision_table, $revision_alias, "$revision_alias.{$this->revisionKey} = revision.{$this->revisionKey} AND $revision_alias.{$this->revisionKey} = :revisionId");
+        $query->join($revision_table, $revision_alias, "$revision_alias.{$this->revisionKey} = revision.{$this->revisionKey} AND $revision_alias.{$this->revisionKey} = :revisionId", array(':revisionId' => $revision_id));
       }
       else {
         $query->join($revision_table, $revision_alias, "$revision_alias.{$this->revisionKey} = revision.{$this->revisionKey}");
