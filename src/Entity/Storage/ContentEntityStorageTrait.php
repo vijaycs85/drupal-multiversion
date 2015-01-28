@@ -86,6 +86,7 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function resetCache(array $ids = NULL) {
+    parent::resetCache($ids);
     $ws = $this->getActiveWorkspaceId();
     if ($this->entityType->isStaticallyCacheable() && isset($ids)) {
       foreach ($ids as $id) {
