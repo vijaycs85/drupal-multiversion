@@ -42,7 +42,7 @@ abstract class MultiversionWebTestBase extends WebTestBase {
    */
   protected $entityDefinitionUpdateManager;
 
-  public static $modules = array('multiversion');
+  public static $modules = array('entity_test', 'multiversion');
 
   protected function setUp() {
     parent::setUp();
@@ -54,7 +54,5 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
 
     $this->entityDefinitionUpdateManager->applyUpdates();
-
-    \Drupal::service('module_installer')->install(array('entity_test'), TRUE);
   }
 }
