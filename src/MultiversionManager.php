@@ -33,6 +33,10 @@ class MultiversionManager implements MultiversionManagerInterface {
     'entity_test_no_id',
     'entity_test_base_field_display',
     'shortcut',
+    'comment',
+    'contact_message',
+    'block_content',
+    'menu_link_content',
   );
 
   /**

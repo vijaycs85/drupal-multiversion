@@ -28,7 +28,16 @@ function multiversion_entity_type_alter(array &$entity_types) {
         $keys['revision'] = 'revision_id';
         $entity_type->set('entity_keys', $keys);
       }
-      $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\ContentEntityStorage');
+      switch ($entity_type->id()) {
+        case 'node':
+          $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\NodeStorage');
+          break;
+        case 'taxonomy_term':
+          $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\TermStorage');
+          break;
+        default:
+          $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\ContentEntityStorage');
+      }
     }
   }
 }
@@ -82,6 +91,23 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setSetting('unsigned', TRUE);
 
     return $fields;
+  }
+}
+
+/**
+ * Implements hook_entity_base_field_info_alter().
+ *
+ * @param array $fields
+ * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+ */
+function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
+  if ($entity_type->id() == 'taxonomy_term') {
+    $fields_to_revisionable = array('name', 'description', 'path', 'weight', 'parent');
+    foreach ($fields_to_revisionable as $field_name) {
+      if (!empty($fields[$field_name])) {
+        $fields[$field_name]->setRevisionable(TRUE);
+      }
+    }
   }
 }
 
