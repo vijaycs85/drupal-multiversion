@@ -7,7 +7,6 @@
 
 namespace Drupal\multiversion\Entity\Storage\Sql;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\taxonomy\TermStorageInterface;
 
@@ -122,7 +121,10 @@ class TermStorage extends ContentEntityStorage implements TermStorageInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Updates terms hierarchy information for the children when terms are deleted.
+   *
+   * @param array $tids
+   *   Array of terms that need to be removed from hierarchy.
    */
   public function updateParentHierarchy($tids) {
     $this->database->update('taxonomy_term_hierarchy')

@@ -35,6 +35,9 @@ function multiversion_entity_type_alter(array &$entity_types) {
         case 'taxonomy_term':
           $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\TermStorage');
           break;
+        case 'comment':
+          $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\CommentStorage');
+          break;
         default:
           $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\ContentEntityStorage');
       }
@@ -102,10 +105,30 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
  */
 function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
   if ($entity_type->id() == 'taxonomy_term') {
-    $fields_to_revisionable = array('name', 'description', 'path', 'weight', 'parent');
-    foreach ($fields_to_revisionable as $field_name) {
-      if (!empty($fields[$field_name])) {
-        $fields[$field_name]->setRevisionable(TRUE);
+    $exculde_fields = array(
+      'tid',
+      'uuid',
+      'vid',
+      'revision_id',
+      'language'
+    );
+    foreach ($fields as $key => $field) {
+      if (!in_array($key, $exculde_fields)) {
+        $field->setRevisionable(TRUE);
+      }
+    }
+  }
+  if ($entity_type->id() == 'comment') {
+    $exculde_fields = array(
+      'cid',
+      'uuid',
+      'comment_type',
+      'revision_id',
+      'language'
+    );
+    foreach ($fields as $key => $field) {
+      if (!in_array($key, $exculde_fields)) {
+        $field->setRevisionable(TRUE);
       }
     }
   }
