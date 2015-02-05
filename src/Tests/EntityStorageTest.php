@@ -18,27 +18,72 @@ class EntityStorageTest extends MultiversionWebTestBase {
    */
   protected $entityTypes = array(
     'entity_test' => array(
+      'info' => array(),
       'data_table' => 'entity_test',
       'revision_table' => 'entity_test_revision',
+      'id' => 'id',
     ),
     'entity_test_rev' => array(
+      'info' => array(),
       'data_table' => 'entity_test_rev',
       'revision_table' => 'entity_test_rev_revision',
+      'id' => 'id',
     ),
     'entity_test_mul' => array(
+      'info' => array(),
       'data_table' => 'entity_test_mul_property_data',
       'revision_table' => 'entity_test_mul_field_revision',
+      'id' => 'id',
     ),
     'entity_test_mulrev' => array(
+      'info' => array(),
       'data_table' => 'entity_test_mulrev_property_data',
       'revision_table' => 'entity_test_mulrev_property_revision',
+      'id' => 'id',
+    ),
+    'node' => array(
+      'info' => array(
+        'type' => 'article',
+      ),
+      'data_table' => 'node_field_data',
+      'revision_table' => 'node_field_revision',
+      'id' => 'nid',
+    ),
+    'taxonomy_term' => array(
+      'info' => array(
+        'name' => 'A term',
+        'vid' => 123,
+      ),
+      'data_table' => 'taxonomy_term_field_data',
+      'revision_table' => 'taxonomy_term_field_revision',
+      'id' => 'tid',
+    ),
+    'comment' => array(
+      'info' => array(
+        'entity_type' => 'node',
+        'field_name' => 'comment',
+        'subject' => 'How much wood would a woodchuck chuck',
+        'mail' => 'someone@example.com',
+      ),
+      'data_table' => 'comment_field_data',
+      'revision_table' => 'comment_field_revision',
+      'id' => 'cid',
     ),
   );
+
+  public function setUp() {
+    parent::setUp();
+
+    foreach ($this->entityTypes as $entity_type_id => $info) {
+      $this->entityTypes[$entity_type_id]['revision_id'] = $entity_type_id == 'node' ? 'vid' : 'revision_id';
+      $this->entityTypes[$entity_type_id]['name'] = $entity_type_id == 'node' ? 'title' : 'name';
+    }
+  }
 
   public function testSaveAndLoad() {
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $ids = array();
-      $entity = entity_create($entity_type_id);
+      $entity = entity_create($entity_type_id, $info['info']);
       $return = $entity->save();
       $this->assertEqual($return, SAVED_NEW, "$entity_type_id was saved.");
 
@@ -48,13 +93,13 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       // @todo Test loadEntityByUuid
       // Update and save a new revision.
-      $entity->name->value = $this->randomMachineName();
+      $entity->{$info['name']}->value = $this->randomMachineName();
       $entity->save();
       /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
       $revision = entity_revision_load($entity_type_id, 1);
       $this->assertTrue(($revision->getRevisionId() == 1 && !$revision->isDefaultRevision()), "Old revision of $entity_type_id was loaded.");
 
-      $entity = entity_create($entity_type_id);
+      $entity = entity_create($entity_type_id, $info['info']);
       $entity->save();
       $ids[] = $entity->id();
 
@@ -65,7 +110,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
   public function testDelete() {
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $entity = entity_create($entity_type_id);
+      $entity = entity_create($entity_type_id, $info['info']);
       $entity->save();
       $id = $entity->id();
       $revision_id = $entity->getRevisionId();
@@ -73,8 +118,8 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       $record = db_select($info['revision_table'], 'e')
         ->fields('e')
-        ->condition('e.id', $id)
-        ->condition('e.revision_id', '2')
+        ->condition('e.' . $info['id'], $id)
+        ->condition('e.' . $info['revision_id'], '2')
         ->execute()
         ->fetchObject();
 
@@ -93,14 +138,14 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
   public function testWorkspace() {
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $entity = entity_create($entity_type_id);
+      $entity = entity_create($entity_type_id, $info['info']);
       $entity->save();
       $entity_id = $entity->id();
       $this->assertEqual($entity->workspace->target_id, 'default', "The workspace reference was saved for $entity_type_id.");
       $record = db_select($info['data_table'], 'e')
         ->fields('e')
-        ->condition('e.id', $entity->id())
-        ->condition('e.revision_id', $entity->getRevisionId())
+        ->condition('e.' . $info['id'], $entity->id())
+        ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
         ->execute()
         ->fetchObject();
       $this->assertEqual($record->workspace, 'default', "The workspace reference was stored for saved $entity_type_id.");
@@ -109,8 +154,8 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertEqual($entity->workspace->target_id, 'default', "The workspace reference is retained for loaded $entity_type_id.");
       $record = db_select($info['data_table'], 'e')
         ->fields('e')
-        ->condition('e.id', $entity->id())
-        ->condition('e.revision_id', $entity->getRevisionId())
+        ->condition('e.' . $info['id'], $entity->id())
+        ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
         ->execute()
         ->fetchObject();
       $this->assertEqual($record->workspace, 'default', "The workspace reference was stored for loaded $entity_type_id.");
@@ -120,8 +165,8 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertEqual($entity->workspace->target_id, 'default', "The workspace reference is retained for deleted $entity_type_id.");
       $record = db_select($info['data_table'], 'e')
         ->fields('e')
-        ->condition('e.id', $entity->id())
-        ->condition('e.revision_id', $entity->getRevisionId())
+        ->condition('e.' . $info['id'], $entity->id())
+        ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
         ->execute()
         ->fetchObject();
       $this->assertEqual($record->workspace, 'default', "The workspace reference was stored for deleted $entity_type_id.");
@@ -132,7 +177,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $this->workspaceManager->setActiveWorkspace($workspace);
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $entity = entity_create($entity_type_id);
+      $entity = entity_create($entity_type_id, $info['info']);
       $entity->save();
       $this->assertEqual($entity->workspace->target_id, $workspace->id(), "$entity_type_id was saved in new workspace.");
     }
@@ -140,7 +185,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $uuids = array();
     $ids = array();
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $entity = entity_create($entity_type_id);
+      $entity = entity_create($entity_type_id, $info['info']);
       $entity->save();
       $uuids[$entity_type_id] = $entity->uuid();
       $ids[$entity_type_id] = $entity->id();

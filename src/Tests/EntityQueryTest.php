@@ -17,10 +17,21 @@ class EntityQueryTest extends MultiversionWebTestBase {
    * @var array
    */
   protected $entityTypes = array(
-    'entity_test' => NULL,
-    'entity_test_rev' => NULL,
-    'entity_test_mul' => NULL,
-    'entity_test_mulrev' => NULL,
+    'entity_test' => array(),
+    'entity_test_rev' => array(),
+    'entity_test_mul' => array(),
+    'entity_test_mulrev' => array(),
+    'node' => array('type' => 'article'),
+    'taxonomy_term' => array(
+      'name' => 'A term',
+      'vid' => 123,
+    ),
+    'comment' => array(
+      'entity_type' => 'node',
+      'field_name' => 'comment',
+      'subject' => 'How much wood would a woodchuck chuck',
+      'mail' => 'someone@example.com',
+    ),
   );
 
   /**
@@ -36,7 +47,7 @@ class EntityQueryTest extends MultiversionWebTestBase {
 
   public function testQuery() {
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $entity = entity_create($entity_type_id);
+      $entity = entity_create($entity_type_id, $info);
       $entity->save();
 
       $results = $this->factory->get($entity_type_id)

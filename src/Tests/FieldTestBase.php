@@ -10,10 +10,21 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
    * @var array
    */
   protected $entityTypes = array(
-//    'entity_test' => NULL,
-//    'entity_test_rev' => NULL,
-//    'entity_test_mul' => NULL,
-    'entity_test_mulrev' => NULL,
+    'entity_test' => array(),
+    'entity_test_rev' => array(),
+    'entity_test_mul' => array(),
+    'entity_test_mulrev' => array(),
+    'node' => array('type' => 'article'),
+    'taxonomy_term' => array(
+      'name' => 'A term',
+      'vid' => 123,
+    ),
+    'comment' => array(
+      'entity_type' => 'node',
+      'field_name' => 'comment',
+      'subject' => 'How much wood would a woodchuck chuck',
+      'mail' => 'someone@example.com',
+    ),
   );
 
   /**
@@ -38,7 +49,7 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
 
   public function testFieldBasics() {
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $entity = entity_create($entity_type_id);
+      $entity = entity_create($entity_type_id, $info);
       $this->assertTrue(is_a($entity->{$this->fieldName}, $this->itemListClass), "Field item list implements correct interface on created $entity_type_id.");
       $this->assertEqual($entity->{$this->fieldName}->count(), 0, "Field is created with no field items for $entity_type_id.");
       $this->assertEqual($entity->{$this->fieldName}->first(), NULL, "Field item list's isEmpty is correct on created $entity_type_id.");
