@@ -341,9 +341,11 @@ class CommentStorage extends ContentEntityStorage implements CommentStorageInter
    * {@inheritdoc}
    */
   public function delete(array $entities) {
-    $child_cids = $this->getChildCids($entities);
-    if (!empty($child_cids)) {
-      entity_delete_multiple('comment', $child_cids);
+    if (!empty($entities)) {
+      $child_cids = $this->getChildCids($entities);
+      if (!empty($child_cids)) {
+        entity_delete_multiple('comment', $child_cids);
+      }
     }
     parent::delete($entities);
   }
