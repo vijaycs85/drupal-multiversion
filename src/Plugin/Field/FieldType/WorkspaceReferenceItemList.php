@@ -7,9 +7,10 @@ use Drupal\Core\Field\FieldItemList;
 class WorkspaceReferenceItemList extends FieldItemList {
 
   public function preSave() {
-    if ($this->get(0)->isEmpty()) {
-      $this->get(0)->target_id = \Drupal::service('multiversion.manager')
+    if (!$this->offsetExists(0)) {
+      $workspace = \Drupal::service('multiversion.manager')
         ->getActiveWorkspaceId();
+      $this->offsetSet(0, $workspace);
     }
     parent::preSave();
   }
