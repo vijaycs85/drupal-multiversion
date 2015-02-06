@@ -7,7 +7,6 @@ use Drupal\Core\Field\FieldItemList;
 class RevisionInfoItemList extends FieldItemList {
 
   public function preSave() {
-
     $entity = $this->getEntity();
 
     if (!isset($entity->new_edits) || ($entity->new_edits !== FALSE)) {
@@ -18,7 +17,7 @@ class RevisionInfoItemList extends FieldItemList {
         ->newRevisionId($entity, $i);
 
       // Append the hash to our field.
-      $this->get($i)->rev = $rev;
+      $this->offsetSet($i, $rev);
 
       // Reverse the item list to have the last revision first.
       $items = array_reverse($this->getValue());
