@@ -104,31 +104,35 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
  * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
  */
 function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
-  if ($entity_type->id() == 'taxonomy_term') {
-    $exculde_fields = array(
-      'tid',
-      'uuid',
-      'vid',
-      'revision_id',
-      'language'
-    );
-    foreach ($fields as $key => $field) {
-      if (!in_array($key, $exculde_fields)) {
-        $field->setRevisionable(TRUE);
+  /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
+  $manager = \Drupal::service('multiversion.manager');
+  if ($manager->isSupportedEntityType($entity_type)) {
+    if ($entity_type->id() == 'taxonomy_term') {
+      $exculde_fields = array(
+        'tid',
+        'uuid',
+        'vid',
+        'revision_id',
+        'language'
+      );
+      foreach ($fields as $key => $field) {
+        if (!in_array($key, $exculde_fields)) {
+          $field->setRevisionable(TRUE);
+        }
       }
     }
-  }
-  if ($entity_type->id() == 'comment') {
-    $exculde_fields = array(
-      'cid',
-      'uuid',
-      'comment_type',
-      'revision_id',
-      'language'
-    );
-    foreach ($fields as $key => $field) {
-      if (!in_array($key, $exculde_fields)) {
-        $field->setRevisionable(TRUE);
+    if ($entity_type->id() == 'comment') {
+      $exculde_fields = array(
+        'cid',
+        'uuid',
+        'comment_type',
+        'revision_id',
+        'language'
+      );
+      foreach ($fields as $key => $field) {
+        if (!in_array($key, $exculde_fields)) {
+          $field->setRevisionable(TRUE);
+        }
       }
     }
   }
