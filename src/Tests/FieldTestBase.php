@@ -27,11 +27,6 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
   protected $defaultValue;
 
   /**
-   * @var boolean
-   */
-  protected $createdEmpty = TRUE;
-
-  /**
    * @var string
    */
   protected $itemListClass = '\Drupal\Core\Field\FieldItemList';
@@ -45,11 +40,8 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $entity = entity_create($entity_type_id);
       $this->assertTrue(is_a($entity->{$this->fieldName}, $this->itemListClass), "Field item list implements correct interface on created $entity_type_id.");
-      $this->assertTrue(is_a($entity->{$this->fieldName}->get(0), $this->itemClass), "Field item implements correct interface on created $entity_type_id.");
-      $this->assertEqual($entity->{$this->fieldName}->count(), 1, "Field is created with one field item for $entity_type_id.");
-      $this->assertEqual($entity->{$this->fieldName}->isEmpty(), $this->createdEmpty, "Field item list's isEmpty is correct on created $entity_type_id.");
-      $this->assertEqual($entity->{$this->fieldName}->get(0)->isEmpty(), $this->createdEmpty, "First item's isEmpty is correct on created $entity_type_id.");
-      $this->assertIdentical($entity->{$this->fieldName}->get(0)->value, $this->defaultValue, "Field item was created with correct default value for $entity_type_id.");
+      $this->assertEqual($entity->{$this->fieldName}->count(), 0, "Field is created with no field items for $entity_type_id.");
+      $this->assertEqual($entity->{$this->fieldName}->first(), NULL, "Field item list's isEmpty is correct on created $entity_type_id.");
 
       $entity->save();
       $entity_id = $entity->id();
