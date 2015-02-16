@@ -25,6 +25,10 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
       'subject' => 'How much wood would a woodchuck chuck',
       'mail' => 'someone@example.com',
     ),
+    'block_content' =>  array(
+      'info' => 'New block',
+      'type' => 'basic',
+    ),
   );
 
   /**

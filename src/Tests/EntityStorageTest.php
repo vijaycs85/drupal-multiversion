@@ -69,6 +69,15 @@ class EntityStorageTest extends MultiversionWebTestBase {
       'revision_table' => 'comment_field_revision',
       'id' => 'cid',
     ),
+    'block_content' =>  array(
+      'info' => array(
+        'info' => 'New block',
+        'type' => 'basic',
+      ),
+      'data_table' => 'block_content_field_data',
+      'revision_table' => 'block_content_field_revision',
+      'id' => 'id',
+    ),
   );
 
   public function setUp() {
@@ -76,7 +85,15 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $this->entityTypes[$entity_type_id]['revision_id'] = $entity_type_id == 'node' ? 'vid' : 'revision_id';
-      $this->entityTypes[$entity_type_id]['name'] = $entity_type_id == 'node' ? 'title' : 'name';
+      if ($entity_type_id == 'node') {
+        $this->entityTypes[$entity_type_id]['name'] = 'title';
+      }
+      elseif ($entity_type_id == 'block_content') {
+        $this->entityTypes[$entity_type_id]['name'] = 'info';
+      }
+      else {
+        $this->entityTypes[$entity_type_id]['name'] = 'name';
+      }
     }
   }
 
@@ -93,12 +110,15 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       // @todo Test loadEntityByUuid
       // Update and save a new revision.
-      $entity->{$info['name']}->value = $this->randomMachineName();
+      $entity->{$info['name']} = $this->randomMachineName();
       $entity->save();
       /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
       $revision = entity_revision_load($entity_type_id, 1);
       $this->assertTrue(($revision->getRevisionId() == 1 && !$revision->isDefaultRevision()), "Old revision of $entity_type_id was loaded.");
 
+      if ($entity_type_id == 'block_content') {
+        $info['info']['info'] = $this->randomMachineName();
+      }
       $entity = entity_create($entity_type_id, $info['info']);
       $entity->save();
       $ids[] = $entity->id();
@@ -177,6 +197,9 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $this->workspaceManager->setActiveWorkspace($workspace);
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
+      if ($entity_type_id == 'block_content') {
+        $info['info']['info'] = $this->randomMachineName();
+      }
       $entity = entity_create($entity_type_id, $info['info']);
       $entity->save();
       $this->assertEqual($entity->workspace->target_id, $workspace->id(), "$entity_type_id was saved in new workspace.");
@@ -185,6 +208,9 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $uuids = array();
     $ids = array();
     foreach ($this->entityTypes as $entity_type_id => $info) {
+      if ($entity_type_id == 'block_content') {
+        $info['info']['info'] = $this->randomMachineName();
+      }
       $entity = entity_create($entity_type_id, $info['info']);
       $entity->save();
       $uuids[$entity_type_id] = $entity->uuid();

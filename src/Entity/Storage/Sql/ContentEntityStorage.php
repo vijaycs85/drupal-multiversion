@@ -23,6 +23,11 @@ class ContentEntityStorage extends SqlContentEntityStorage implements ContentEnt
   protected function buildQuery($ids, $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $revision_id);
 
+    // Prevent to modify the query before entity type updates.
+    if ($ids === NULL) {
+      return $query;
+    }
+
     $revision_alias = 'revision';
     if ($this->entityType->isTranslatable()) {
       // Join the revision data table in order to set the delete condition.

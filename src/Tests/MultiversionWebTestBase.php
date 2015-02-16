@@ -48,7 +48,7 @@ abstract class MultiversionWebTestBase extends WebTestBase {
    */
   protected $entityDefinitionUpdateManager;
 
-  public static $modules = array('entity_test', 'multiversion', 'node', 'taxonomy', 'comment');
+  public static $modules = array('entity_test', 'multiversion', 'node', 'taxonomy', 'comment', 'block_content');
 
   protected function setUp() {
     parent::setUp();
