@@ -31,13 +31,13 @@ function multiversion_entity_type_alter(array &$entity_types) {
       $namespace = 'Drupal\multiversion\Entity\Storage\Sql';
       switch ($entity_type->id()) {
         case 'node':
-          $entity_type->setStorageClass($namespace . '\MultiversionNodeStorage');
+          $entity_type->setStorageClass($namespace . '\NodeStorage');
           break;
         case 'taxonomy_term':
-          $entity_type->setStorageClass($namespace . '\MultiversionTermStorage');
+          $entity_type->setStorageClass($namespace . '\TermStorage');
           break;
         case 'comment':
-          $entity_type->setStorageClass($namespace . '\MultiversionCommentStorage');
+          $entity_type->setStorageClass($namespace . '\CommentStorage');
           break;
         default:
           $entity_type->setStorageClass($namespace . '\ContentEntityStorage');
