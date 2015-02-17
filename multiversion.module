@@ -28,18 +28,19 @@ function multiversion_entity_type_alter(array &$entity_types) {
         $keys['revision'] = 'revision_id';
         $entity_type->set('entity_keys', $keys);
       }
+      $namespace = 'Drupal\multiversion\Entity\Storage\Sql';
       switch ($entity_type->id()) {
         case 'node':
-          $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\NodeStorage');
+          $entity_type->setStorageClass($namespace . '\MultiversionNodeStorage');
           break;
         case 'taxonomy_term':
-          $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\TermStorage');
+          $entity_type->setStorageClass($namespace . '\MultiversionTermStorage');
           break;
         case 'comment':
-          $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\CommentStorage');
+          $entity_type->setStorageClass($namespace . '\MultiversionCommentStorage');
           break;
         default:
-          $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\ContentEntityStorage');
+          $entity_type->setStorageClass($namespace . '\ContentEntityStorage');
       }
     }
   }
