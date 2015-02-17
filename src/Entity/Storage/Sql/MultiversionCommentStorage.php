@@ -13,9 +13,6 @@ use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
 
 /**
  * Defines the controller class for comments.
- *
- * This extends the Drupal\Core\Entity\Sql\SqlContentEntityStorage class,
- * adding required special handling for comment entities.
  */
 class MultiversionCommentStorage extends CommentStorage implements ContentEntityStorageInterface {
 
