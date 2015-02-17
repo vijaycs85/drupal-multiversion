@@ -30,16 +30,18 @@ class RevisionInfoFieldTest extends FieldTestBase {
   protected $itemClass = '\Drupal\multiversion\Plugin\Field\FieldType\RevisionInfoItem';
 
   public function testFieldOperations() {
-    $entity = entity_create('entity_test_rev');
+    foreach ($this->entityTypes as $entity_type_id => $info) {
+      $entity = entity_create($entity_type_id, $info);
 
-    $entity->save();
-    $this->assertEqual($entity->{$this->fieldName}->count(), 1, 'One value after first save.');
-    $first_rev = $entity->{$this->fieldName}[0]->rev;
-    $this->assertTrue(!empty($first_rev), 'First revision value was generated.');
+      $entity->save();
+      $this->assertEqual($entity->{$this->fieldName}->count(), 1, 'One value after first save.');
+      $first_rev = $entity->{$this->fieldName}[0]->rev;
+      $this->assertTrue(!empty($first_rev), 'First revision value was generated.');
 
-    $entity->save();
-    $this->assertEqual($entity->{$this->fieldName}->count(), 2, 'Two values after second save.');
-    $this->assertTrue(!empty($entity->{$this->fieldName}[0]->rev), 'Second value was generated.');
-    $this->assertEqual($first_rev, $entity->{$this->fieldName}[1]->rev, 'First value was pushed to last delta.');
+      $entity->save();
+      $this->assertEqual($entity->{$this->fieldName}->count(), 2, 'Two values after second save.');
+      $this->assertTrue(!empty($entity->{$this->fieldName}[0]->rev), 'Second value was generated.');
+      $this->assertEqual($first_rev, $entity->{$this->fieldName}[1]->rev, 'First value was pushed to last delta.');
+    }
   }
 }

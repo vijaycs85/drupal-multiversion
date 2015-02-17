@@ -2,8 +2,6 @@
 
 namespace Drupal\multiversion\Tests;
 
-use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
-
 /**
  * Test the MultiversionManager class.
  *

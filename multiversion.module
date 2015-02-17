@@ -28,7 +28,20 @@ function multiversion_entity_type_alter(array &$entity_types) {
         $keys['revision'] = 'revision_id';
         $entity_type->set('entity_keys', $keys);
       }
-      $entity_type->setStorageClass('Drupal\multiversion\Entity\Storage\Sql\ContentEntityStorage');
+      $namespace = 'Drupal\multiversion\Entity\Storage\Sql';
+      switch ($entity_type->id()) {
+        case 'node':
+          $entity_type->setStorageClass($namespace . '\NodeStorage');
+          break;
+        case 'taxonomy_term':
+          $entity_type->setStorageClass($namespace . '\TermStorage');
+          break;
+        case 'comment':
+          $entity_type->setStorageClass($namespace . '\CommentStorage');
+          break;
+        default:
+          $entity_type->setStorageClass($namespace . '\ContentEntityStorage');
+      }
     }
   }
 }
@@ -82,6 +95,41 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setSetting('unsigned', TRUE);
 
     return $fields;
+  }
+}
+
+/**
+ * Implements hook_entity_base_field_info_alter().
+ *
+ * @param array $fields
+ * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+ */
+function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
+  /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
+  $manager = \Drupal::service('multiversion.manager');
+  $need_update = array('taxonomy_term', 'comment');
+  if ($manager->isSupportedEntityType($entity_type) && in_array($entity_type->id(), $need_update)) {
+    $exculde_fields = array();
+    $exculde = array('id', 'uuid', 'revision_id');
+    if ($entity_type->id() == 'taxonomy_term') {
+      $exculde_fields = array_merge($exculde, array(
+        'tid',
+        'vid',
+        'language'
+      ));
+    }
+    if ($entity_type->id() == 'comment') {
+      $exculde_fields = array_merge($exculde, array(
+        'cid',
+        'comment_type',
+        'language'
+      ));
+    }
+    foreach ($fields as $key => $field) {
+      if (!in_array($key, $exculde_fields)) {
+        $field->setRevisionable(TRUE);
+      }
+    }
   }
 }
 

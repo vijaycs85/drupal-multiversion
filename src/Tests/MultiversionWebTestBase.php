@@ -2,12 +2,18 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\comment\Tests\CommentTestTrait;
+use Drupal\Component\Utility\Unicode;
 use Drupal\simpletest\WebTestBase;
 
 /**
  * @todo Change to extending DrupalUnitTestBase to increase performance. 
  */
 abstract class MultiversionWebTestBase extends WebTestBase {
+
+  use CommentTestTrait;
+
+  protected $strictConfigSchema = FALSE;
 
   /**
    * @var \Drupal\multiversion\Entity\Index\UuidIndex;
@@ -42,7 +48,7 @@ abstract class MultiversionWebTestBase extends WebTestBase {
    */
   protected $entityDefinitionUpdateManager;
 
-  public static $modules = array('entity_test', 'multiversion');
+  public static $modules = array('entity_test', 'multiversion', 'node', 'taxonomy', 'comment', 'block_content');
 
   protected function setUp() {
     parent::setUp();
@@ -54,5 +60,25 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
 
     $this->entityDefinitionUpdateManager->applyUpdates();
+
+    // Create Basic page and Article node types.
+    if ($this->profile != 'standard') {
+      $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
+    }
+    // Create comment field on article.
+    $this->addDefaultCommentField('node', 'article');
+  }
+
+  /**
+   * Returns a new vocabulary with random properties.
+   */
+  function createVocabulary() {
+    // Create a vocabulary.
+    $vocabulary = entity_create('taxonomy_vocabulary', array(
+      'name' => $this->randomMachineName(),
+      'vid' => Unicode::strtolower($this->randomMachineName()),
+    ));
+    $vocabulary->save();
+    return $vocabulary;
   }
 }
