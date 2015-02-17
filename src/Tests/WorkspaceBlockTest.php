@@ -31,13 +31,13 @@ class WorkspaceBlockTest extends MultiversionWebTestBase {
 
     // Confirm that the block is being displayed.
     $this->assertText('Workspace switcher', t('Block successfully being displayed on the page.'));
-
-    $this->assertRaw('href="'. _url('<front>') .'"', 'The id of the default workspace was displayed in the Workspace switcher block as a link.');
+    $front = \Drupal::url('<front>');
+    $this->assertRaw('href="'. $front .'"', 'The id of the default workspace was displayed in the Workspace switcher block as a link.');
     $id = $this->randomMachineName();
     $entity = entity_create('workspace', array('id' => $id));
     $entity->save();
     $this->drupalGet('');
-    $url = _url('<front>') . "?workspace=$id";
+    $url = $front . "?workspace=$id";
     $this->assertRaw('href="'. $url .'"', 'The id of the new workspace was displayed in the Workspace switcher block as a link.');
     $entity->delete();
     $this->drupalGet('');
