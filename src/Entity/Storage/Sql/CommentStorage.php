@@ -2,22 +2,22 @@
 
 /**
  * @file
- * Definition of Drupal\multiversion\Entity\Storage\Sql\MultiversionCommentStorage.
+ * Definition of Drupal\multiversion\Entity\Storage\Sql\CommentStorage.
  */
 
 namespace Drupal\multiversion\Entity\Storage\Sql;
 
-use Drupal\comment\CommentStorage;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
+use Drupal\comment\CommentStorage as CoreCommentStorage;
 
 /**
  * Defines the controller class for comments.
  */
-class MultiversionCommentStorage extends CommentStorage implements ContentEntityStorageInterface {
+class CommentStorage extends CoreCommentStorage implements ContentEntityStorageInterface {
 
   use ContentEntityStorageTrait {
-    delete AS deleteEntities;
+    delete as deleteEntities;
   }
 
   /**

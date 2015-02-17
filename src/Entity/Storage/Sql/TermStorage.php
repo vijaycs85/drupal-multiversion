@@ -9,15 +9,15 @@ namespace Drupal\multiversion\Entity\Storage\Sql;
 
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
-use Drupal\taxonomy\TermStorage;
+use Drupal\taxonomy\TermStorage as CoreTermStorage;
 
 /**
  * Defines a Controller class for taxonomy terms.
  */
-class MultiversionTermStorage extends TermStorage implements ContentEntityStorageInterface {
+class TermStorage extends CoreTermStorage implements ContentEntityStorageInterface {
 
   use ContentEntityStorageTrait {
-    delete AS deleteEntities;
+    delete as deleteEntities;
   }
 
   /**
