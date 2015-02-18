@@ -29,6 +29,11 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
       'info' => 'New block',
       'type' => 'basic',
     ),
+    'menu_link_content' => array(
+      'menu_name' => 'menu_test',
+      'bundle' => 'menu_link_content',
+      'link' => [['uri' => 'user-path:/']],
+    ),
   );
 
   /**
