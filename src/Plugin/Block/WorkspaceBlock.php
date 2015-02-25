@@ -50,7 +50,7 @@ class WorkspaceBlock extends BlockBase implements ContainerFactoryPluginInterfac
    */
   public function build() {
     $build = array();
-    $route_name = drupal_is_front_page() ? '<front>' : '<current>';
+    $route_name = \Drupal::service('path.matcher')->isFrontPage() ? '<front>' : '<current>';
     $links = $this->workspaceManager->getWorkspaceSwitchLinks(Url::fromRoute($route_name));
 
     if (isset($links)) {
