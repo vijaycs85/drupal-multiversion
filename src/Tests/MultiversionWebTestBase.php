@@ -48,7 +48,15 @@ abstract class MultiversionWebTestBase extends WebTestBase {
    */
   protected $entityDefinitionUpdateManager;
 
-  public static $modules = array('entity_test', 'multiversion', 'node', 'taxonomy', 'comment', 'block_content');
+  public static $modules = array(
+    'entity_test',
+    'multiversion',
+    'node',
+    'taxonomy',
+    'comment',
+    'block_content',
+    'menu_link_content'
+  );
 
   protected function setUp() {
     parent::setUp();
@@ -80,5 +88,19 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     ));
     $vocabulary->save();
     return $vocabulary;
+  }
+
+  /**
+   * Returns a new menu with random properties.
+   */
+  function createMenu() {
+    // Create a menu.
+    $menu = entity_create('menu', array(
+      'id' => 'menu_test',
+      'label' => 'Test menu',
+      'description' => 'Description text',
+    ));
+    $menu->save();
+    return $menu;
   }
 }

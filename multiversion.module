@@ -107,23 +107,18 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
 function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
   /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
   $manager = \Drupal::service('multiversion.manager');
-  $need_update = array('taxonomy_term', 'comment');
+  $need_update = array('taxonomy_term', 'comment', 'menu_link_content');
   if ($manager->isSupportedEntityType($entity_type) && in_array($entity_type->id(), $need_update)) {
     $exculde_fields = array();
-    $exculde = array('id', 'uuid', 'revision_id');
+    $exculde = array('id', 'uuid', 'revision_id', 'language', 'bundle');
     if ($entity_type->id() == 'taxonomy_term') {
-      $exculde_fields = array_merge($exculde, array(
-        'tid',
-        'vid',
-        'language'
-      ));
+      $exculde_fields = array_merge($exculde, array('tid', 'vid'));
     }
     if ($entity_type->id() == 'comment') {
-      $exculde_fields = array_merge($exculde, array(
-        'cid',
-        'comment_type',
-        'language'
-      ));
+      $exculde_fields = array_merge($exculde, array('cid','comment_type'));
+    }
+    if ($entity_type->id() == 'menu_link_content') {
+      $exculde_fields = array_merge($exculde, array());
     }
     foreach ($fields as $key => $field) {
       if (!in_array($key, $exculde_fields)) {

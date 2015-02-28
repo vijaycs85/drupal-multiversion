@@ -78,14 +78,27 @@ class EntityStorageTest extends MultiversionWebTestBase {
       'revision_table' => 'block_content_field_revision',
       'id' => 'id',
     ),
+    'menu_link_content' => array(
+      'info' => array(
+        'menu_name' => 'menu_test',
+        'bundle' => 'menu_link_content',
+        'link' => [['uri' => 'user-path:/']],
+      ),
+      'data_table' => 'menu_link_content_data',
+      'revision_table' => 'block_content_field_revision',
+      'id' => 'id',
+    ),
   );
 
   public function setUp() {
     parent::setUp();
 
+    // Create menu_test menu.
+    $this->createMenu();
+
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $this->entityTypes[$entity_type_id]['revision_id'] = $entity_type_id == 'node' ? 'vid' : 'revision_id';
-      if ($entity_type_id == 'node') {
+      if ($entity_type_id == 'node' || $entity_type_id == 'menu_link_content') {
         $this->entityTypes[$entity_type_id]['name'] = 'title';
       }
       elseif ($entity_type_id == 'block_content') {
