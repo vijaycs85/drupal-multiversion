@@ -8,7 +8,7 @@ trait QueryTrait {
   /**
    * @var \Drupal\Core\Entity\EntityManagerInterface
    */
-  protected $entityManager;
+  //protected $entityManager;
 
   /**
    * @var null|string
