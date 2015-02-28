@@ -46,7 +46,10 @@ class EntityQueryTest extends MultiversionWebTestBase {
   }
 
   public function testQuery() {
+
     foreach ($this->entityTypes as $entity_type_id => $info) {
+      $entity_type = $this->entityManager->getDefinition($entity_type_id);
+
       $entity = entity_create($entity_type_id, $info);
       $entity->save();
 
@@ -64,6 +67,11 @@ class EntityQueryTest extends MultiversionWebTestBase {
         ->execute();
       $this->assertIdentical($results, array(), "Query with isDeleted on existing $entity_type_id returned expected result.");
 
+      $results = $this->factory->get($entity_type_id)
+        ->condition($entity_type->getKey('revision'), 1)
+        ->execute();
+      $this->assertIdentical($results, array(1 => '1'), "Revision query on existing $entity_type_id returned expected result.");
+
       // Now delete the entity.
       $entity->delete();
 
@@ -80,6 +88,11 @@ class EntityQueryTest extends MultiversionWebTestBase {
         ->isDeleted()
         ->execute();
       $this->assertIdentical($results, array(2 => '1'), "Query with isDeleted on deleted $entity_type_id returned expected result.");
+
+      $results = $this->factory->get($entity_type_id)
+        ->condition($entity_type->getKey('revision'), 2)
+        ->execute();
+      $this->assertIdentical($results, array(2 => '1'), "Revision query on deleted $entity_type_id returned expected result.");
     }
   }
 }
