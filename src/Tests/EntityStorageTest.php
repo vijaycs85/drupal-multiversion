@@ -169,6 +169,23 @@ class EntityStorageTest extends MultiversionWebTestBase {
     }
   }
 
+  public function testRevisions() {
+    foreach ($this->entityTypes as $entity_type_id => $info) {
+      $entity = entity_create($entity_type_id, $info['info']);
+      $entity->save();
+      $id = $entity->id();
+      $revision_id = $entity->getRevisionId();
+      $revision = entity_revision_load($entity_type_id, $revision_id);
+
+      $this->assertEqual($revision_id, $revision->getRevisionId(), "$entity_type_id revision was loaded");
+
+      entity_delete_multiple($entity_type_id, array($id));
+      $new_revision_id = ($revision_id + 1);
+      $revision = entity_revision_load($entity_type_id, $new_revision_id);
+      $this->assertTrue(($revision->_deleted->value == TRUE && $revision->getRevisionId() == $new_revision_id), "Deleted $entity_type_id was loaded.");
+    }
+  }
+
   public function testWorkspace() {
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $entity = entity_create($entity_type_id, $info['info']);

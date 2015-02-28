@@ -43,7 +43,11 @@ trait ContentEntityStorageTrait {
         $query->join($revision_table, $revision_alias, "$revision_alias.{$this->revisionKey} = revision.{$this->revisionKey}");
       }
     }
-    $query->condition("$revision_alias._deleted", (int) $this->isDeleted);
+    // Loading a revision is explicit. So when we try to load one we should do
+    // so without a condition on the deleted flag.
+    if (!$revision_id) {
+      $query->condition("$revision_alias._deleted", (int) $this->isDeleted);
+    }
     // Entities in other workspaces than the active one can only be queried with
     // the Entity Query API and not by the storage handler itself.
     $query->condition("$revision_alias.workspace", $this->getActiveWorkspaceId());
