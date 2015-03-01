@@ -60,6 +60,27 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
 
   if ($manager->isSupportedEntityType($entity_type)) {
     $fields = array();
+
+    // This will essentially overwrite the revision field definition but also
+    // ensure that entity types that we enabled revisions for get a revision
+    // field definition of a type that we expect.
+    $fields[$entity_type->getKey('revision')] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Revision ID'))
+      ->setDescription(t('The local revision ID of the entity.'))
+      ->setReadOnly(TRUE)
+      ->setSetting('unsigned', TRUE);
+
+    // @todo Make this not revisionable, currently it's not possible.
+    // @see https://www.drupal.org/node/2362433
+    $fields['workspace'] = BaseFieldDefinition::create('workspace_reference')
+      ->setLabel('Workspace reference')
+      ->setDescription('The workspace this entity belongs to.')
+      ->setSetting('target_type', 'workspace')
+      ->setRevisionable(TRUE)
+      ->setTranslatable(FALSE)
+      ->setCardinality(1)
+      ->setReadOnly(TRUE);
+
     $fields['_deleted'] = BaseFieldDefinition::create('boolean')
       ->setLabel('Deleted flag')
       ->setDescription('Indicates if the entity is flagged as deleted or not.')
@@ -75,26 +96,6 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setTranslatable(TRUE)
       ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setReadOnly(TRUE);
-
-    // @todo Make this not revisionable, currently it's not possible.
-    // @see https://www.drupal.org/node/2362433
-    $fields['workspace'] = BaseFieldDefinition::create('workspace_reference')
-      ->setLabel('Workspace reference')
-      ->setDescription('The workspace this entity belongs to.')
-      ->setSetting('target_type', 'workspace')
-      ->setRevisionable(TRUE)
-      ->setTranslatable(FALSE)
-      ->setCardinality(1)
-      ->setReadOnly(TRUE);
-
-    // This will essentially overwrite the revision field definition but also
-    // ensure that entity types that we enabled revisions for get a revision
-    // field definition of a type that we expect.
-    $fields[$entity_type->getKey('revision')] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Revision ID'))
-      ->setDescription(t('The local revision ID of the entity.'))
-      ->setReadOnly(TRUE)
-      ->setSetting('unsigned', TRUE);
 
     return $fields;
   }
