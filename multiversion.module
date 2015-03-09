@@ -4,6 +4,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\multiversion\Entity\Query\QueryInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\multiversion\Entity\SqlContentEntityStorage;
@@ -40,6 +41,9 @@ function multiversion_entity_type_alter(array &$entity_types) {
           break;
         case 'comment':
           $entity_type->setStorageClass($namespace . '\CommentStorage');
+          break;
+        case 'menu_link_content':
+          $entity_type->setStorageClass($namespace . '\MenuLinkContentStorage');
           break;
         default:
           $entity_type->setStorageClass($namespace . '\ContentEntityStorage');
