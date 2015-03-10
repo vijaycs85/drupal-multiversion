@@ -17,8 +17,10 @@ class MultiversionServiceProvider extends ServiceProviderBase {
 
   public function alter(ContainerBuilder $container) {
     // Override the comment.statistics class with a new class.
-    $definition = $container->getDefinition('comment.statistics');
-    $definition->setClass('Drupal\multiversion\CommentStatistics');
+    if (\Drupal::moduleHandler()->moduleExists('comment')) {
+      $definition = $container->getDefinition('comment.statistics');
+      $definition->setClass('Drupal\multiversion\CommentStatistics');
+    }
   }
 
 }
