@@ -11,6 +11,12 @@ use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\user\EntityOwnerInterface;
 use Drupal\comment\CommentStatistics as CoreCommentStatistics;
 
+/**
+ * Extends core CommentStatistics class and implements the update() method, it's
+ * necessary to take into consideration that comments are not deleted when using
+ * the Multiversion module, just flagged as deleted. We add a new condition - to
+ * count just entities that have the _deleted flag equal to FALSE.
+ */
 class CommentStatistics extends CoreCommentStatistics {
 
   /**
