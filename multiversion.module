@@ -221,13 +221,6 @@ function multiversion_modules_installed($modules) {
     $executable = new MigrateExecutable($migration, $message);
     $executable->import();
 
-    // This configuration is used when ckecking supported entity types. After user
-    // migration to the json file we set 'user' as a supported entity type.
-    \Drupal::service('config.factory')
-      ->getEditable('multiversion.settings')
-      ->set('support_user_entity_type', TRUE)
-      ->save();
-
     $entity_manager = \Drupal::entityManager();
     $entity_type = $entity_manager->getDefinition('user');
     $entity_type_id = $entity_type->id();
@@ -238,6 +231,13 @@ function multiversion_modules_installed($modules) {
     $entities = entity_load_multiple('user', array_values($uids));
     // Delete all users from the database.
     $entity_manager->getStorage($entity_type_id)->delete($entities);
+
+    // This configuration is used when ckecking supported entity types. After user
+    // migration to the json file we set 'user' as a supported entity type.
+    \Drupal::service('config.factory')
+      ->getEditable('multiversion.settings')
+      ->set('support_user_entity_type', TRUE)
+      ->save();
 
     // Apply updates.
     if (!$entity_manager->getStorage($entity_type_id)->hasData()) {
