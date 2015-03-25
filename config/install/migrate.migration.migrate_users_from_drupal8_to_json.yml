@@ -21,5 +21,6 @@ process:
   login: login
   init: init
   roles: roles
+  user_picture: user_picture
 destination:
   plugin: json_file

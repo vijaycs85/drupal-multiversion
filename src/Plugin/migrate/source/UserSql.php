@@ -42,6 +42,9 @@ class UserSql extends DrupalSqlBase implements SourceEntityInterface {
     // Add roles field.
     $fields['roles'] = $this->t('Roles');
 
+    // Add user picture field.
+    $fields['user_picture'] = $this->t('Roles');
+
     return $fields;
   }
 
@@ -96,6 +99,16 @@ class UserSql extends DrupalSqlBase implements SourceEntityInterface {
       ->execute()
       ->fetchCol();
     $row->setSourceProperty('roles', $roles);
+
+    // User picture
+    $user_picture = db_select('user__user_picture', 'up')
+      ->fields('up', array('user_picture_target_id'))
+      ->condition('up.entity_id', $row->getSourceProperty('uid'))
+      ->execute()
+      ->fetchField();
+    if ($user_picture) {
+      $row->setSourceProperty('user_picture', $user_picture);
+    }
 
     return parent::prepareRow($row);
   }
