@@ -1,8 +1,62 @@
 <?php
 
+use Drupal\Core\Database\Database;
+use Drupal\migrate\MigrateExecutable;
+use Drupal\migrate\MigrateMessage;
+
 /**
  * Implements hook_uninstall().
  */
 function multiversion_uninstall() {
   \Drupal::service('entity.index.uuid')->deleteAll();
+  \Drupal::state()->delete('multiversion.settings');
+  \Drupal::state()->delete('migrate.migration.migrate_users_from_json_to_drupal8');
+  \Drupal::state()->delete('migrate.migration.migrate_users_from_drupal8_to_json');
 }
+
+/**
+ * Updates the user entity type and migrate entities to the new storage.
+ */
+//function multiversion_update_8101(&$sandbox) {
+//  $connection_info = Database::getConnectionInfo('default');
+//  foreach ($connection_info as $target => $value) {
+//    $connection_info[$target]['prefix'] = array(
+//      'default' => $value['prefix']['default'],
+//    );
+//  }
+//  Database::addConnectionInfo('migrate', 'default', $connection_info['default']);
+//
+//  // Migrate users from database to json file.
+//  $migration = entity_load('migration', 'migrate_users_from_drupal8_to_json');
+//  $message = new MigrateMessage();
+//  $executable = new MigrateExecutable($migration, $message);
+//  $executable->import();
+//
+//  // This configuration is used when ckecking supported entity types. After user
+//  // migration to the json file we set 'user' as a supported entity type.
+//  \Drupal::service('config.factory')
+//    ->getEditable('multiversion.settings')
+//    ->set('support_user_entity_type', TRUE)
+//    ->save();
+//
+//  $entity_manager = \Drupal::entityManager();
+//  $entity_type = $entity_manager->getDefinition('user');
+//  $entity_type_id = $entity_type->id();
+//  $uids = db_select('users_field_data', 'u')
+//    ->fields('u', array('uid'))
+//    ->execute()
+//    ->fetchCol('uid');
+//  $entities = entity_load_multiple('user', array_values($uids));
+//  // Delete all users from the database.
+//  $entity_manager->getStorage($entity_type_id)->delete($entities);
+//
+//  // Apply updates.
+//  if (!$entity_manager->getStorage($entity_type_id)->hasData()) {
+//    \Drupal::service('entity.definition_update_manager')->applyUpdates();
+//  }
+//
+//  // Migrate users from json file to database.
+//  $migration = entity_load('migration', 'migrate_users_from_json_to_drupal8');
+//  $executable = new MigrateExecutable($migration, $message);
+//  $executable->import();
+//}

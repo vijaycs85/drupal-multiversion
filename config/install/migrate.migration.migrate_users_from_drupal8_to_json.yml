@@ -1,0 +1,24 @@
+id: migrate_users_from_drupal8_to_json
+label: Migrate users from Drupal 8 to a JSON file
+migration_groups:
+  - Multiversion
+source:
+  plugin: user_sql
+process:
+  uid: uid
+  uuid: uuid
+  langcode: langcode
+  preferred_langcode: preferred_langcode
+  preferred_admin_langcode: preferred_admin_langcode
+  name: name
+  pass: pass
+  mail: mail
+  timezone: timezone
+  status: status
+  created: created
+  changed: changed
+  access: access
+  login: login
+  init: init
+destination:
+  plugin: json_file

@@ -17,13 +17,17 @@ use \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 class MultiversionServiceProvider extends ServiceProviderBase {
 
   public function alter(ContainerBuilder $container) {
-    // Override the comment.statistics class with a new class.
     try {
+      // Override the comment.statistics class with a new class.
       $definition = $container->getDefinition('comment.statistics');
       $definition->setClass('Drupal\multiversion\CommentStatistics');
+
+      // Override the password_migrate class with a new class.
+      $definition = $container->getDefinition('password_migrate');
+      $definition->setClass('Drupal\multiversion\MigratePassword');
     }
     catch (InvalidArgumentException $e) {
-      // Do nothing, comment module is not installed.
+      // Do nothing, comment or migrate module is not installed.
     }
   }
 
