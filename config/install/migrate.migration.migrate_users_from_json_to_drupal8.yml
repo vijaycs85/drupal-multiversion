@@ -20,6 +20,7 @@ process:
   access: access
   login: login
   init: init
+  roles: roles
 destination:
   plugin: entity_user
   configure_passwords: true

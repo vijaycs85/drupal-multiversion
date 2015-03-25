@@ -20,5 +20,6 @@ process:
   access: access
   login: login
   init: init
+  roles: roles
 destination:
   plugin: json_file

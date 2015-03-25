@@ -8,6 +8,7 @@ namespace Drupal\multiversion\Plugin\Migrate\source;
 
 use Drupal\Core\Database\Database;
 use Drupal\migrate\Plugin\SourceEntityInterface;
+use Drupal\migrate\Row;
 use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
 
 /**
@@ -37,6 +38,10 @@ class UserSql extends DrupalSqlBase implements SourceEntityInterface {
    */
   public function fields() {
     $fields = $this->baseFields();
+
+    // Add roles field.
+    $fields['roles'] = $this->t('Roles');
+
     return $fields;
   }
 
@@ -68,8 +73,6 @@ class UserSql extends DrupalSqlBase implements SourceEntityInterface {
       'name' => $this->t('Username'),
       'pass' => $this->t('Password'),
       'mail' => $this->t('Email'),
-//      'signature' => $this->t('Signature'),
-//      'signature_format' => $this->t('Signature format'),
       'timezone' => $this->t('Timezone'),
       'status' => $this->t('Status'),
       'created' => $this->t('Created'),
@@ -77,10 +80,24 @@ class UserSql extends DrupalSqlBase implements SourceEntityInterface {
       'access' => $this->t('Last access'),
       'login' => $this->t('Last login'),
       'init' => $this->t('Initial email'),
-//      'roles' => $this->t('Roles'),
     );
 
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function prepareRow(Row $row) {
+    // User roles.
+    $roles = $this->select('user__roles', 'ur')
+      ->fields('ur', array('roles_target_id'))
+      ->condition('ur.entity_id', $row->getSourceProperty('uid'))
+      ->execute()
+      ->fetchCol();
+    $row->setSourceProperty('roles', $roles);
+
+    return parent::prepareRow($row);
   }
 
   /**
