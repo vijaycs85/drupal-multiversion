@@ -8,3 +8,4 @@ dependencies:
   - serialization
   - migrate
   - migrate_drupal
+  - file
