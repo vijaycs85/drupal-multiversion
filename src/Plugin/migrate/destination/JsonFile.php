@@ -60,35 +60,19 @@ class JsonFile extends DestinationBase implements ContainerFactoryPluginInterfac
   }
 
   /**
-   * Get the destination ids.
-   *
-   * To support MigrateIdMap maps, derived destination classes should return
-   * schema field definition(s) corresponding to the primary key of the
-   * destination being implemented. These are used to construct the destination
-   * key fields of the map table for a migration using this destination.
-   *
-   * @return array
-   *   An array of ids.
+   * {@inheritdoc}
    */
   public function getIds() {
-    // TODO: Implement getIds() method.
+    return array(
+      'uid' => array(
+        'type' => 'integer',
+        'alias' => 'u',
+      ),
+    );
   }
 
   /**
-   * Returns an array of destination fields.
-   *
-   * Derived classes must implement fields(), returning a list of available
-   * destination fields.
-   *
-   * @todo Review the cases where we need the Migration parameter,
-   * can we avoid that?
-   *
-   * @param \Drupal\migrate\Entity\MigrationInterface $migration
-   *   (optional) the migration containing this destination.
-   *
-   * @return array
-   *   - Keys: machine names of the fields
-   *   - Values: Human-friendly descriptions of the fields.
+   * {@inheritdoc}
    */
   public function fields(MigrationInterface $migration = NULL) {
     // TODO: Implement fields() method.

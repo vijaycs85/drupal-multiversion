@@ -65,7 +65,8 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     'taxonomy',
     'comment',
     'block_content',
-    'menu_link_content'
+    'menu_link_content',
+    'file',
   );
 
   protected function setUp() {
