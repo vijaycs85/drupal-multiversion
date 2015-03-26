@@ -2,8 +2,6 @@
 
 namespace Drupal\multiversion\Tests;
 
-use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
-
 /**
  * Test the entity sequence functionality.
  *
@@ -41,14 +39,18 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $entity->_deleted->value = $expected['deleted'];
     $entity->_rev->value = $expected['rev'];
 
+    $values = $this->sequenceIndex->getRange(2);
+    $this->assertEqual(count($values), 2, 'Therea are two index entries');
+
     $this->sequenceIndex->add($entity);
     $expected['seq'] = $this->multiversionManager->lastSequenceId();
 
-    $values = $this->sequenceIndex->getRange(0);
-    $this->assertEqual(count($values), 1, 'One index entry was added.');
+    // We should have 2 entities of user entity type and one entity_test_rev.
+    $values = $this->sequenceIndex->getRange(3);
+    $this->assertEqual(count($values), 3, 'One new index entry was added.');
 
     foreach ($expected as $key => $value) {
-      $this->assertIdentical($values[0][$key], $value, "Index entry key $key have value $value");
+      $this->assertIdentical($values[2][$key], $value, "Index entry key $key have value $value");
     }
 
     $entity = entity_create('entity_test_rev');
@@ -57,7 +59,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     // Generate a new sequence ID.
     $this->sequenceIndex->useWorkspace($workspace_name)->add($entity);
 
-    $values = $this->sequenceIndex->getRange(0);
+    $values = $this->sequenceIndex->getRange(3);
     $this->assertEqual(count($values), 1, 'One index entry was added to the new workspace.');
   }
 }
