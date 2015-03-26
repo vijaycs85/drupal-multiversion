@@ -101,13 +101,15 @@ class UserSql extends DrupalSqlBase implements SourceEntityInterface {
     $row->setSourceProperty('roles', $roles);
 
     // User picture
-    $user_picture = db_select('user__user_picture', 'up')
-      ->fields('up', array('user_picture_target_id'))
-      ->condition('up.entity_id', $row->getSourceProperty('uid'))
-      ->execute()
-      ->fetchField();
-    if ($user_picture) {
-      $row->setSourceProperty('user_picture', $user_picture);
+    if (db_table_exists('user__user_picture')) {
+      $user_picture = db_select('user__user_picture', 'up')
+        ->fields('up', array('user_picture_target_id'))
+        ->condition('up.entity_id', $row->getSourceProperty('uid'))
+        ->execute()
+        ->fetchField();
+      if ($user_picture) {
+        $row->setSourceProperty('user_picture', $user_picture);
+      }
     }
 
     return parent::prepareRow($row);
