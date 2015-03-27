@@ -17,7 +17,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
    * @var array
    */
   protected $entityTypes = array(
-    /*'entity_test' => array(
+    'entity_test' => array(
       'info' => array(),
       'data_table' => 'entity_test',
       'revision_table' => 'entity_test_revision',
@@ -87,7 +87,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       'data_table' => 'menu_link_content_data',
       'revision_table' => 'block_content_field_revision',
       'id' => 'id',
-    ),*/
+    ),
     'user' => array(
       'info' => array(
         'name' => 'User',

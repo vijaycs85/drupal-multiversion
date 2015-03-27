@@ -58,6 +58,8 @@ class EntityQueryTest extends MultiversionWebTestBase {
       $entity = entity_create($entity_type_id, $info);
       $entity->save();
 
+      // For user entity type we expect to have three entities: anonymous, root
+      // user and the new created entity (anonymous - 0, admin - 1, new user - 2).
       $expected_results = $entity_type_id == 'user' ? array(1 => '0', 2 => '1', 3 => '2') : array(1 => '1');
       $results = $this->factory->get($entity_type_id)
         ->execute();
@@ -73,8 +75,10 @@ class EntityQueryTest extends MultiversionWebTestBase {
         ->execute();
       $this->assertIdentical($results, array(), "Query with isDeleted on existing $entity_type_id returned expected result.");
 
+      // For user entity type we have three entities: anonymous, root user and
+      // the new created user.
       $revision = $entity_type_id == 'user' ? 3 : 1;
-      $expected_results = $entity_type_id == 'user' ? array( 3 => '2') : array(1 => '1');
+      $expected_results = $entity_type_id == 'user' ? array(3 => '2') : array(1 => '1');
       $results = $this->factory->get($entity_type_id)
         ->condition($entity_type->getKey('revision'), $revision)
         ->execute();
@@ -83,6 +87,9 @@ class EntityQueryTest extends MultiversionWebTestBase {
       // Now delete the entity.
       $entity->delete();
 
+      // For user entity type we expect to have two entities: anonymous and
+      // admin (anonymous - 0, admin - 1). Deleted user's id shouldn't be in the
+      // results array.
       $expected_results = $entity_type_id == 'user' ? array(1 => '0', 2 => '1') : array();
       $results = $this->factory->get($entity_type_id)
         ->execute();
@@ -93,6 +100,9 @@ class EntityQueryTest extends MultiversionWebTestBase {
         ->execute();
       $this->assertIdentical($results, $expected_results, "Query with isNotDeleted on deleted $entity_type_id returned expected result.");
 
+      // We expect array(4 => '2') for user entity type: 4 is the revision ID
+      // and 2 the entity ID. Revision ID is 4 because we had three users
+      // before deletion of the user with id 2.
       $expected_results = $entity_type_id == 'user' ? array(4 => '2') : array(2 => '1');
       $results = $this->factory->get($entity_type_id)
         ->isDeleted()

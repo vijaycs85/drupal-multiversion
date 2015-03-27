@@ -5,9 +5,7 @@
  */
 function multiversion_uninstall() {
   \Drupal::service('entity.index.uuid')->deleteAll();
-  \Drupal::service('config.factory')
-    ->getEditable('multiversion.settings')
-    ->delete();
+  \Drupal::state()->delete('multiversion_user_migration_to_json_done');
   \Drupal::service('config.factory')
     ->getEditable('migrate.migration.migrate_users_from_json_to_drupal8')
     ->delete();

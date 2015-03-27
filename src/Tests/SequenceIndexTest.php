@@ -45,7 +45,8 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $this->sequenceIndex->add($entity);
     $expected['seq'] = $this->multiversionManager->lastSequenceId();
 
-    // We should have 2 entities of user entity type and one entity_test_rev.
+    // We should have 2 entities of user entity type (anonymous and root user)
+    // and one entity_test_rev.
     $values = $this->sequenceIndex->getRange(3);
     $this->assertEqual(count($values), 3, 'One new index entry was added.');
 

@@ -97,8 +97,7 @@ class MultiversionManager implements MultiversionManagerInterface {
    */
   public function isSupportedEntityType(EntityTypeInterface $entity_type) {
     $entity_type_id = $entity_type->id();
-    $support_user_entity_type = \Drupal::config('multiversion.settings')
-      ->get('support_user_entity_type');
+    $support_user_entity_type = \Drupal::state()->get('multiversion_user_migration_to_json_done');
     if ($entity_type_id == 'user' && empty($support_user_entity_type)) {
       return FALSE;
     }

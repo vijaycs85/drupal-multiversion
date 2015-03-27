@@ -12,7 +12,7 @@ use Drupal\migrate\Row;
 use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
 
 /**
- * User source from json Drupal 8.
+ * User source from json to Drupal 8.
  *
  * @MigrateSource(
  *   id = "user_sql"
