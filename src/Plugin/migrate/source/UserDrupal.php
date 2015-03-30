@@ -1,36 +1,39 @@
 <?php
 /**
  * @file
- * Contains \Drupal\multiversion\Plugin\Migrate\source\UserSql.
+ * Contains \Drupal\multiversion\Plugin\Migrate\source\UserDrupal.
  */
 
 namespace Drupal\multiversion\Plugin\Migrate\source;
 
-use Drupal\Core\Database\Database;
+use Drupal\migrate\Plugin\migrate\source\SourcePluginBase;
 use Drupal\migrate\Plugin\SourceEntityInterface;
-use Drupal\migrate\Row;
-use Drupal\migrate_drupal\Plugin\migrate\source\DrupalSqlBase;
 
 /**
- * User source from json to Drupal 8.
+ * User source from Drupal 8 to json.
  *
  * @MigrateSource(
- *   id = "user_sql"
+ *   id = "user_drupal"
  * )
  */
-class UserSql extends DrupalSqlBase implements SourceEntityInterface {
+class UserDrupal extends SourcePluginBase implements SourceEntityInterface {
 
   /**
-   * {@inheritdoc}
+   * Initialize the iterator with the source data.
+   *
+   * @return array
+   *   An array of the data for this source.
    */
-  public function query() {
-    $fields = $this->baseFields();
-    unset($fields['uuid']);
-    $query = $this->select('users_field_data', 'ufd')
-      ->fields('ufd', array_keys($fields))
-      ->fields('u', array('uuid'));
-    $query->innerJoin('users', 'u', 'u.uid = ufd.uid');
-    return $query;
+  protected function initializeIterator() {
+    $entities = entity_load_multiple('user');
+    $result = array();
+    foreach ($entities as $entity) {
+      foreach ($this->fields() as $field_name => $label) {
+        $result[$entity->id()][$field_name] = $entity->{$field_name}->value;
+      }
+    }
+
+    return new \ArrayIterator(array_values($result));
   }
 
   /**
@@ -91,33 +94,6 @@ class UserSql extends DrupalSqlBase implements SourceEntityInterface {
   /**
    * {@inheritdoc}
    */
-  public function prepareRow(Row $row) {
-    // User roles.
-    $roles = $this->select('user__roles', 'ur')
-      ->fields('ur', array('roles_target_id'))
-      ->condition('ur.entity_id', $row->getSourceProperty('uid'))
-      ->execute()
-      ->fetchCol();
-    $row->setSourceProperty('roles', $roles);
-
-    // User picture
-    if (db_table_exists('user__user_picture')) {
-      $user_picture = db_select('user__user_picture', 'up')
-        ->fields('up', array('user_picture_target_id'))
-        ->condition('up.entity_id', $row->getSourceProperty('uid'))
-        ->execute()
-        ->fetchField();
-      if ($user_picture) {
-        $row->setSourceProperty('user_picture', $user_picture);
-      }
-    }
-
-    return parent::prepareRow($row);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function bundleMigrationRequired() {
     return FALSE;
   }
@@ -129,4 +105,7 @@ class UserSql extends DrupalSqlBase implements SourceEntityInterface {
     return 'user';
   }
 
+  public function __toString() {
+    // TODO: Implement __toString() method.
+  }
 }

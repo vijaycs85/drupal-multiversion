@@ -32,6 +32,10 @@ class UserJson extends  SourcePluginBase {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $migration);
   }
 
+  public function __toString() {
+    // TODO: Implement __toString() method.
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -85,7 +89,7 @@ class UserJson extends  SourcePluginBase {
    * Getter for currentSourceIds data member.
    */
   public function getCurrentIds() {
-    $lines = file('public://multiversion_migrate_users.json', FILE_IGNORE_NEW_LINES);
+    $lines = $this->getValues();
     $ids = array();
     foreach ($lines as $line) {
       $ids[] = $line['uid'];
@@ -97,7 +101,7 @@ class UserJson extends  SourcePluginBase {
    * {@inheritdoc}
    */
   public function count($refresh = FALSE) {
-    $lines = file('public://multiversion_migrate_users.json', FILE_IGNORE_NEW_LINES);
+    $lines = $this->getValues();
     return count($lines);
   }
 
@@ -117,11 +121,8 @@ class UserJson extends  SourcePluginBase {
   }
 
   protected function getValues() {
-    $lines = file('public://multiversion_migrate_users.json', FILE_IGNORE_NEW_LINES);
+    $lines = file('private://multiversion_migrate_users.json', FILE_IGNORE_NEW_LINES);
     return $lines;
   }
 
-  public function __toString() {
-    // TODO: Implement __toString() method.
-  }
 }

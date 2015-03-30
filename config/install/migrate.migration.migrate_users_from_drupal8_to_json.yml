@@ -3,7 +3,7 @@ label: Migrate users from Drupal 8 to a JSON file
 migration_groups:
   - Multiversion
 source:
-  plugin: user_sql
+  plugin: user_drupal
 process:
   uid: uid
   uuid: uuid

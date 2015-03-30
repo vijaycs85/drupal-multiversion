@@ -25,7 +25,7 @@ class JsonFile extends DestinationBase implements ContainerFactoryPluginInterfac
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration = NULL) {
-    $file_uri = 'public://multiversion_migrate_users.json';
+    $file_uri = 'private://multiversion_migrate_users.json';
     $dirname = \Drupal::service('file_system')->dirname($file_uri);
     if (!file_prepare_directory($dirname, FILE_CREATE_DIRECTORY)) {
       throw new MigrateException(t('Could not create directory %dirname', array('%dirname' => $dirname)));
