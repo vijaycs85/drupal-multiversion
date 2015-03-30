@@ -125,6 +125,8 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $ids = array();
       $entity = entity_create($entity_type_id, $info['info']);
       $return = $entity->save();
+      // @todo Remove this check when https://www.drupal.org/node/2462265 will
+      // be commited.
       if ($entity_type_id != 'user') {
         $this->assertEqual($return, SAVED_NEW, "$entity_type_id was saved.");
       }
@@ -137,6 +139,9 @@ class EntityStorageTest extends MultiversionWebTestBase {
       // Update and save a new revision.
       $entity->{$info['name']} = $this->randomMachineName();
       $entity->save();
+      // For user entity type we should have three entities: anonymous, root
+      // user and the new created user. For other entity types we should have
+      // just the new created entity.
       $revision_id = $entity_type_id == 'user' ? 3 : 1;
       /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
       $revision = entity_revision_load($entity_type_id, $revision_id);

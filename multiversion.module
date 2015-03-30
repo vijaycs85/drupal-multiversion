@@ -216,7 +216,7 @@ function multiversion_modules_installed($modules) {
     }
     \Drupal::service('module_installer')->install($dependencies, TRUE);
 
-    $batch = array(
+    /*$batch = array(
       'title' => t('Change user storage class and migrate content to the new storage.'),
       'operations' => array(
         array('_multiversion_make_user_entity_type_multiversionable', array()),
@@ -224,7 +224,8 @@ function multiversion_modules_installed($modules) {
       'init_message' => t('Executing migration.'),
       'finished' => '_multiversion_migration_finished',
     );
-    batch_set($batch);
+    batch_set($batch);*/
+    _multiversion_make_user_entity_type_multiversionable();
   }
 }
 

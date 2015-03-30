@@ -33,7 +33,7 @@ class UserDrupal extends SourcePluginBase implements SourceEntityInterface {
           $result[$entity->id()][$field_name] = $entity->getRoles();
           continue;
         }
-        if ($field_name == 'user_picture') {
+        if ($field_name == 'user_picture' && !empty($entity->{$field_name}->target_id)) {
           $result[$entity->id()][$field_name]['target_id'] = $entity->{$field_name}->target_id;
           continue;
         }
