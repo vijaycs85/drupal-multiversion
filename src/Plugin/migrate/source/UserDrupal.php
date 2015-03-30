@@ -37,7 +37,10 @@ class UserDrupal extends SourcePluginBase implements SourceEntityInterface {
           $result[$entity->id()][$field_name]['target_id'] = $entity->{$field_name}->target_id;
           continue;
         }
-        $result[$entity->id()][$field_name] = $entity->{$field_name}->value;
+        $result[$entity->id()][$field_name] = NULL;
+        if (!empty($entity->{$field_name}->value)) {
+          $result[$entity->id()][$field_name] = $entity->{$field_name}->value;
+        }
       }
     }
 
