@@ -29,6 +29,14 @@ class UserDrupal extends SourcePluginBase implements SourceEntityInterface {
     $result = array();
     foreach ($entities as $entity) {
       foreach ($this->fields() as $field_name => $label) {
+        if ($field_name == 'roles') {
+          $result[$entity->id()][$field_name] = $entity->getRoles();
+          continue;
+        }
+        if ($field_name == 'user_picture') {
+          $result[$entity->id()][$field_name]['target_id'] = $entity->{$field_name}->target_id;
+          continue;
+        }
         $result[$entity->id()][$field_name] = $entity->{$field_name}->value;
       }
     }
