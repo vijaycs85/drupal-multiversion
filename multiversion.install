@@ -1,5 +1,18 @@
 <?php
 
+use Drupal\Core\Site\Settings;
+
+/**
+ * Implement hook_install().
+ */
+function multiversion_install() {
+  drupal_flush_all_caches();
+  // Check if private directory is configured.
+  if (!Settings::get('file_private_path')) {
+    throw new Exception(t('Private directory is not configured.'));
+  }
+}
+
 /**
  * Implements hook_uninstall().
  */
