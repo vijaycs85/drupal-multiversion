@@ -81,8 +81,6 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     $this->entityManager = $this->container->get('entity.manager');
     $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
 
-    $this->entityDefinitionUpdateManager->applyUpdates();
-
     // Create Basic page and Article node types.
     if ($this->profile != 'standard') {
       $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));

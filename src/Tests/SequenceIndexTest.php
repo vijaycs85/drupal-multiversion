@@ -40,7 +40,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $entity->_rev->value = $expected['rev'];
 
     $values = $this->sequenceIndex->getRange(2);
-    $this->assertEqual(count($values), 2, 'Therea are two index entries');
+    $this->assertEqual(count($values), 2, 'There are two index entries');
 
     $this->sequenceIndex->add($entity);
     $expected['seq'] = $this->multiversionManager->lastSequenceId();

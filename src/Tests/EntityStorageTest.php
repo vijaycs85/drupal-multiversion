@@ -167,10 +167,13 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $revision_id = $entity->getRevisionId();
       entity_delete_multiple($entity_type_id, array($id));
 
+      // For user entity type we should have revision ID 4 because we have three
+      // users: anonymous, root user and the new user (it was deleted).
+      $revision = $entity_type_id == 'user' ? 4 : 1;
       $record = db_select($info['revision_table'], 'e')
         ->fields('e')
         ->condition('e.' . $info['id'], $id)
-        ->condition('e.' . $info['revision_id'], '2')
+        ->condition('e.' . $info['revision_id'], $revision)
         ->execute()
         ->fetchObject();
 
