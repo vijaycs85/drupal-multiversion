@@ -5,6 +5,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\Core\Url;
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\MigrateMessage;
 use Drupal\multiversion\Entity\WorkspaceInterface;
@@ -230,8 +231,16 @@ function multiversion_modules_installed($modules) {
     if (function_exists('drush_backend_batch_process')) {
       $batch =& batch_get();
       $batch['progressive'] = FALSE;
-
       drush_backend_batch_process();
+    }
+    else {
+      $batch =& batch_get();
+      // This is necessary when running tests from Drupal UI.
+      // Also see: https://www.drupal.org/node/2464283.
+      if (count($batch['sets']) > 1) {
+        $batch['progressive'] = FALSE;
+        batch_process();
+      }
     }
   }
 }
