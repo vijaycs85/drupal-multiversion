@@ -178,15 +178,13 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
    * @covers ::getWorkspaceSwitchLinks()
    */
   public function testGetWorkspaceSwitchLinks() {
-    $query = array();
-    parse_str($this->request->getQueryString(), $query);
     $second_id = $this->values[1]['id'];
     $url = Url::fromRoute($this->path);
     $expected_links = array(
       $this->defaultId => array(
         'url' => $url,
         'title' => $this->defaultId,
-        'query' => $query,
+        'query' => array('workspace' => $this->defaultId),
         'attributes' => array(
           'class' => array('session-active'),
         ),
@@ -194,9 +192,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
       $second_id => array(
         'url' => $url,
         'title' => $second_id,
-        'query' => array(
-          'workspace' => $second_id,
-        ),
+        'query' => array('workspace' => $second_id),
       ),
     );
 
