@@ -150,14 +150,26 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
     'taxonomy_term',
     'glossary',
     'archive',
+    'user_admin_people',
   );
   $id = $view->storage->id();
   if (in_array($id, $views_machine_names)) {
+    $base_table = $view->storage->get('base_table');
     $view->query->where[1]['conditions'][] = array(
-      'field' => '_deleted',
+      'field' => $base_table . '._deleted',
       'value' => FALSE,
       'operator' => '='
     );
+    // We shouldn't filter user content type when creating a new node because
+    // we need the author info for this.
+    if (strpos(\Drupal::url('<current>'), 'node/add/'
+      && $base_table == 'users_field_data') !== TRUE) {
+      $view->query->where[1]['conditions'][] = array(
+        'field' => $base_table . '.workspace',
+        'value' => multiversion_get_active_workspace_id(),
+        'operator' => '='
+      );
+    }
   }
 }
 

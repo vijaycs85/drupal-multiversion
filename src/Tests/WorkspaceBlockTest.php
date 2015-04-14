@@ -25,6 +25,18 @@ class WorkspaceBlockTest extends MultiversionWebTestBase {
     'block',
   );
 
+  /**
+   * The profile to install as a basis for testing.
+   *
+   * @var string
+   */
+  protected $profile = 'standard';
+
+  protected function setUp() {
+    parent::setUp();
+    $this->drupalLogin($this->rootUser);
+  }
+
   public function testBlock() {
     $this->drupalPlaceBlock('multiversion_workspace_block', array('region' => 'sidebar_first', 'label' => 'Workspace switcher'));
     $this->drupalGet('');
@@ -36,10 +48,27 @@ class WorkspaceBlockTest extends MultiversionWebTestBase {
     $id = $this->randomMachineName();
     $entity = entity_create('workspace', array('id' => $id));
     $entity->save();
+    $node = entity_create('node', array('type' => 'article', 'title' => 'Test article'));
+    $node->save();
+    $nid = $node->id();
+    drupal_flush_all_caches();
     $this->drupalGet('');
+    $this->assertText('Test article', 'The title of the test article was displayed on the front page.');
+    $this->drupalGet("node/$nid");
+    $this->assertText('Test article');
     $url = $front . "?workspace=$id";
     $this->assertRaw('href="'. $url .'"', 'The id of the new workspace was displayed in the Workspace switcher block as a link.');
+    $this->drupalGet("node/$nid", array('query' => array('workspace' => $id)));
+    $this->assertText('Page not found');
+    $this->drupalGet($front, array('query' => array('workspace' => 'default')));
+    $this->assertText('Test article', 'The title of the test article was displayed on the front page.');
+    $this->drupalGet($front, array('query' => array('workspace' => $id)));
+    $this->drupalGet('node/add/article');
+    $this->assertText('Create Article');
+    $this->drupalGet($front, array('query' => array('workspace' => $id)));
+    $this->assertNoText('Test article', 'The title of the test article was not displayed on the front page after switching the workspace.');
     $entity->delete();
+    drupal_flush_all_caches();
     $this->drupalGet('');
     $this->assertNoText($id, 'The id of the deleted workspace was not displayed in the Workspace switcher block.');
   }

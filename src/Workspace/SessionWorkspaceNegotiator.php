@@ -44,6 +44,16 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements Work
     $query = array();
     parse_str($request->getQueryString(), $query);
 
+    // If we have an error on the requested page, set links URL to be <front>.
+    if (!empty($query['_exception_statuscode'])) {
+      if ($workspace = $query['workspace']) {
+        $query = array(
+          'workspace' => $workspace,
+        );
+      }
+      $url = URL::fromRoute('<front>');
+    }
+
     $workspaces = $this->workspaceManager->loadMultiple();
     ksort($workspaces);
     foreach ($workspaces as $workspace) {
@@ -53,10 +63,8 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements Work
         'title' => $workspace_id,
         'query' => $query,
       );
-      if ($workspace_id != $active_workspace_id) {
-        $links[$workspace_id]['query']['workspace'] = $workspace_id;
-      }
-      else {
+      $links[$workspace_id]['query']['workspace'] = $workspace_id;
+      if ($workspace_id == $active_workspace_id) {
         $links[$workspace_id]['attributes']['class'][] = 'session-active';
       }
     }
