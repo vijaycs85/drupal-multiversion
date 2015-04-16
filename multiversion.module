@@ -150,7 +150,6 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
     'taxonomy_term',
     'glossary',
     'archive',
-    'user_admin_people',
   );
   $id = $view->storage->id();
   if (in_array($id, $views_machine_names)) {
