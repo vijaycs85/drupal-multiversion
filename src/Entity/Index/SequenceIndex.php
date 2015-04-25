@@ -98,13 +98,13 @@ class SequenceIndex implements SequenceIndexInterface {
    */
   protected function buildRecord(ContentEntityInterface $entity) {
     return array(
+      // @todo: Rename 'entity_type' to 'entity_type_id' for consistency.
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'entity_uuid' => $entity->uuid(),
       'revision_id' => $entity->getRevisionId(),
       'parent_revision_id' => ($entity->_revs_info->count() > 1) ? $entity->_revs_info[1]->rev : 0,
       'deleted' => $entity->_deleted->value,
-      'conflict' => FALSE, //@todo
       'rev' => $entity->_revs_info->rev,
       'local' => (boolean) $entity->getEntityType()->get('local'),
     );
