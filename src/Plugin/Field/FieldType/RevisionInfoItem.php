@@ -53,4 +53,12 @@ class RevisionInfoItem extends FieldItemBase {
       ),
     );
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __get($name) {
+    // @todo Implement logic for the 'status' property.
+    return parent::__get($name);
+  }
 }

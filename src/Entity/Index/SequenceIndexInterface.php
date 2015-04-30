@@ -18,11 +18,6 @@ interface SequenceIndexInterface {
   public function add(ContentEntityInterface $entity);
 
   /**
-   * @param \Drupal\Core\Entity\ContentEntityInterface[] $entities
-   */
-  public function addMultiple(array $entities);
-
-  /**
    * @param float $start
    * @param float $stop
    *

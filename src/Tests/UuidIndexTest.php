@@ -33,6 +33,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
         'revision_id' => $entities[0]->getRevisionId(),
         'rev' => $entities[0]->_revs_info->rev,
         'uuid' => $entities[0]->uuid(),
+        'deleted' => $entities[0]->_deleted->value,
       ),
       $entities[1]->uuid() => array(
         'entity_type' => $entities[1]->getEntityTypeId(),
@@ -40,18 +41,11 @@ class UuidIndexTest extends MultiversionWebTestBase {
         'revision_id' => $entities[1]->getRevisionId(),
         'rev' => $entities[1]->_revs_info->rev,
         'uuid' => $entities[1]->uuid(),
+        'deleted' => $entities[1]->_deleted->value,
       ),
     );
     $entries = $this->uuidIndex->getMultiple(array($entities[0]->uuid(), $entities[1]->uuid()));
     $this->assertIdentical($entries, $expected, 'Multiple index entries was added and fetched.');
-
-    $this->uuidIndex->delete($entities[0]->uuid());
-    $entry = $this->uuidIndex->get($entities[0]->uuid());
-    $this->assertTrue(empty($entry), 'Index entry was deleted.');
-
-    $this->uuidIndex->deleteAll();
-    $entry = $this->uuidIndex->get($entities[1]->uuid());
-    $this->assertTrue(empty($entry), 'All index entries was deleted.');
 
     // Create a new workspaces and query those.
     $ws1 = $this->randomMachineName();

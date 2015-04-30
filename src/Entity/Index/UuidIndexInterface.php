@@ -2,4 +2,4 @@
 
 namespace Drupal\multiversion\Entity\Index;
 
-interface UuidIndexInterface extends IndexInterface { }
+interface UuidIndexInterface extends EntityIndexInterface { }

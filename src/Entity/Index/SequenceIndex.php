@@ -55,19 +55,8 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function add(ContentEntityInterface $entity) {
-    $this->addMultiple(array($entity));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function addMultiple(array $entities) {
-    $pairs = array();
-    foreach ($entities as $entity) {
-      $record = $this->buildRecord($entity);
-      $pairs[] = array($record['seq'] => $record);
-    }
-    $this->sortedSetStore()->addMultiple($pairs);
+    $record = $this->buildRecord($entity);
+    $this->sortedSetStore()->add($record['seq'], $record);
   }
 
   /**
