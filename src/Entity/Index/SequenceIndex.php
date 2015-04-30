@@ -64,8 +64,8 @@ class SequenceIndex implements SequenceIndexInterface {
   public function addMultiple(array $entities) {
     $pairs = array();
     foreach ($entities as $entity) {
-      $sequence_id = $this->multiversionManager->newSequenceId();
-      $pairs[] = array($sequence_id => $this->buildRecord($entity));
+      $record = $this->buildRecord($entity);
+      $pairs[] = array($record['seq'] => $record);
     }
     $this->sortedSetStore()->addMultiple($pairs);
   }
@@ -106,6 +106,7 @@ class SequenceIndex implements SequenceIndexInterface {
       'parent_revision_id' => ($entity->_revs_info->count() > 1) ? $entity->_revs_info[1]->rev : 0,
       'deleted' => $entity->_deleted->value,
       'rev' => $entity->_revs_info->rev,
+      'seq' => $this->multiversionManager->newSequenceId(),
       'local' => (boolean) $entity->getEntityType()->get('local'),
     );
   }

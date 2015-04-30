@@ -34,7 +34,6 @@ class SequenceIndexTest extends MultiversionWebTestBase {
       'revision_id' => 1,
       'parent_revision_id' => 0,
       'deleted' => FALSE,
-      'conflict' => FALSE,
       'rev' => FALSE,
       'local' => (boolean) $entity->getEntityType()->get('local'),
     );
@@ -44,6 +43,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $entity->_revs_info->rev = $expected['rev'];
 
     $this->sequenceIndex->add($entity);
+    $expected['seq'] = $this->multiversionManager->lastSequenceId();
 
     $values = $this->sequenceIndex->getRange(0);
     $this->assertEqual(count($values), 1, 'One index entry was added.');

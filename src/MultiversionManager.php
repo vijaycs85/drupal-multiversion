@@ -20,6 +20,8 @@ class MultiversionManager implements MultiversionManagerInterface {
    */
   protected $serializer;
 
+  protected $lastSequenceId;
+
   /**
    * Entity types that Multiversion won't support.
    *
@@ -81,9 +83,20 @@ class MultiversionManager implements MultiversionManagerInterface {
     // Multiply the microtime by 1 million to ensure we get an accurate integer.
     // Credit goes to @letharion and @logaritmisk for this simple but genius
     // solution.
-    return (int) (microtime(TRUE) * 1000000);
+    $this->lastSequenceId = (int) (microtime(TRUE) * 1000000);
+    return $this->lastSequenceId;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function lastSequenceId() {
+    return $this->lastSequenceId;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function isSupportedEntityType(EntityTypeInterface $entity_type) {
     $entity_type_id = $entity_type->id();
     if (in_array($entity_type_id, $this->entityTypeBlackList)) {
@@ -96,6 +109,9 @@ class MultiversionManager implements MultiversionManagerInterface {
     return ($entity_type instanceof ContentEntityTypeInterface);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function newRevisionId(ContentEntityInterface $entity, $index = 0) {
     $deleted = $entity->_deleted->value;
     $old_rev = $entity->_revs_info->rev;

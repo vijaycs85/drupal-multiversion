@@ -33,6 +33,11 @@ interface MultiversionManagerInterface {
   public function newSequenceId();
 
   /**
+   * @return integer
+   */
+  public function lastSequenceId();
+
+  /**
    * @return string
    */
   public function newRevisionId(ContentEntityInterface $entity, $index = 0);
