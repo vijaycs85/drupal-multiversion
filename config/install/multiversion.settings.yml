@@ -1,2 +1,0 @@
-compaction_batch_size: 50
-compaction_on_cron: 1
