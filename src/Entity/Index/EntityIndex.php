@@ -11,7 +11,7 @@ class EntityIndex implements EntityIndexInterface {
   /**
    * @var string
    */
-  protected $collection_prefix = 'entity.index.id.';
+  protected $collectionPrefix = 'entity.index.id.';
 
   /**
    * @var \Drupal\Core\KeyValueStore\KeyValueFactoryInterface
@@ -128,7 +128,7 @@ class EntityIndex implements EntityIndexInterface {
    * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
    */
   protected function keyValueStore($workspace_name) {
-    return $this->keyValueFactory->get($this->collection_prefix . $workspace_name);
+    return $this->keyValueFactory->get($this->collectionPrefix . $workspace_name);
   }
 
   /**
@@ -147,7 +147,7 @@ class EntityIndex implements EntityIndexInterface {
       'entity_type' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'revision_id' => $entity->getRevisionId(),
-      'rev' => $entity->_revs_info->rev,
+      //'rev' => $entity->_revs_info->rev,
       'uuid' => $entity->uuid(),
       'deleted' => $entity->_deleted->value,
     );

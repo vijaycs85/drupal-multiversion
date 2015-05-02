@@ -55,23 +55,9 @@ trait ContentEntityStorageTrait {
   }
 
   /**
-   * {@inheritdoc}
+   * Helper method to get the active workspace ID.
    */
-  public function onTransactionCommit(array $revision_ids) {
-    foreach ($revision_ids as $id => $revision) {
-      $this->database->update($this->baseTable)
-        ->fields(array(
-          $this->revisionKey => $revision,
-        ))
-        ->condition($this->idKey, $id)
-        ->execute();
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getActiveWorkspaceId() {
+  protected function getActiveWorkspaceId() {
     return \Drupal::service('workspace.manager')->getActiveWorkspace()->id();
   }
 
@@ -102,16 +88,6 @@ trait ContentEntityStorageTrait {
   /**
    * {@inheritdoc}
    */
-  protected function doSave($id, EntityInterface $entity) {
-    // Entities are always saved as new revisions when using a Multiversion
-    // storage handler.
-    $entity->setNewRevision();
-    return parent::doSave($id, $entity);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function delete(array $entities) {
     // Entites are always "deleted" as new revisions when using a Multiversion
     // storage handler.
@@ -126,15 +102,6 @@ trait ContentEntityStorageTrait {
    */
   public function deleteRevision($revision_id) {
     throw new ConflictException(NULL, 'Revisions can not be deleted when using a Multiversion storage handler.');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function purge($entities) {
-    // Purge equals that of a traditional delete when using a Multiversion
-    // storage handler.
-    return parent::delete($entities);
   }
 
   /**

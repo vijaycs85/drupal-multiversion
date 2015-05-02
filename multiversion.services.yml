@@ -2,9 +2,6 @@ parameters:
   workspace.default: default
 
 services:
-  entity.compaction.manager:
-    class: Drupal\multiversion\Entity\Compaction\CompactionManager
-    arguments: ['@config.factory', '@entity.manager', '@multiversion.manager', '@entity.query']
   entity.index.sequence:
     class: Drupal\multiversion\Entity\Index\SequenceIndex
     arguments: ['@keyvalue.sorted_set', '@workspace.manager', '@multiversion.manager']
@@ -16,6 +13,9 @@ services:
     arguments: ['@keyvalue', '@workspace.manager']
   entity.index.rev:
     class: Drupal\multiversion\Entity\Index\RevisionIndex
+    arguments: ['@keyvalue', '@workspace.manager']
+  entity.index.rev.tree:
+    class: Drupal\multiversion\Entity\Index\RevisionTreeIndex
     arguments: ['@keyvalue', '@workspace.manager']
   entity.query.sql.multiversion:
     class: Drupal\multiversion\Entity\Query\Sql\QueryFactory

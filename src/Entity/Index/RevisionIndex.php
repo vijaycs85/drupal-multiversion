@@ -9,12 +9,12 @@ class RevisionIndex extends EntityIndex implements RevisionIndexInterface {
   /**
    * @var string
    */
-  protected $collection_prefix = 'entity.index.rev.';
+  protected $collectionPrefix = 'entity.index.rev.';
 
   /**
    * {@inheritdoc}
    */
   protected function buildKey(EntityInterface $entity) {
-    return $entity->uuid() . ':' . $entity->_revs_info->rev;
+    return $entity->uuid() . ':' . $entity->_rev->value;
   }
 }
