@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Plugin\Field\FieldType;
 
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\TypedData\DataDefinition;
@@ -30,13 +31,33 @@ class RevisionItem extends FieldItemBase {
       ->setRequired(FALSE)
       ->setComputed(TRUE);
 
-    $properties['revisions'] = DataDefinition::create('list')
+    $properties['revisions'] = DataDefinition::create('string')
       ->setLabel(t('A list of all known revisions of the entity.'))
       ->setDescription(t('During replication this will be populated with hashes (i.e. without the index prefix) from all known revisions of the entity.'))
       ->setRequired(FALSE)
       ->setComputed(TRUE);
 
+    $properties['revs_info'] = DataDefinition::create('string')
+      ->setLabel(t('A list of detailed information of all known revisions of the entity.'))
+      ->setRequired(FALSE)
+      ->setComputed(TRUE);
+
     return $properties;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function schema(FieldStorageDefinitionInterface $field_definition) {
+    return array(
+      'columns' => array(
+        'value' => array(
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+        ),
+      ),
+    );
   }
 
   /**
@@ -56,18 +77,22 @@ class RevisionItem extends FieldItemBase {
   /**
    * {@inheritdoc}
    */
-  public static function schema(FieldStorageDefinitionInterface $field_definition) {
+  public static function generateSampleValue(FieldDefinitionInterface $field_definition) {
+    $i = rand(0, 99);
+    $hash = md5(rand());
+    $token = "$i-$hash";
+
     return array(
-      'columns' => array(
-        'value' => array(
-          'type' => 'varchar',
-          'length' => 128,
-          'not null' => TRUE,
-        ),
-      ),
+      'value' => $token,
+      'new_edit' => TRUE,
+      'revisions' => array($hash, md5(rand()), md5(rand())),
+      'revs_info' => NULL
     );
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function preSave() {
     // The revision tree that will be updated.
     $tree = \Drupal::service('entity.index.rev.tree');
@@ -77,26 +102,32 @@ class RevisionItem extends FieldItemBase {
 
     // We always force a new revision.
     $entity = $this->getEntity();
-    $entity->setNewRevision();
 
     $token = $this->get('value')->getValue();
     list($i, $hash) = explode('-', $token);
 
     // This is a regular local save operation and a new revision token should be
-    // generated. By definition any existing token is the parent revision.
+    // generated. The new_edit property will be set to FALSE during replication
+    // to ensure the revision token is saved as-is.
     if ($this->get('new_edit')->getValue()) {
       // If this is the first revision it means that there's no parent.
+      // By definition the existing revision value is the parent revision.
       $parent_token = $i == 0 ? 0 : $token;
       $token = \Drupal::service('multiversion.manager')
         ->newRevisionId($entity, $i);
       $this->set('value', $token);
       $branch[] = array($token => $parent_token);
     }
-    // This means the entity is being saved as part of a replication and that
-    // the revision token should be saved as-is without generating a new one.
-    // In this case we also need to find the parent revision inside the revision
-    elseif ($i > 1) {
-      $ancestor_hashes = $this->get('revisions')->getValue();
+    else {
+      // @todo: Lookup $token and throw conflict exception if revision exists.
+    }
+
+    // A list of all known revisions can be passed in to let the current host
+    // know about the revision history, for conflict handling etc. A list of
+    // revisions are always passed in during replication.
+    if ($ancestor_hashes = $this->get('revisions')->getValue()) {
+      // The first hash is always the current one and should not be included
+      // in the ancestor array.
       array_shift($ancestor_hashes);
 
       // Build the remaining ancestors into the tree.
@@ -106,7 +137,10 @@ class RevisionItem extends FieldItemBase {
         $token = $parent_token;
       }
     }
-    elseif ($i > 0) {
+
+    // If nothing has been added to the branch yet it means that it's the first
+    // revision without a parent. So add it to the branch.
+    if (empty($branch)) {
       $branch[] = array($token => 0);
     }
 

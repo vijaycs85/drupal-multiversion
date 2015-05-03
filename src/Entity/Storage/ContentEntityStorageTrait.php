@@ -88,6 +88,16 @@ trait ContentEntityStorageTrait {
   /**
    * {@inheritdoc}
    */
+  public function save(EntityInterface $entity) {
+    // Entities are always saved as new revisions when using a Multiversion
+    // storage handler.
+    $entity->setNewRevision();
+    return parent::save($entity);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function delete(array $entities) {
     // Entites are always "deleted" as new revisions when using a Multiversion
     // storage handler.

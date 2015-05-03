@@ -2,6 +2,8 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\multiversion\Plugin\Field\FieldType\RevisionItem;
+
 /**
  * Test the creation and operation of the Revision field.
  *
@@ -30,23 +32,28 @@ class RevisionFieldTest extends FieldTestBase {
 
       // Test normal save operations.
 
-      $this->assertTrue($entity->{$this->fieldName}->new_edit, 'New edit flag is TRUE after creation.');
+      $this->assertTrue($entity->_rev->new_edit, 'New edit flag is TRUE after creation.');
 
-      $revisions = $entity->{$this->fieldName}->revisions;
+      $revisions = $entity->_rev->revisions;
       $this->assertTrue((is_array($revisions) && empty($revisions)), 'Revisions property is empty after creation.');
+      $this->assertTrue((strpos($entity->_rev->value, '0') === 0), 'Revision index was 0 after creation.');
 
-      $token = $entity->{$this->fieldName}->value;
-      list($i, $hash) = explode('-', $token);
-      $this->assertTrue($i == 0, 'Revision index was 0 after creation.');
       $entity->save();
-      $token = $entity->{$this->fieldName}->value;
-      list($i, $hash) = explode('-', $token);
-      $this->assertTrue($i == 0, 'Revision index was 1 after first save.');
+      $first_rev = $entity->_rev->value;
+      list($i, $first_hash) = explode('-', $first_rev);
+      $this->assertTrue((strpos($first_rev, '1') === 0), 'Revision index was 1 after first save.');
 
       // Simulate the input from a replication.
 
-      $entity->{$this->fieldName}->new_edit = FALSE;
-      $entity->{$this->fieldName}->revisions = array($hash);
+      $entity = entity_create($entity_type_id, $info);
+      $sample_rev = RevisionItem::generateSampleValue($entity->_rev->getFieldDefinition());
+
+      $entity->_rev->value = $sample_rev['value'];
+      $entity->_rev->new_edit = FALSE;
+      $entity->_rev->revisions = array($sample_rev['value']);
+      $entity->save();
+      // Assert that the revision token did not change.
+      $this->assertEqual($entity->_rev->value, $sample_rev['value']);
     }
   }
 }

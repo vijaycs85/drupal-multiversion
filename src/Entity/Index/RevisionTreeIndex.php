@@ -80,6 +80,14 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function getConflicts($uuid) {
+    $open_revisions = $this->getOpenRevisions($uuid);
+    // @todo
+  }
+
+  /**
    * @param string $uuid
    * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
    */
