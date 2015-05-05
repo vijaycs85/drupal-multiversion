@@ -19,6 +19,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'revision_id' => $entity->getRevisionId(),
       'rev' => $entity->_revs_info->rev,
       'uuid' => $entity->uuid(),
+      'status' => $entity->_deleted->value ? 'deleted' : 'available',
     );
     $this->assertIdentical($entry, $expected, 'Index entry was added and fetched.');
 
@@ -33,7 +34,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
         'revision_id' => $entities[0]->getRevisionId(),
         'rev' => $entities[0]->_revs_info->rev,
         'uuid' => $entities[0]->uuid(),
-        'deleted' => $entities[0]->_deleted->value,
+        'status' => $entities[0]->_deleted->value ? 'deleted' : 'available',
       ),
       $entities[1]->uuid() => array(
         'entity_type' => $entities[1]->getEntityTypeId(),
@@ -41,7 +42,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
         'revision_id' => $entities[1]->getRevisionId(),
         'rev' => $entities[1]->_revs_info->rev,
         'uuid' => $entities[1]->uuid(),
-        'deleted' => $entities[1]->_deleted->value,
+        'status' => $entities[1]->_deleted->value ? 'deleted' : 'available',
       ),
     );
     $entries = $this->uuidIndex->getMultiple(array($entities[0]->uuid(), $entities[1]->uuid()));
@@ -74,6 +75,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'revision_id' => $entity->getRevisionId(),
       'rev' => $entity->_revs_info->rev,
       'uuid' => $entity->uuid(),
+      'status' => $entity->_deleted->value ? 'deleted' : 'available',
     );
     $this->assertIdentical($entry, $expected, 'Entry was added and fetched from new workspace.');
   }

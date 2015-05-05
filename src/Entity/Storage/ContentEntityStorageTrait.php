@@ -86,13 +86,28 @@ trait ContentEntityStorageTrait {
   }
 
   /**
-   * {@inheritdoc}
+   *
    */
   public function save(EntityInterface $entity) {
-    // Entities are always saved as new revisions when using a Multiversion
-    // storage handler.
+    // Every update is a new revision with this storage model.
     $entity->setNewRevision();
     return parent::save($entity);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function doSave($id, EntityInterface $entity) {
+    // Enforce new revision if any module messed with it in a hook.
+    $entity->setNewRevision();
+
+    // Decide whether or not this is the default revision.
+    $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
+    if ($entity->_rev->value == $default_rev) {
+      $entity->isDefaultRevision(TRUE);
+    }
+
+    return parent::doSave($id, $entity);
   }
 
   /**

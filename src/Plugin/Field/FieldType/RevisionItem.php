@@ -29,16 +29,12 @@ class RevisionItem extends FieldItemBase {
       ->setLabel(t('New edit flag'))
       ->setDescription(t('During replication this will be set to FALSE to ensure that the revision is saved as-is without generating a new token.'))
       ->setRequired(FALSE)
-      ->setComputed(TRUE);
+      ->setComputed(TRUE)
+      ->setClass('\Drupal\multiversion\NewEdit');
 
     $properties['revisions'] = DataDefinition::create('string')
       ->setLabel(t('A list of all known revisions of the entity.'))
       ->setDescription(t('During replication this will be populated with hashes (i.e. without the index prefix) from all known revisions of the entity.'))
-      ->setRequired(FALSE)
-      ->setComputed(TRUE);
-
-    $properties['revs_info'] = DataDefinition::create('string')
-      ->setLabel(t('A list of detailed information of all known revisions of the entity.'))
       ->setRequired(FALSE)
       ->setComputed(TRUE);
 
@@ -86,7 +82,6 @@ class RevisionItem extends FieldItemBase {
       'value' => $token,
       'new_edit' => TRUE,
       'revisions' => array($hash, md5(rand()), md5(rand())),
-      'revs_info' => NULL
     );
   }
 
@@ -94,10 +89,7 @@ class RevisionItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public function preSave() {
-    // The revision tree that will be updated.
-    $tree = \Drupal::service('entity.index.rev.tree');
-
-    // The branch that we will update the tree with.
+    // The branch to update the revision tree with.
     $branch = array();
 
     // We always force a new revision.
@@ -113,10 +105,9 @@ class RevisionItem extends FieldItemBase {
       // If this is the first revision it means that there's no parent.
       // By definition the existing revision value is the parent revision.
       $parent_token = $i == 0 ? 0 : $token;
-      $token = \Drupal::service('multiversion.manager')
-        ->newRevisionId($entity, $i);
+      $token = \Drupal::service('multiversion.manager')->newRevisionId($entity, $i);
       $this->set('value', $token);
-      $branch[] = array($token => $parent_token);
+      $branch[$token] = $parent_token;
     }
     else {
       // @todo: Lookup $token and throw conflict exception if revision exists.
@@ -133,7 +124,7 @@ class RevisionItem extends FieldItemBase {
       // Build the remaining ancestors into the tree.
       foreach ($ancestor_hashes as $parent_hash) {
         $parent_token = --$i . '-' . $parent_hash;
-        $branch[] = array($token => $parent_token);
+        $branch[$token] = $parent_token;
         $token = $parent_token;
       }
     }
@@ -141,15 +132,11 @@ class RevisionItem extends FieldItemBase {
     // If nothing has been added to the branch yet it means that it's the first
     // revision without a parent. So add it to the branch.
     if (empty($branch)) {
-      $branch[] = array($token => 0);
+      $branch[$token] = 0;
     }
 
-    $tree->update($entity->uuid(), $branch);
-
-    // Decide whether ot not this is the default revision.
-    $winning = $tree->getDefaultRevision($entity->uuid());
-    if ($winning == $this->get('value')->getValue()) {
-      $entity->isDefaultRevision(TRUE);
-    }
+    // Index the revision info and tree.
+    \Drupal::service('entity.index.rev')->add($entity);
+    \Drupal::service('entity.index.rev.tree')->update($entity->uuid(), $branch);
   }
 }

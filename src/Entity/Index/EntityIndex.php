@@ -145,11 +145,11 @@ class EntityIndex implements EntityIndexInterface {
     // @todo: Rename 'entity_type' to 'entity_type_id' for consistency.
     return array(
       'entity_type' => $entity->getEntityTypeId(),
-      'entity_id' => $entity->id(),
-      'revision_id' => $entity->getRevisionId(),
-      //'rev' => $entity->_revs_info->rev,
+      'entity_id' => $entity->isNew() ? 0 : $entity->id(),
+      'revision_id' => $entity->isNew() ? 0 : $entity->getRevisionId(),
       'uuid' => $entity->uuid(),
-      'deleted' => $entity->_deleted->value,
+      'rev' => $entity->_rev->value,
+      'status' => $entity->_deleted->value ? 'deleted' : 'available',
     );
   }
 }
