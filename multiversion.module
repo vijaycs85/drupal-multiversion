@@ -234,10 +234,10 @@ function multiversion_modules_installed($modules) {
       drush_backend_batch_process();
     }
     else {
-      $batch =& batch_get();
       // This is necessary when running tests from Drupal UI.
-      // Also see: https://www.drupal.org/node/2464283.
-      if (count($batch['sets']) > 1) {
+      $system_path = \Drupal::service('path.current')->getPath();
+      if ($system_path == '/batch') {
+        $batch =& batch_get();
         $batch['progressive'] = FALSE;
         batch_process();
       }

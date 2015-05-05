@@ -85,7 +85,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
         'link' => [['uri' => 'user-path:/']],
       ),
       'data_table' => 'menu_link_content_data',
-      'revision_table' => 'block_content_field_revision',
+      'revision_table' => 'menu_link_content_field_revision',
       'id' => 'id',
     ),
     'user' => array(
@@ -169,7 +169,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       // For user entity type we should have revision ID 4 because we have three
       // users: anonymous, root user and the new user (it was deleted).
-      $revision = $entity_type_id == 'user' ? 4 : 1;
+      $revision = $entity_type_id == 'user' ? 4 : 2;
       $record = db_select($info['revision_table'], 'e')
         ->fields('e')
         ->condition('e.' . $info['id'], $id)
