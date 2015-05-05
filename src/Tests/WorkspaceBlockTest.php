@@ -32,9 +32,18 @@ class WorkspaceBlockTest extends MultiversionWebTestBase {
    */
   protected $profile = 'standard';
 
+  /**
+   * A web user.
+   */
+  protected $webUser;
+
   protected function setUp() {
     parent::setUp();
-    $this->drupalLogin($this->rootUser);
+    $this->webUser = $this->drupalCreateUser(array(
+      'access content',
+      'create article content'
+    ));
+    $this->drupalLogin($this->webUser);
   }
 
   public function testBlock() {
