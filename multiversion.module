@@ -227,20 +227,11 @@ function multiversion_modules_installed($modules) {
     );
     batch_set($batch);
 
-    // This is necessary when running updates in a batch in drush.
-    if (function_exists('drush_backend_batch_process')) {
+    $system_path = \Drupal::service('path.current')->getPath();
+    if ($system_path != '/admin/modules/list/confirm' && $system_path != '/admin/modules') {
       $batch =& batch_get();
       $batch['progressive'] = FALSE;
-      drush_backend_batch_process();
-    }
-    else {
-      // This is necessary when running tests from Drupal UI.
-      $system_path = \Drupal::service('path.current')->getPath();
-      if ($system_path == '/batch') {
-        $batch =& batch_get();
-        $batch['progressive'] = FALSE;
-        batch_process();
-      }
+      batch_process();
     }
   }
 }
