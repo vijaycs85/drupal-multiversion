@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * Implements hook_theme().
+ */
+function multiversion_ui_theme() {
+  return array(
+    'multiversion_rev' => array(
+      'render element' => 'elements',
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ *
+ * @param \Drupal\Core\Entity\EntityTypeInterface[] $entity_types
+ */
+function multiversion_ui_entity_type_alter(array &$entity_types) {
+  /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
+  $manager = \Drupal::service('multiversion.manager');
+
+  foreach ($entity_types as $entity_type) {
+    if ($manager->isSupportedEntityType($entity_type)) {
+      if ($entity_type->hasViewBuilderClass() && $entity_type->hasLinkTemplate('canonical')) {
+        $entity_type->setLinkTemplate('version-history', $entity_type->getLinkTemplate('canonical') . '/revisions');
+        $entity_type->setLinkTemplate('revision', $entity_type->getLinkTemplate('canonical') . '/revisions/{' . $entity_type->id() . '_revision}/view');
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_local_tasks_alter().
+ */
+function multiversion_ui_local_tasks_alter(&$local_tasks) {
+  // Remove the revisions local task for node since we're defining our own.
+  unset($local_tasks['entity.node.version_history']);
+}
+
+/**
+ * Prepares variables for Multiversion revision templates.
+ */
+function template_preprocess_multiversion_rev(&$variables) {
+  // Provide all info as variables.
+  $rev_info = $variables['elements']['#rev_info'];
+  $variables = array_merge($variables, $rev_info);
+
+  $entity_revision = NULL;
+  if (!empty($rev_info['revision_id'])) {
+    $entity_revision = entity_revision_load($rev_info['entity_type_id'], $rev_info['revision_id']);
+    $variables['view_link'] = \Drupal::l(t('View'), $entity_revision->urlInfo('revision'));
+  }
+}
