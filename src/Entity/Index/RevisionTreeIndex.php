@@ -113,15 +113,24 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   protected static function buildTree($revs, $revs_info, $parse = 0, &$tree = array(), &$open_revs = array(), &$conflicts = array()) {
     foreach ($revs as $rev => $parent_rev) {
       if ($parent_rev == $parse) {
-        $i = count($tree);
+        $rev_info_defaults = array(
+          'entity_type_id' => NULL,
+          'entity_id' => NULL,
+          'revision_id' => NULL,
+          'uuid' => NULL,
+          'rev' => $rev,
+          'status' => 'missing',
+          'open_rev' => FALSE,
+          'conflict' => FALSE,
+          'default' => FALSE,
+        );
+
         // Build an element structure compatible with Drupal's Render API.
-        $status = isset($revs_info[$rev]['status']) ? $revs_info[$rev]['status'] : 'missing';
+        $i = count($tree);
         $tree[$i] = array(
+          '#type' => 'rev',
           '#rev' => $rev,
-          '#open_rev' => FALSE,
-          '#status' => $status,
-          '#default' => FALSE,
-          '#conflict' => FALSE,
+          '#rev_info' => isset($revs_info[$rev]) ? array_merge($rev_info_defaults, $revs_info[$rev]) : $rev_info_defaults,
           'children' => array(),
         );
 
@@ -133,13 +142,13 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
         });
 
         if (empty($tree[$i]['children'])) {
-          $tree[$i]['#open_rev'] = TRUE;
-          $open_revs[$rev] = $status;
+          $tree[$i]['#rev_info']['open_rev'] = TRUE;
+          $open_revs[$rev] = $tree[$i]['#rev_info']['status'];
           // All open revisions, except deleted and default revisions, are
           // conflicts by definition. We will revert the conflict flag when we
           // find the default revision later on.
-          if ($status != 'deleted') {
-            $tree[$i]['#conflict'] = TRUE;
+          if ($tree[$i]['#rev_info']['status'] != 'deleted') {
+            $tree[$i]['#rev_info']['conflict'] = TRUE;
           }
         }
       }
@@ -169,8 +178,8 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
     // @todo: We can temporarily flip the sort to find the default rev earlier.
     foreach ($tree as &$element) {
       if (isset($element['#rev']) && $element['#rev'] == $default_rev) {
-        $element['#default'] = TRUE;
-        $element['#conflict'] = FALSE;
+        $element['#rev_info']['default'] = TRUE;
+        $element['#rev_info']['conflict'] = FALSE;
         break;
       }
       if (!empty($element['children'])) {

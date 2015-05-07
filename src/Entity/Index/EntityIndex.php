@@ -144,7 +144,7 @@ class EntityIndex implements EntityIndexInterface {
   protected function buildValue(EntityInterface $entity) {
     // @todo: Rename 'entity_type' to 'entity_type_id' for consistency.
     return array(
-      'entity_type' => $entity->getEntityTypeId(),
+      'entity_type_id' => $entity->getEntityTypeId(),
       'entity_id' => $entity->isNew() ? 0 : $entity->id(),
       'revision_id' => $entity->isNew() ? 0 : $entity->getRevisionId(),
       'uuid' => $entity->uuid(),

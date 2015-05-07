@@ -14,7 +14,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
     $this->uuidIndex->add($entity);
     $entry = $this->uuidIndex->get($entity->uuid());
     $expected = array(
-      'entity_type' => $entity->getEntityTypeId(),
+      'entity_type_id' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'revision_id' => $entity->getRevisionId(),
       'rev' => $entity->_revs_info->rev,
@@ -29,7 +29,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
     $this->uuidIndex->addMultiple($entities);
     $expected = array(
       $entities[0]->uuid() => array(
-        'entity_type' => $entities[0]->getEntityTypeId(),
+        'entity_type_id' => $entities[0]->getEntityTypeId(),
         'entity_id' => $entities[0]->id(),
         'revision_id' => $entities[0]->getRevisionId(),
         'rev' => $entities[0]->_revs_info->rev,
@@ -37,7 +37,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
         'status' => $entities[0]->_deleted->value ? 'deleted' : 'available',
       ),
       $entities[1]->uuid() => array(
-        'entity_type' => $entities[1]->getEntityTypeId(),
+        'entity_type_id' => $entities[1]->getEntityTypeId(),
         'entity_id' => $entities[1]->id(),
         'revision_id' => $entities[1]->getRevisionId(),
         'rev' => $entities[1]->_revs_info->rev,
@@ -70,7 +70,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       ->useWorkspace($ws2)
       ->get($entity->uuid());
     $expected = array(
-      'entity_type' => $entity->getEntityTypeId(),
+      'entity_type_id' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'revision_id' => $entity->getRevisionId(),
       'rev' => $entity->_revs_info->rev,

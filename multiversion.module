@@ -234,3 +234,23 @@ function multiversion_get_active_workspace_id() {
 function multiversion_workspace_uri(WorkspaceInterface $entity) {
   return $entity->id();
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function multiversion_form_node_type_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  // Users don't have the option to disable revisions when using Multiversion.
+  // @todo: See if there's a way to just disable this particular option.
+  unset($form['workflow']['options']['#options']['revision']);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function multiversion_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if (isset($form['revision']['#group']) && $form['revision']['#group'] == 'revision_information') {
+    // Users don't have the option to disable revisions when using Multiversion.
+    $form['revision']['#default_value'] = TRUE;
+    $form['revision']['#disabled'] = TRUE;
+  }
+}
