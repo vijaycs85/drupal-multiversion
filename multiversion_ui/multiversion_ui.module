@@ -48,15 +48,16 @@ function template_preprocess_multiversion_rev(&$variables) {
   $rev = $rev_info['rev'];
   $variables = array_merge($variables, $rev_info);
 
-  $entity_revision = NULL;
+  list($i, $hash) = explode('-', $rev);
+  // Apart from the index length, we want 7 characters plus dash and ellipsis.
+  $length = strlen($i) + 9;
+  $title = Unicode::truncate($rev, $length, FALSE, TRUE);
+
   if (!empty($rev_info['revision_id'])) {
     $entity_revision = entity_revision_load($rev_info['entity_type_id'], $rev_info['revision_id']);
-
-    list($i, $hash) = explode('-', $rev);
-    // Apart from the index length, we want 7 characters plus dash and ellipsis.
-    $length = strlen($i) + 9;
-    $title = Unicode::truncate($rev, $length, FALSE, TRUE);
-
     $variables['title'] = \Drupal::l($title, $entity_revision->urlInfo('revision'));
+  }
+  else {
+    $variables['title'] = $title;
   }
 }
