@@ -1,4 +1,5 @@
 <?php
+use Drupal\Component\Utility\Unicode;
 
 /**
  * Implements hook_theme().
@@ -44,11 +45,18 @@ function multiversion_ui_local_tasks_alter(&$local_tasks) {
 function template_preprocess_multiversion_rev(&$variables) {
   // Provide all info as variables.
   $rev_info = $variables['elements']['#rev_info'];
+  $rev = $rev_info['rev'];
   $variables = array_merge($variables, $rev_info);
 
   $entity_revision = NULL;
   if (!empty($rev_info['revision_id'])) {
     $entity_revision = entity_revision_load($rev_info['entity_type_id'], $rev_info['revision_id']);
-    $variables['title'] = \Drupal::l($rev_info['rev'], $entity_revision->urlInfo('revision'));
+
+    list($i, $hash) = explode('-', $rev);
+    // Apart from the index length, we want 7 characters plus dash and ellipsis.
+    $length = strlen($i) + 9;
+    $title = Unicode::truncate($rev, $length, FALSE, TRUE);
+
+    $variables['title'] = \Drupal::l($title, $entity_revision->urlInfo('revision'));
   }
 }
