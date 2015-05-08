@@ -90,14 +90,12 @@ class SequenceIndex implements SequenceIndexInterface {
    */
   protected function buildRecord(ContentEntityInterface $entity) {
     return array(
-      // @todo: Rename 'entity_type' to 'entity_type_id' for consistency.
-      'entity_type' => $entity->getEntityTypeId(),
+      'entity_type_id' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'entity_uuid' => $entity->uuid(),
       'revision_id' => $entity->getRevisionId(),
       'deleted' => $entity->_deleted->value,
-      //'rev' => $entity->_revs_info->rev,
-      'parent_rev' => ($entity->_revs_info->count() > 1) ? $entity->_revs_info[1]->rev : 0,
+      'rev' => $entity->_rev->value,
       'seq' => $this->multiversionManager->newSequenceId(),
       'local' => (boolean) $entity->getEntityType()->get('local'),
     );
