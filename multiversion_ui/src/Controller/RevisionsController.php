@@ -32,8 +32,10 @@ class RevisionsController extends ControllerBase {
       $tree = \Drupal::service('entity.index.rev.tree')->get($entity->uuid());
       $output = array(
         '#theme' => 'item_list',
+        '#attributes' => array('class' => array('multiversion')),
+        '#attached' => array('library' => array('multiversion_ui/drupal.multiversion_ui.admin')),
         '#items' => $tree,
-        '#list_type' => 'ol',
+        '#list_type' => 'ul',
       );
     }
     return $output;

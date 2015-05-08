@@ -49,6 +49,6 @@ function template_preprocess_multiversion_rev(&$variables) {
   $entity_revision = NULL;
   if (!empty($rev_info['revision_id'])) {
     $entity_revision = entity_revision_load($rev_info['entity_type_id'], $rev_info['revision_id']);
-    $variables['view_link'] = \Drupal::l(t('View'), $entity_revision->urlInfo('revision'));
+    $variables['title'] = \Drupal::l($rev_info['rev'], $entity_revision->urlInfo('revision'));
   }
 }

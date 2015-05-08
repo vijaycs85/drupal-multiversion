@@ -14,14 +14,17 @@
  * - conflict: Whether the revision is a conflict or not.
  * - default: Whether the revision is the defaukt one or not.
  *
+ * - title: The revision token linked to a view of the revision.
+ *
  * @see template_preprocess_multiversion_rev()
  *
  * @ingroup themeable
  */
 #}
 
-<h3>{{ rev }}</h3>
-<ul>
-  <li>{% trans %}Status: {{ status }}{% endtrans %}</li>
-  <li>{{ view_link }}</li>
-</ul>
+<div class="panel">
+  <h3 class="panel__title">{{ title }}</h3>
+  <div class="panel__content">
+    <div class="description">{% trans %}Status: {{ status }}{% endtrans %}</div>
+  </div>
+</div>
