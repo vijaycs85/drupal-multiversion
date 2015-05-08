@@ -16,14 +16,15 @@ class UuidIndexHooksTest extends MultiversionWebTestBase {
     $entity = entity_create('entity_test');
     $entity->save();
     $keys = $this->uuidIndex->get($entity->uuid());
-    $this->assertIdentical(
+    $this->assertEqual(
       $keys,
       array(
-        'entity_type' => $entity->getEntityTypeId(),
+        'entity_type_id' => $entity->getEntityTypeId(),
         'entity_id' => $entity->id(),
         'revision_id' => $entity->getRevisionId(),
         'rev' => $entity->_rev->value,
         'uuid' => $entity->uuid(),
+        'status' => 'available',
       ),
       'Index entry was created by insert hook.'
     );

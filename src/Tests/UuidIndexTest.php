@@ -21,7 +21,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'uuid' => $entity->uuid(),
       'status' => $entity->_deleted->value ? 'deleted' : 'available',
     );
-    $this->assertIdentical($entry, $expected, 'Index entry was added and fetched.');
+    $this->assertEqual($entry, $expected, 'Index entry was added and fetched.');
 
     $entities = array();
     $entities[] = entity_create('entity_test');
@@ -46,7 +46,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       ),
     );
     $entries = $this->uuidIndex->getMultiple(array($entities[0]->uuid(), $entities[1]->uuid()));
-    $this->assertIdentical($entries, $expected, 'Multiple index entries was added and fetched.');
+    $this->assertEqual($entries, $expected, 'Multiple index entries was added and fetched.');
 
     // Create a new workspaces and query those.
     $ws1 = $this->randomMachineName();
@@ -77,7 +77,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'uuid' => $entity->uuid(),
       'status' => $entity->_deleted->value ? 'deleted' : 'available',
     );
-    $this->assertIdentical($entry, $expected, 'Entry was added and fetched from new workspace.');
+    $this->assertEqual($entry, $expected, 'Entry was added and fetched from new workspace.');
   }
 
 }
