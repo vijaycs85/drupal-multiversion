@@ -4,6 +4,7 @@ namespace Drupal\multiversion\Entity\Index;
 
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
+use Symfony\Component\Validator\Tests\Fixtures\EntityInterface;
 
 /**
  * @todo Implement caching in a way that avoids stale trees and race conditions.
@@ -76,8 +77,27 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo The revision tree also contain missing revisions. We need a better
+   * way to count.
+   */
+  public function countRevs($uuid) {
+    $revs = $this->keyValueStore($uuid)->getAll();
+    return count($revs);
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function getDefaultRevision($uuid) {
+    $tree = $this->get($uuid);
+    // @todo
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultBranch($uuid) {
     $tree = $this->get($uuid);
     // @todo
   }
