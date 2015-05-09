@@ -207,7 +207,11 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
           break;
         }
       }
+      // Update the default revision in the tree array and remove it from the
+      // conflicts array.
+      unset($conflicts[$default_rev]);
       self::updateDefaultRevision($tree, $default_rev);
+
       // Find the branch of the default revision.
       $default_branch = array();
       $rev = $default_rev;

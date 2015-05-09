@@ -148,6 +148,34 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
 
     $tree = $this->tree->getTree($uuid);
     $this->assertEqual($tree, $expected_tree, 'Tree was correctly parsed.');
+
+    $default_rev = $this->tree->getDefaultRevision($uuid);
+    $this->assertEqual($default_rev, $revs[5], 'Default revision is correct.');
+
+    $expected_default_branch = array(
+      $revs[0] => 'available',
+      $revs[1] => 'available',
+      $revs[2] => 'available',
+      $revs[4] => 'available',
+      $revs[5] => 'available',
+    );
+    $default_branch = $this->tree->getDefaultBranch($uuid);
+    $this->assertEqual($default_branch, $expected_default_branch, 'Default branch is correct.');
+
+    $expected_open_revision = array(
+      $revs[3] => 'available',
+      $revs[5] => 'available',
+      $revs[6] => 'available',
+    );
+    $open_revisions = $this->tree->getOpenRevisions($uuid);
+    $this->assertEqual($open_revisions, $expected_open_revision, 'Open revisions are correct.');
+
+    $expected_conflicts = array(
+      $revs[3] => 'available',
+      $revs[6] => 'available',
+    );
+    $conflicts = $this->tree->getConflicts($uuid);
+    $this->assertEqual($conflicts, $expected_conflicts, 'Conflicts are correct');
   }
 
   /**
