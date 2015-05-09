@@ -43,12 +43,15 @@ function multiversion_ui_local_tasks_alter(&$local_tasks) {
  * Prepares variables for Multiversion revision templates.
  */
 function template_preprocess_multiversion_rev(&$variables) {
-  // Provide all info as variables.
-  $rev_info = $variables['elements']['#rev_info'];
-  $rev = $rev_info['rev'];
+  $rev = $variables['elements']['#rev'];
+  $rev_info = array_merge(
+    \Drupal::service('entity.index.rev')->get($rev),
+    $variables['elements']['#rev_info']
+  );
+
   $variables = array_merge($variables, $rev_info);
 
-  list($i, $hash) = explode('-', $rev);
+  list($i) = explode('-', $rev);
   // Apart from the index length, we want 7 characters plus dash and ellipsis.
   $length = strlen($i) + 9;
   $title = Unicode::truncate($rev, $length, FALSE, TRUE);

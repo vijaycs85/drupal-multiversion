@@ -65,60 +65,40 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
         '#type' => 'rev',
         '#rev' => $revs[0],
         '#rev_info' => array(
-          'entity_type_id' => 'entity_test',
-          'entity_id' => 1,
-          'revision_id' => 1,
-          'uuid' => $uuid,
-          'rev' => $revs[0],
           'status' => 'available',
+          'default' => FALSE,
           'open_rev' => FALSE,
           'conflict' => FALSE,
-          'default' => FALSE,
         ),
         'children' => array(
           array(
             '#type' => 'rev',
             '#rev' => $revs[1],
             '#rev_info' => array(
-              'entity_type_id' => 'entity_test',
-              'entity_id' => 1,
-              'revision_id' => 2,
-              'uuid' => $uuid,
-              'rev' => $revs[1],
               'status' => 'available',
+              'default' => FALSE,
               'open_rev' => FALSE,
               'conflict' => FALSE,
-              'default' => FALSE,
             ),
             'children' => array(
               array(
                 '#type' => 'rev',
                 '#rev' => $revs[2],
                 '#rev_info' => array(
-                  'entity_type_id' => 'entity_test',
-                  'entity_id' => 1,
-                  'revision_id' => 3,
-                  'uuid' => $uuid,
-                  'rev' => $revs[2],
                   'status' => 'available',
+                  'default' => FALSE,
                   'open_rev' => FALSE,
                   'conflict' => FALSE,
-                  'default' => FALSE,
                 ),
                 'children' => array(
                   array(
                     '#type' => 'rev',
                     '#rev' => $revs[3],
                     '#rev_info' => array(
-                      'entity_type_id' => 'entity_test',
-                      'entity_id' => 1,
-                      'revision_id' => 4,
-                      'uuid' => $uuid,
-                      'rev' => $revs[3],
                       'status' => 'available',
+                      'default' => FALSE,
                       'open_rev' => TRUE,
                       'conflict' => TRUE,
-                      'default' => FALSE,
                     ),
                     'children' => array(),
                   ),
@@ -126,30 +106,20 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
                     '#type' => 'rev',
                     '#rev' => $revs[4],
                     '#rev_info' => array(
-                      'entity_type_id' => 'entity_test',
-                      'entity_id' => 1,
-                      'revision_id' => 5,
-                      'uuid' => $uuid,
-                      'rev' => $revs[4],
                       'status' => 'available',
+                      'default' => FALSE,
                       'open_rev' => FALSE,
                       'conflict' => FALSE,
-                      'default' => FALSE,
                     ),
                     'children' => array(
                       array(
                         '#type' => 'rev',
                         '#rev' => $revs[5],
                         '#rev_info' => array(
-                          'entity_type_id' => 'entity_test',
-                          'entity_id' => 1,
-                          'revision_id' => 6,
-                          'uuid' => $uuid,
-                          'rev' => $revs[5],
                           'status' => 'available',
+                          'default' => TRUE,
                           'open_rev' => TRUE,
                           'conflict' => FALSE,
-                          'default' => TRUE,
                         ),
                         'children' => array(),
                       )
@@ -161,15 +131,10 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
                 '#type' => 'rev',
                 '#rev' => $revs[6],
                 '#rev_info' => array(
-                  'entity_type_id' => 'entity_test',
-                  'entity_id' => 1,
-                  'revision_id' => 7,
-                  'uuid' => $uuid,
-                  'rev' => $revs[6],
                   'status' => 'available',
+                  'default' => FALSE,
                   'open_rev' => TRUE,
                   'conflict' => TRUE,
-                  'default' => FALSE,
                 ),
                 'children' => array(),
               )
@@ -181,7 +146,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     // Sort the expected tree according to the algorithm.
     self::sortRevisionTree($expected_tree);
 
-    $tree = $this->tree->get($uuid);
+    $tree = $this->tree->getTree($uuid);
     $this->assertEqual($tree, $expected_tree, 'Tree was correctly parsed.');
   }
 

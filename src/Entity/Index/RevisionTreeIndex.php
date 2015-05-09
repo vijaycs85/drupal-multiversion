@@ -6,9 +6,6 @@ use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\Validator\Tests\Fixtures\EntityInterface;
 
-/**
- * @todo Implement caching in a way that avoids stale trees and race conditions.
- */
 class RevisionTreeIndex implements RevisionTreeIndexInterface {
 
   /**
@@ -58,21 +55,19 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function get($uuid) {
-    $revs = $this->keyValueStore($uuid)->getAll();
-    $revs_info = $this->revIndex->getMultiple(array_keys($revs));
-
-    // Build the tree recursively.
-    $tree = self::buildTree($revs, $revs_info);
-
-    return $tree;
+  public function getTree($uuid) {
+    $values = $this->buildTree($uuid);
+    return $values['tree'];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function update($uuid, array $branch = array()) {
+  public function updateTree($uuid, array $branch = array()) {
+    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
     $this->keyValueStore($uuid)->setMultiple($branch);
+    // Invalidate the cache.
+    unset($this->cache[$workspace_id][$uuid]);
   }
 
   /**
@@ -82,40 +77,40 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    * way to count.
    */
   public function countRevs($uuid) {
-    $revs = $this->keyValueStore($uuid)->getAll();
-    return count($revs);
+    $values = $this->buildTree($uuid);
+    return count($values['default_branch']);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDefaultRevision($uuid) {
-    $tree = $this->get($uuid);
-    // @todo
+    $values = $this->buildTree($uuid);
+    return $values['default_rev'];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDefaultBranch($uuid) {
-    $tree = $this->get($uuid);
-    // @todo
+    $values = $this->buildTree($uuid);
+    return $values['default_branch'];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getOpenRevisions($uuid) {
-    $tree = $this->get($uuid);
-    // @todo
+    $values = $this->buildTree($uuid);
+    return $values['open_revs'];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getConflicts($uuid) {
-    $open_revisions = $this->getOpenRevisions($uuid);
-    // @todo
+    $values = $this->buildTree($uuid);
+    return $values['conflicts'];
   }
 
   /**
@@ -128,33 +123,58 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   }
 
   /**
-   * Helper method to recursively build the tree.
+   * Helper method to build the revision tree.
    */
-  protected static function buildTree($revs, $revs_info, $parse = 0, &$tree = array(), &$open_revs = array(), &$conflicts = array()) {
+  protected function buildTree($uuid) {
+    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
+    $revs = $this->keyValueStore($uuid)->getAll();
+    $revs_info = $this->revIndex->getMultiple(array_keys($revs));
+
+    // @todo: Consider using a full cache backend instead of static caching.
+    if (!isset($this->cache[$workspace_id][$uuid])) {
+      // Build the tree recursively.
+      list($tree, $default_rev, $default_branch, $open_revs, $conflicts) = self::doBuildTree($revs, $revs_info);
+      // Cache the values.
+      if (!isset($this->cache[$workspace_id])) {
+        $this->cache[$workspace_id] = array();
+      }
+      $this->cache[$workspace_id][$uuid] = array(
+        'tree' => $tree,
+        'default_rev' => $default_rev,
+        'default_branch' => $default_branch,
+        'open_revs' => $open_revs,
+        'conflicts' => $conflicts,
+      );
+    }
+    return $this->cache[$workspace_id][$uuid];
+  }
+
+  /**
+   * Recursive helper method to build the revision tree.
+   *
+   * @return array
+   *   Returns an array containing the built tree, open revisions, default
+   *   revision, default branch and conflicts.
+   */
+  protected static function doBuildTree($revs, $revs_info, $parse = 0, &$tree = array(), &$open_revs = array(), &$conflicts = array()) {
     foreach ($revs as $rev => $parent_rev) {
       if ($parent_rev == $parse) {
-        $rev_info_defaults = array(
-          'entity_type_id' => NULL,
-          'entity_id' => NULL,
-          'revision_id' => NULL,
-          'uuid' => NULL,
-          'rev' => $rev,
-          'status' => 'missing',
-          'open_rev' => FALSE,
-          'conflict' => FALSE,
-          'default' => FALSE,
-        );
-
         // Build an element structure compatible with Drupal's Render API.
         $i = count($tree);
         $tree[$i] = array(
           '#type' => 'rev',
           '#rev' => $rev,
-          '#rev_info' => isset($revs_info[$rev]) ? array_merge($rev_info_defaults, $revs_info[$rev]) : $rev_info_defaults,
+          '#rev_info' => array(
+            'status' => isset($revs_info[$rev]['status']) ? $revs_info[$rev]['status'] : 'missing',
+            'default' => FALSE,
+            'open_rev' => FALSE,
+            'conflict' => FALSE,
+          ),
           'children' => array(),
         );
 
-        self::buildTree($revs, $revs_info, $rev, $tree[$i]['children'], $open_revs, $conflicts);
+        // Recurse down through the children.
+        self::doBuildTree($revs, $revs_info, $rev, $tree[$i]['children'], $open_revs, $conflicts);
 
         // Sort all tree elements from low to high.
         usort($tree, function($a, $b) {
@@ -163,20 +183,22 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
 
         if (empty($tree[$i]['children'])) {
           $tree[$i]['#rev_info']['open_rev'] = TRUE;
-          $open_revs[$rev] = $tree[$i]['#rev_info']['status'];
+          $open_revs[$rev] = $revs_info[$rev]['status'];
           // All open revisions, except deleted and default revisions, are
           // conflicts by definition. We will revert the conflict flag when we
           // find the default revision later on.
           if ($tree[$i]['#rev_info']['status'] != 'deleted') {
             $tree[$i]['#rev_info']['conflict'] = TRUE;
+            $conflicts[$rev] = $revs_info[$rev]['status'];
           }
         }
       }
     }
 
     // Now when the full tree is built we'll find the default revision and
-    // revert its conflict flag.
+    // its branch.
     if ($parse == 0) {
+      $default_rev = 0;
       // Sort from high to low and find the default revision.
       krsort($open_revs);
       foreach ($open_revs as $open_rev => $status) {
@@ -186,9 +208,16 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
         }
       }
       self::updateDefaultRevision($tree, $default_rev);
-    }
+      // Find the branch of the default revision.
+      $default_branch = array();
+      $rev = $default_rev;
+      while ($rev != 0) {
+        $default_branch[$rev] = $revs_info[$rev]['status'];
+        $rev = $revs[$rev];
+      }
 
-    return $tree;
+      return array($tree, $default_rev, array_reverse($default_branch), $open_revs, $conflicts);
+    }
   }
 
   /**

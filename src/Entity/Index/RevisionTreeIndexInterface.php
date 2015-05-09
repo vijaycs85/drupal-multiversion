@@ -15,12 +15,12 @@ interface RevisionTreeIndexInterface {
    *
    * @return array
    */
-  public function get($uuid);
+  public function getTree($uuid);
 
   /**
    * @param array $branch
    */
-  public function update($uuid, array $branch = array());
+  public function updateTree($uuid, array $branch = array());
 
   /**
    * @param string $uuid
@@ -34,6 +34,20 @@ interface RevisionTreeIndexInterface {
    *
    * @return string[]
    */
+  public function getDefaultBranch($uuid);
+
+  /**
+   * @param string $uuid
+   *
+   * @return string[]
+   */
   public function getOpenRevisions($uuid);
+
+  /**
+   * @param string $uuid
+   *
+   * @return string[]
+   */
+  public function getConflicts($uuid);
 
 }

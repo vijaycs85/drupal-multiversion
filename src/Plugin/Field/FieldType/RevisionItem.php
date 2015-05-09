@@ -137,6 +137,6 @@ class RevisionItem extends FieldItemBase {
 
     // Index the revision info and tree.
     \Drupal::service('entity.index.rev')->add($entity);
-    \Drupal::service('entity.index.rev.tree')->update($entity->uuid(), $branch);
+    \Drupal::service('entity.index.rev.tree')->updateTree($entity->uuid(), $branch);
   }
 }
