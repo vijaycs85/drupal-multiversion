@@ -202,7 +202,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       catch(\Exception $e) {
         $first_rev = $entity->_rev->value;
         $rev_info = $this->revIndex->get($first_rev);
-        $this->assertEqual($rev_info['status'], 'missing', 'First revision is missing after exception on first save.');
+        $this->assertEqual($rev_info['status'], 'indexed', 'First revision was indexed after exception on first save.');
       }
       // Re-save the same entity with a valid ID.
       $entity->{$id_key}->value = NULL;
@@ -233,7 +233,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       catch(\Exception $e) {
         $second_rev = $entity->_rev->value;
         $rev_info = $this->revIndex->get($second_rev);
-        $this->assertEqual($rev_info['status'], 'missing', 'Second revision is missing after exception on second save.');
+        $this->assertEqual($rev_info['status'], 'indexed', 'Second revision was indexed after exception on second save.');
       }
       // Re-save the same entity with a valid ID.
       $entity->{$id_key}->value = $first_id;

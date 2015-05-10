@@ -144,11 +144,10 @@ class EntityIndex implements EntityIndexInterface {
   protected function buildValue(EntityInterface $entity) {
     !$is_new = $entity->isNew();
     $revision_id = $is_new ? 0 : $entity->getRevisionId();
-    // The revision log is written pre save, and rewritten post save. So if
-    // something goes awry during save we default to the revision being missing.
-    // The entity must be both not-new and have a revision ID to not be
-    // considered missing.
-    $status = 'missing';
+    // We assign a temporary status to the revision since we are indexing it
+    // pre save. It will be updated post save with the final status. This will
+    // help identifying failures and exception scenarios during entity save.
+    $status = 'indexed';
     if (!$is_new && $revision_id) {
       $status = $entity->_deleted->value ? 'deleted' : 'available';
     }
