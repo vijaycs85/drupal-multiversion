@@ -191,6 +191,9 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $entity_type = $this->entityManager->getDefinition($entity_type_id);
       $id_key = $entity_type->getKey('id');
       // Test with exception upon first save.
+      if ($entity_type_id == 'block_content') {
+        $info['info']['info'] = $this->randomMachineName();
+      }
       $entity = entity_create($entity_type_id, $info['info']);
       $uuid = $entity->uuid->value;
       try {
@@ -219,6 +222,9 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertEqual($default_branch, $expected_default_branch, 'Default branch was built after exception on first save followed by re-save.');
 
       // Test with exception upon second save.
+      if ($entity_type_id == 'block_content') {
+        $info['info']['info'] = $this->randomMachineName();
+      }
       $entity = entity_create($entity_type_id, $info['info']);
       $uuid = $entity->uuid->value;
       $entity->save();
