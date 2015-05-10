@@ -6,6 +6,9 @@ use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\Validator\Tests\Fixtures\EntityInterface;
 
+/**
+ * @todo Consider caching once/if rev and rev tree indices are merged.
+ */
 class RevisionTreeIndex implements RevisionTreeIndexInterface {
 
   /**
@@ -64,10 +67,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    * {@inheritdoc}
    */
   public function updateTree($uuid, array $branch = array()) {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
     $this->keyValueStore($uuid)->setMultiple($branch);
-    // Invalidate the cache.
-    unset($this->cache[$workspace_id][$uuid]);
   }
 
   /**
@@ -126,28 +126,9 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    * Helper method to build the revision tree.
    */
   protected function buildTree($uuid) {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
-
-    // @todo: Consider using a full cache backend instead of static caching.
-    if (!isset($this->cache[$workspace_id][$uuid])) {
-      $revs = $this->keyValueStore($uuid)->getAll();
-      $revs_info = $this->revIndex->getMultiple(array_keys($revs));
-
-      // Build the tree recursively.
-      list($tree, $default_rev, $default_branch, $open_revs, $conflicts) = self::doBuildTree($revs, $revs_info);
-      // Cache the values.
-      if (!isset($this->cache[$workspace_id])) {
-        $this->cache[$workspace_id] = array();
-      }
-      $this->cache[$workspace_id][$uuid] = array(
-        'tree' => $tree,
-        'default_rev' => $default_rev,
-        'default_branch' => $default_branch,
-        'open_revs' => $open_revs,
-        'conflicts' => $conflicts,
-      );
-    }
-    return $this->cache[$workspace_id][$uuid];
+    $revs = $this->keyValueStore($uuid)->getAll();
+    $revs_info = $this->revIndex->getMultiple(array_keys($revs));
+    return self::doBuildTree($revs, $revs_info);
   }
 
   /**
@@ -227,8 +208,13 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
         $default_branch[$rev] = $revs_info[$rev]['status'];
         $rev = $revs[$rev];
       }
-
-      return array($tree, $default_rev, array_reverse($default_branch), $open_revs, $conflicts);
+      return array(
+        'tree' => $tree,
+        'default_rev' => $default_rev,
+        'default_branch' => array_reverse($default_branch),
+        'open_revs' => $open_revs,
+        'conflicts' => $conflicts,
+      );
     }
   }
 

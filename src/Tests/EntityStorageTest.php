@@ -186,6 +186,72 @@ class EntityStorageTest extends MultiversionWebTestBase {
     }
   }
 
+  public function testExceptions() {
+    foreach ($this->entityTypes as $entity_type_id => $info) {
+      $entity_type = $this->entityManager->getDefinition($entity_type_id);
+      $id_key = $entity_type->getKey('id');
+      // Test with exception upon first save.
+      $entity = entity_create($entity_type_id, $info['info']);
+      $uuid = $entity->uuid->value;
+      try {
+        // Trigger an error by setting the ID too large.
+        $entity->{$id_key}->value = PHP_INT_MAX;
+        $entity->save();
+        $this->fail('Exception was not generated.');
+      }
+      catch(\Exception $e) {
+        $first_rev = $entity->_rev->value;
+        $rev_info = $this->revIndex->get($first_rev);
+        $this->assertEqual($rev_info['status'], 'missing', 'First revision is missing after exception on first save.');
+      }
+      // Re-save the same entity with a valid ID.
+      $entity->{$id_key}->value = NULL;
+      $entity->save();
+      $second_rev = $entity->_rev->value;
+      $this->assertEqual($first_rev, $second_rev, 'New revision was not generated after first re-save.');
+
+      $rev_info = $this->revIndex->get($first_rev);
+      $this->assertEqual($rev_info['status'], 'available', 'First revision is available after first re-save.');
+      $default_branch = $this->revTree->getDefaultBranch($uuid);
+      $expected_default_branch = array(
+        $first_rev => 'available',
+      );
+      $this->assertEqual($default_branch, $expected_default_branch, 'Default branch was built after exception on first save followed by re-save.');
+
+      // Test with exception upon second save.
+      $entity = entity_create($entity_type_id, $info['info']);
+      $uuid = $entity->uuid->value;
+      $entity->save();
+      $first_id = $entity->id();
+      $first_rev = $entity->_rev->value;
+      try {
+        // Trigger an error by setting the ID too large.
+        $entity->{$id_key}->value = PHP_INT_MAX;
+        $entity->save();
+        $this->fail('Exception was not generated.');
+      }
+      catch(\Exception $e) {
+        $second_rev = $entity->_rev->value;
+        $rev_info = $this->revIndex->get($second_rev);
+        $this->assertEqual($rev_info['status'], 'missing', 'Second revision is missing after exception on second save.');
+      }
+      // Re-save the same entity with a valid ID.
+      $entity->{$id_key}->value = $first_id;
+      $entity->save();
+      $third_rev = $entity->_rev->value;
+      $this->assertEqual($second_rev, $third_rev, 'New revision was not generated after second re-save.');
+
+      $rev_info = $this->revIndex->get($second_rev);
+      $this->assertEqual($rev_info['status'], 'available', 'Third revision is available after second re-save.');
+      $default_branch = $this->revTree->getDefaultBranch($uuid);
+      $expected_default_branch = array(
+        $first_rev => 'available',
+        $second_rev => 'available',
+      );
+      $this->assertEqual($default_branch, $expected_default_branch, 'Default branch was built after exception on second save followed by re-save.');
+    }
+  }
+
   public function testWorkspace() {
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $entity = entity_create($entity_type_id, $info['info']);

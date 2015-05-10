@@ -142,14 +142,24 @@ class EntityIndex implements EntityIndexInterface {
    * {@inheritdoc}
    */
   protected function buildValue(EntityInterface $entity) {
-    // @todo: Rename 'entity_type' to 'entity_type_id' for consistency.
+    !$is_new = $entity->isNew();
+    $revision_id = $is_new ? 0 : $entity->getRevisionId();
+    // The revision log is written pre save, and rewritten post save. So if
+    // something goes awry during save we default to the revision being missing.
+    // The entity must be both not-new and have a revision ID to not be
+    // considered missing.
+    $status = 'missing';
+    if (!$is_new && $revision_id) {
+      $status = $entity->_deleted->value ? 'deleted' : 'available';
+    }
+
     return array(
       'entity_type_id' => $entity->getEntityTypeId(),
-      'entity_id' => $entity->isNew() ? 0 : $entity->id(),
-      'revision_id' => $entity->isNew() ? 0 : $entity->getRevisionId(),
+      'entity_id' => $is_new ? 0 : $entity->id(),
+      'revision_id' => $revision_id,
       'uuid' => $entity->uuid(),
       'rev' => $entity->_rev->value,
-      'status' => $entity->_deleted->value ? 'deleted' : 'available',
+      'status' => $status,
     );
   }
 }

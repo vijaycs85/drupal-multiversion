@@ -4,6 +4,7 @@ namespace Drupal\multiversion\Entity\Storage;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\multiversion\Entity\Exception\ConflictException;
 
 trait ContentEntityStorageTrait {
@@ -94,12 +95,86 @@ trait ContentEntityStorageTrait {
   }
 
   /**
-   *
+   * {@inheritdoc}
    */
   public function save(EntityInterface $entity) {
     // Every update is a new revision with this storage model.
     $entity->setNewRevision();
-    return parent::save($entity);
+
+    // We are going to index the revision ahead of save in order to accurately
+    // determine if this is going to be the default revision or not. We also run
+    // this logic here outside of any transactions that the parent storage
+    // handler might perform. It's important that the revision index does not
+    // get rolled back during exceptions. All records are kept in order to more
+    // accurately build revision trees of all universally known revisions.
+    $branch = array();
+    $rev = $entity->_rev->value;
+    list($i) = explode('-', $rev);
+
+    // This is a regular local save operation and a new revision token should be
+    // generated. The new_edit property will be set to FALSE during replication
+    // to ensure the revision token is saved as-is.
+    if ($entity->_rev->new_edit) {
+      // If this is the first revision it means that there's no parent.
+      // By definition the existing revision value is the parent revision.
+      $parent_rev = $i == 0 ? 0 : $rev;
+      $rev = \Drupal::service('multiversion.manager')->newRevisionId($entity, $i);
+      list(, $hash) = explode('-', $rev);
+      $entity->_rev->value = $rev;
+      $entity->_rev->revisions = array($hash);
+      $branch[$rev] = $parent_rev;
+
+      // Add the parent revision to list of known revisions. This will be useful
+      // if an exception is thrown during entity save and a new attempt is made.
+      if ($parent_rev != 0) {
+        list(, $parent_hash) = explode('-', $parent_rev);
+        // @todo: Figure out why we need to set the hashes in reverse order.
+        $entity->_rev->revisions = array($parent_hash, $hash);
+      }
+    }
+    // A list of all known revisions can be passed in to let the current host
+    // know about the revision history, for conflict handling etc. A list of
+    // revisions are always passed in during replication.
+    else {
+      $ancestor_hashes = $entity->_rev->revisions;
+      $ancestor_count = count($ancestor_hashes);
+      // The initial revision is always included. So don't parse ancestors if
+      // there is only one.
+      if ($ancestor_count > 1) {
+        // The first ancestor is always the current rev.
+        foreach ($ancestor_hashes as $parent_hash) {
+          $i--;
+          $parent_rev = $i == 0 ? 0 : $i . '-' . $parent_hash;
+          $branch[$rev] = $parent_rev;
+          if ($parent_rev == 0) {
+            // We've reached the logical end.
+            break;
+          }
+          $rev = $parent_rev;
+        }
+      }
+    }
+
+    // If nothing has been added to the branch yet it means that it's the first
+    // revision without a parent. So add it to the branch.
+    if (empty($branch)) {
+      $branch[$rev] = 0;
+    }
+
+    // Index the revision info and tree.
+    \Drupal::service('entity.index.rev')->add($entity);
+    \Drupal::service('entity.index.rev.tree')->updateTree($entity->uuid(), $branch);
+
+    try {
+      return parent::save($entity);
+    }
+    catch (\Exception $e) {
+      // If a new attempt at saving the entity is made after an exception its
+      // important that a new rev token is not generated.
+      $entity->_rev->new_edit = FALSE;
+      // Propagate the exception.
+      throw new EntityStorageException($e->getMessage(), $e->getCode(), $e);
+    }
   }
 
   /**
