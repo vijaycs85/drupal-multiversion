@@ -6,6 +6,8 @@ namespace Drupal\multiversion\Tests;
  * Test the methods on the RevisionTreeIndex class.
  *
  * @group multiversion
+ *
+ * @todo: Test more entity types, like in \Drupal\multiversion\Tests\EntityStorageTest
  */
 class RevisionTreeIndexTest extends MultiversionWebTestBase {
 
