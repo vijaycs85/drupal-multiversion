@@ -119,7 +119,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    */
   protected function keyValueStore($uuid) {
     $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
-    return $this->keyValueFactory->get("entity.index.open_revs.$workspace_id.$uuid");
+    return $this->keyValueFactory->get("entity.index.rev.tree.$workspace_id.$uuid");
   }
 
   /**
