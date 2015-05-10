@@ -102,9 +102,11 @@ trait ContentEntityStorageTrait {
     $entity->setNewRevision();
 
     // Decide whether or not this is the default revision.
-    $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
-    if ($entity->_rev->value == $default_rev) {
-      $entity->isDefaultRevision(TRUE);
+    if (!$entity->isNew()) {
+      $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
+      if ($entity->_rev->value == $default_rev) {
+        $entity->isDefaultRevision(TRUE);
+      }
     }
 
     return parent::doSave($id, $entity);

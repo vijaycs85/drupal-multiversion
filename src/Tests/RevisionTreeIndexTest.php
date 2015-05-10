@@ -162,6 +162,9 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     $default_branch = $this->tree->getDefaultBranch($uuid);
     $this->assertEqual($default_branch, $expected_default_branch, 'Default branch is correct.');
 
+    $count = $this->tree->countRevs($uuid);
+    $this->assertEqual($count, 5, 'Number of revisions is correct.');
+
     $expected_open_revision = array(
       $revs[3] => 'available',
       $revs[5] => 'available',

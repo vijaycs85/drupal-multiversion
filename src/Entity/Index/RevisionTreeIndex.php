@@ -127,11 +127,12 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    */
   protected function buildTree($uuid) {
     $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
-    $revs = $this->keyValueStore($uuid)->getAll();
-    $revs_info = $this->revIndex->getMultiple(array_keys($revs));
 
     // @todo: Consider using a full cache backend instead of static caching.
     if (!isset($this->cache[$workspace_id][$uuid])) {
+      $revs = $this->keyValueStore($uuid)->getAll();
+      $revs_info = $this->revIndex->getMultiple(array_keys($revs));
+
       // Build the tree recursively.
       list($tree, $default_rev, $default_branch, $open_revs, $conflicts) = self::doBuildTree($revs, $revs_info);
       // Cache the values.
@@ -159,6 +160,13 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   protected static function doBuildTree($revs, $revs_info, $parse = 0, &$tree = array(), &$open_revs = array(), &$conflicts = array()) {
     foreach ($revs as $rev => $parent_rev) {
       if ($parent_rev == $parse) {
+
+        // Avoid bad data to cause endless loops.
+        // @todo Needs test.
+        if ($rev == $parse) {
+          throw new \InvalidArgumentException('Child and parent revision can not be the same value.');
+        }
+
         // Build an element structure compatible with Drupal's Render API.
         $i = count($tree);
         $tree[$i] = array(
