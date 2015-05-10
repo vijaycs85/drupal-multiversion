@@ -4,7 +4,7 @@ namespace Drupal\multiversion\Entity\Index;
 
 use Drupal\Core\Entity\EntityInterface;
 
-class UuidIndex extends EntityIndex {
+class UuidIndex extends EntityIndex implements UuidIndexInterface {
 
   /**
    * @var string
