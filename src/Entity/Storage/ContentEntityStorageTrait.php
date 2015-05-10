@@ -64,6 +64,14 @@ trait ContentEntityStorageTrait {
   /**
    * {@inheritdoc}
    */
+  public function loadUnchanged($id) {
+    $this->resetCache(array($id));
+    return $this->load($id) ?: $this->loadDeleted($id);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function loadMultiple(array $ids = NULL) {
     $this->isDeleted = FALSE;
     return parent::loadMultiple($ids);
@@ -106,6 +114,10 @@ trait ContentEntityStorageTrait {
       $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
       if ($entity->_rev->value == $default_rev) {
         $entity->isDefaultRevision(TRUE);
+      }
+      // @todo: Needs test.
+      else {
+        $entity->isDefaultRevision(FALSE);
       }
     }
 

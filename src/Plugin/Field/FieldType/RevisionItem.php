@@ -116,14 +116,13 @@ class RevisionItem extends FieldItemBase {
     // A list of all known revisions can be passed in to let the current host
     // know about the revision history, for conflict handling etc. A list of
     // revisions are always passed in during replication.
-    if ($ancestor_hashes = $this->get('revisions')->getValue()) {
-      // The first hash is always the current one and should not be included
-      // in the ancestor array.
-      array_shift($ancestor_hashes);
-
-      // Build the remaining ancestors into the tree.
+    $ancestor_hashes = $this->get('revisions')->getValue();
+    $ancestor_count = count($ancestor_hashes);
+    // The initial revision is always included. So don't parse ancestors if
+    // there is only one.
+    if ($ancestor_count > 1) {
       foreach ($ancestor_hashes as $parent_hash) {
-        $parent_token = --$i . '-' . $parent_hash;
+        $parent_token = $i-- . '-' . $parent_hash;
         $branch[$token] = $parent_token;
         $token = $parent_token;
       }
