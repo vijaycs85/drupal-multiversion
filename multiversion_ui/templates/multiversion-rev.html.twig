@@ -22,9 +22,8 @@
  */
 #}
 
-<div class="panel">
-  <h3 class="panel__title">{{ title }}</h3>
-  <div class="panel__content">
-    <div class="description">{% trans %}Status: {{ status }}{% endtrans %}</div>
-  </div>
+<div class="rev{{ default ? ' color-success' }}{{ conflict ? ' color-error' }}">
+  <h3 class="rev__title">{{ title }}</h3>
+  <hr>
+  {% trans %}Status: {{ status }}{% endtrans %}
 </div>
