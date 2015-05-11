@@ -128,37 +128,20 @@ trait ContentEntityStorageTrait {
       // if an exception is thrown during entity save and a new attempt is made.
       if ($parent_rev != 0) {
         list(, $parent_hash) = explode('-', $parent_rev);
-        // @todo: Figure out why we need to set the hashes in reverse order.
-        $entity->_rev->revisions = array($parent_hash, $hash);
+        $entity->_rev->revisions = array($hash, $parent_hash);
       }
     }
     // A list of all known revisions can be passed in to let the current host
     // know about the revision history, for conflict handling etc. A list of
     // revisions are always passed in during replication.
     else {
-      $ancestor_hashes = $entity->_rev->revisions;
-      $ancestor_count = count($ancestor_hashes);
-      // The initial revision is always included. So don't parse ancestors if
-      // there is only one.
-      if ($ancestor_count > 1) {
-        // The first ancestor is always the current rev.
-        foreach ($ancestor_hashes as $parent_hash) {
-          $i--;
-          $parent_rev = $i == 0 ? 0 : $i . '-' . $parent_hash;
-          $branch[$rev] = $parent_rev;
-          if ($parent_rev == 0) {
-            // We've reached the logical end.
-            break;
-          }
-          $rev = $parent_rev;
-        }
+      $revisions = $entity->_rev->revisions;
+      for ($c = 0; $c < count($revisions); ++$c) {
+        $p = $c + 1;
+        $rev = $i-- . '-' . $revisions[$c];
+        $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
+        $branch[$rev] = $parent_rev;
       }
-    }
-
-    // If nothing has been added to the branch yet it means that it's the first
-    // revision without a parent. So add it to the branch.
-    if (empty($branch)) {
-      $branch[$rev] = 0;
     }
 
     // Index the revision info and tree.
@@ -172,7 +155,6 @@ trait ContentEntityStorageTrait {
       // If a new attempt at saving the entity is made after an exception its
       // important that a new rev token is not generated.
       $entity->_rev->new_edit = FALSE;
-      // Propagate the exception.
       throw new EntityStorageException($e->getMessage(), $e->getCode(), $e);
     }
   }
