@@ -114,7 +114,7 @@ class MultiversionManager implements MultiversionManagerInterface {
    */
   public function newRevisionId(ContentEntityInterface $entity, $index = 0) {
     $deleted = $entity->_deleted->value;
-    $old_rev = $entity->_revs_info->rev;
+    $old_rev = $entity->_rev->value;
     $normalized_entity = $this->serializer->normalize($entity);
     // Remove fields internal to the multiversion system.
     foreach ($normalized_entity as $key => $value) {

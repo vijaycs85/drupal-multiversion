@@ -12,6 +12,8 @@ use Drupal\simpletest\WebTestBase;
  */
 class WorkspaceTest extends WebTestBase {
 
+  protected $strictConfigSchema = FALSE;
+
   public static $modules = array('multiversion');
 
   public function testOperations() {

@@ -16,14 +16,15 @@ class UuidIndexHooksTest extends MultiversionWebTestBase {
     $entity = entity_create('entity_test');
     $entity->save();
     $keys = $this->uuidIndex->get($entity->uuid());
-    $this->assertIdentical(
+    $this->assertEqual(
       $keys,
       array(
-        'entity_type' => $entity->getEntityTypeId(),
+        'entity_type_id' => $entity->getEntityTypeId(),
         'entity_id' => $entity->id(),
         'revision_id' => $entity->getRevisionId(),
-        'rev' => $entity->_revs_info->rev,
+        'rev' => $entity->_rev->value,
         'uuid' => $entity->uuid(),
+        'status' => 'available',
       ),
       'Index entry was created by insert hook.'
     );
@@ -31,12 +32,5 @@ class UuidIndexHooksTest extends MultiversionWebTestBase {
     entity_delete_multiple('entity_test', array($entity->id()));
     $keys = $this->uuidIndex->get($entity->uuid());
     $this->assertTrue(!empty($keys), 'Index entry should not be removed when an entity is deleted.');
-
-    /** @var \Drupal\multiversion\Entity\Compaction\CompactionManagerInterface $compaction */
-    $compaction = \Drupal::service('entity.compaction.manager');
-    $compaction->compact();
-
-    $keys = $this->uuidIndex->get($entity->uuid());
-    $this->assertTrue(empty($keys), 'Index entry was removed when an entity was purged.');
   }
 }

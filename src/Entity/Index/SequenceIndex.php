@@ -10,7 +10,10 @@ use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
 class SequenceIndex implements SequenceIndexInterface {
 
-  const COLLECTION_PREFIX = 'entity.index.sequence.';
+  /**
+   * @var string
+   */
+  protected $collectionPrefix = 'entity.index.sequence.';
 
   /**
    * @var string
@@ -55,19 +58,8 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function add(ContentEntityInterface $entity) {
-    $this->addMultiple(array($entity));
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function addMultiple(array $entities) {
-    $pairs = array();
-    foreach ($entities as $entity) {
-      $record = $this->buildRecord($entity);
-      $pairs[] = array($record['seq'] => $record);
-    }
-    $this->sortedSetStore()->addMultiple($pairs);
+    $record = $this->buildRecord($entity);
+    $this->sortedSetStore()->add($record['seq'], $record);
   }
 
   /**
@@ -89,7 +81,7 @@ class SequenceIndex implements SequenceIndexInterface {
    */
   protected function sortedSetStore() {
     $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
-    return $this->sortedSetFactory->get(self::COLLECTION_PREFIX . $workspace_id);
+    return $this->sortedSetFactory->get($this->collectionPrefix . $workspace_id);
   }
 
   /**
@@ -98,14 +90,12 @@ class SequenceIndex implements SequenceIndexInterface {
    */
   protected function buildRecord(ContentEntityInterface $entity) {
     return array(
-      // @todo: Rename 'entity_type' to 'entity_type_id' for consistency.
-      'entity_type' => $entity->getEntityTypeId(),
+      'entity_type_id' => $entity->getEntityTypeId(),
       'entity_id' => $entity->id(),
       'entity_uuid' => $entity->uuid(),
       'revision_id' => $entity->getRevisionId(),
-      'parent_revision_id' => ($entity->_revs_info->count() > 1) ? $entity->_revs_info[1]->rev : 0,
       'deleted' => $entity->_deleted->value,
-      'rev' => $entity->_revs_info->rev,
+      'rev' => $entity->_rev->value,
       'seq' => $this->multiversionManager->newSequenceId(),
       'local' => (boolean) $entity->getEntityType()->get('local'),
     );

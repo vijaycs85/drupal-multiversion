@@ -2,4 +2,4 @@
 
 namespace Drupal\multiversion\Entity\Index;
 
-interface RevisionIndexInterface extends IndexInterface { }
+interface RevisionIndexInterface extends EntityIndexInterface { }

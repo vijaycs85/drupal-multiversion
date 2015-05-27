@@ -90,12 +90,12 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setDefaultValue(FALSE)
       ->setCardinality(1);
 
-    $fields['_revs_info'] = BaseFieldDefinition::create('revision_info')
-      ->setLabel('Revision info')
-      ->setDescription('The revision history information for the entity.')
+    $fields['_rev'] = BaseFieldDefinition::create('revision_token')
+      ->setLabel('Revision token')
+      ->setDescription('The token for this entity revision.')
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
-      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      ->setCardinality(1)
       ->setReadOnly(TRUE);
 
     return $fields;
@@ -173,16 +173,6 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
 }
 
 /**
- * Implements hook_cron().
- */
-function multiversion_cron() {
-  // @todo Need tests
-  if (\Drupal::config('multiversion.settings')->get('compaction_on_cron')) {
-    \Drupal::service('entity.compaction.manager')->compact();
-  }
-}
-
-/**
  * Implements hook_entity_insert().
  */
 function multiversion_entity_insert(EntityInterface $entity) {
@@ -200,24 +190,6 @@ function multiversion_entity_insert(EntityInterface $entity) {
  */
 function multiversion_entity_update(EntityInterface $entity) {
   multiversion_entity_insert($entity);
-}
-
-/**
- * Implements hook_entity_delete().
- */
-function multiversion_entity_delete(EntityInterface $entity) {
-  $manager = \Drupal::service('multiversion.manager');
-  if ($entity->uuid() && $manager->isSupportedEntityType($entity->getEntityType())) {
-    \Drupal::service('entity.index.uuid')->delete($entity->uuid());
-    // @todo Need tests.
-    if (\Drupal::service('multiversion.manager')->isSupportedEntityType($entity->getEntityType())) {
-      $keys = array();
-      foreach ($entity->_revs_info as $item) {
-        $keys[] = $entity->uuid() . ':' . $item->rev;
-      }
-      \Drupal::service('entity.index.rev')->deleteMultiple($keys);
-    }
-  }
 }
 
 /**
@@ -262,4 +234,24 @@ function multiversion_get_active_workspace_id() {
  */
 function multiversion_workspace_uri(WorkspaceInterface $entity) {
   return $entity->id();
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function multiversion_form_node_type_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  // Users don't have the option to disable revisions when using Multiversion.
+  // @todo: See if there's a way to just disable this particular option.
+  unset($form['workflow']['options']['#options']['revision']);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function multiversion_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  if (isset($form['revision']['#group']) && $form['revision']['#group'] == 'revision_information') {
+    // Users don't have the option to disable revisions when using Multiversion.
+    $form['revision']['#default_value'] = TRUE;
+    $form['revision']['#disabled'] = TRUE;
+  }
 }

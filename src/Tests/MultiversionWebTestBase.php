@@ -16,9 +16,19 @@ abstract class MultiversionWebTestBase extends WebTestBase {
   protected $strictConfigSchema = FALSE;
 
   /**
-   * @var \Drupal\multiversion\Entity\Index\UuidIndex;
+   * @var \Drupal\multiversion\Entity\Index\UuidIndexInterface;
    */
   protected $uuidIndex;
+
+  /**
+   * @var \Drupal\multiversion\Entity\Index\RevisionIndexInterface;
+   */
+  protected $revIndex;
+
+  /**
+   * @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface;
+   */
+  protected $revTree;
 
   /**
    * The entity manager service.
@@ -62,6 +72,9 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     parent::setUp();
 
     $this->uuidIndex = $this->container->get('entity.index.uuid');
+    $this->revIndex = $this->container->get('entity.index.rev');
+    $this->revTree = $this->container->get('entity.index.rev.tree');
+
     $this->multiversionManager = $this->container->get('multiversion.manager');
     $this->workspaceManager = $this->container->get('workspace.manager');
     $this->entityManager = $this->container->get('entity.manager');

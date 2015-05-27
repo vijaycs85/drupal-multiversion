@@ -28,11 +28,10 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     // controller. We just want to test the sequence storage here, so we mock
     // entity IDs here.
     $expected = array(
-      'entity_type' => 'entity_test_rev',
+      'entity_type_id' => 'entity_test_rev',
       'entity_id' => 1,
       'entity_uuid' => $entity->uuid(),
       'revision_id' => 1,
-      'parent_revision_id' => 0,
       'deleted' => FALSE,
       'rev' => FALSE,
       'local' => (boolean) $entity->getEntityType()->get('local'),
@@ -40,7 +39,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $entity->id->value = $expected['entity_id'];
     $entity->revision_id->value = $expected['revision_id'];
     $entity->_deleted->value = $expected['deleted'];
-    $entity->_revs_info->rev = $expected['rev'];
+    $entity->_rev->value = $expected['rev'];
 
     $this->sequenceIndex->add($entity);
     $expected['seq'] = $this->multiversionManager->lastSequenceId();
