@@ -241,6 +241,31 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
 }
 
 /**
+ * Implements hook_element_info_alter().
+ */
+function multiversion_element_info_alter(array &$types) {
+  foreach ($types as &$type) {
+    if (!isset($type['#pre_render'])) {
+      $type['#pre_render'] = array();
+    }
+    $type['#pre_render'][] = 'multiversion_element_pre_render';
+  }
+}
+
+/**
+ * Element pre-render callback.
+ */
+function multiversion_element_pre_render($element) {
+  if (isset($element['#cache'])) {
+    if (!isset($element['#cache']['contexts'])) {
+      $element['#cache']['contexts'] = array();
+    }
+    $element['#cache']['contexts'][] = 'workspace';
+  }
+  return $element;
+}
+
+/**
  * Implements hook_entity_insert().
  */
 function multiversion_entity_insert(EntityInterface $entity) {
