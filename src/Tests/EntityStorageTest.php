@@ -246,6 +246,9 @@ class EntityStorageTest extends MultiversionWebTestBase {
       if ($entity_type_id == 'block_content') {
         $info['info']['info'] = $this->randomMachineName();
       }
+      if ($entity_type_id == 'user') {
+        $info['info']['name'] = $this->randomMachineName();
+      }
       $entity = entity_create($entity_type_id, $info['info']);
       $uuid = $entity->uuid->value;
       $entity->save();
