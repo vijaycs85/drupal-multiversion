@@ -65,6 +65,7 @@ class WorkspaceBlockTest extends MultiversionWebTestBase {
     $this->assertText('Test article', 'The title of the test article was displayed on the front page.');
     $this->drupalGet("node/$nid");
     $this->assertText('Test article');
+    $this->drupalGet($front);
     $url = $front . "?workspace=$id";
     $this->assertRaw('href="'. $url .'"', 'The id of the new workspace was displayed in the Workspace switcher block as a link.');
     $this->drupalGet("node/$nid", array('query' => array('workspace' => $id)));

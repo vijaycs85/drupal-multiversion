@@ -149,7 +149,7 @@ function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface
  */
 function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
   // Add a new filter for default core views, it will filter deleted content.
-  $views_machine_names = array(
+  $views_ids = array(
     'content',
     'frontpage',
     'comments_recent',
@@ -159,8 +159,7 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
     'archive',
     'user_admin_people',
   );
-  $id = $view->storage->id();
-  if (in_array($id, $views_machine_names)) {
+  if (in_array($view->id(), $views_ids)) {
     $base_table = $view->storage->get('base_table');
     $view->query->where[1]['conditions'][] = array(
       'field' => $base_table . '._deleted',

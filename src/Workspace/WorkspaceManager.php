@@ -69,6 +69,7 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * {@inheritdoc}
    */
   public function getActiveWorkspace() {
+    \Drupal::cache('render')->deleteAll();
     if (!isset($this->activeWorkspace)) {
       $request = $this->requestStack->getCurrentRequest();
       foreach ($this->getSortedNegotiators() as $negotiator) {
