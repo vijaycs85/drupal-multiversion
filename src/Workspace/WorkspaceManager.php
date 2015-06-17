@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Workspace;
 
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
@@ -37,10 +38,12 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   /**
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache_render
    */
-  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager) {
+  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager, CacheBackendInterface $cache_render) {
     $this->requestStack = $request_stack;
     $this->entityManager = $entity_manager;
+    $this->cacheRender = $cache_render;
   }
 
   /**
@@ -69,7 +72,7 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * {@inheritdoc}
    */
   public function getActiveWorkspace() {
-    \Drupal::cache('render')->deleteAll();
+    $this->cacheRender->deleteAll();
     if (!isset($this->activeWorkspace)) {
       $request = $this->requestStack->getCurrentRequest();
       foreach ($this->getSortedNegotiators() as $negotiator) {

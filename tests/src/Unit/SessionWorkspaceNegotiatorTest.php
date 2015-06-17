@@ -54,6 +54,13 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
   protected $workspaceManager;
 
   /**
+   * The cache render.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
+  protected $cacheRender;
+
+  /**
    * The path used for testing.
    *
    * @var string
@@ -115,26 +122,28 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
     );
 
     foreach ($this->values as $value) {
-      $this->entities[] = $this->getMock('\Drupal\multiversion\Entity\Workspace', array(), array($value, $this->entityTypeId));
+      $this->entities[] = $this->getMock('Drupal\multiversion\Entity\Workspace', array(), array($value, $this->entityTypeId));
     }
 
     $this->path = '<front>';
     $this->request = Request::create($this->path);
 
-    $this->entityType = $this->getMock('\Drupal\multiversion\Entity\WorkspaceInterface');
-    $this->entityManager = $this->getMock('\Drupal\Core\Entity\EntityManagerInterface');
+    $this->entityType = $this->getMock('Drupal\multiversion\Entity\WorkspaceInterface');
+    $this->entityManager = $this->getMock('Drupal\Core\Entity\EntityManagerInterface');
+    $this->cacheRender = $this->getMock('Drupal\Core\Cache\CacheBackendInterface');
     $this->entityManager->expects($this->any())
       ->method('getDefinition')
       ->with($this->entityTypeId)
       ->will($this->returnValue($this->entityType));
-    $this->requestStack = $this->getMock('\Symfony\Component\HttpFoundation\RequestStack');
-    $this->workspaceManager = $this->getMock('\Drupal\multiversion\Workspace\WorkspaceManagerInterface');
+    $this->requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack');
+    $this->workspaceManager = $this->getMock('Drupal\multiversion\Workspace\WorkspaceManagerInterface');
 
     $container = new ContainerBuilder();
     $container->setParameter('workspace.default', $this->defaultId);
     $container->set('entity.manager', $this->entityManager);
     $container->set('workspace.manager', $this->workspaceManager);
     $container->set('request_stack', $this->requestStack);
+    $container->set('cache.render', $this->cacheRender);
     \Drupal::setContainer($container);
 
     $this->workspaceNegotiator = new SessionWorkspaceNegotiator();
@@ -224,7 +233,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
       ->with()
       ->will($this->returnValue(array($this->entities)));
 
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
     $workspace_manager->addNegotiator($this->workspaceNegotiator, 1);
     $workspace_manager->setActiveWorkspace($this->entities[0]);
     $negotiator = new SessionWorkspaceNegotiator();
