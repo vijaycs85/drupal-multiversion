@@ -42,10 +42,8 @@ class MultiversionManager implements MultiversionManagerInterface {
    * Entity types that Multiversion should support but currently does not.
    *
    * @var array
-   * @todo The 'user' entity type needs a migration of existing entities.
    */
   protected $entityTypeToDo = array(
-    'user',
     'file',
   );
 
@@ -99,6 +97,10 @@ class MultiversionManager implements MultiversionManagerInterface {
    */
   public function isSupportedEntityType(EntityTypeInterface $entity_type) {
     $entity_type_id = $entity_type->id();
+    $support_user_entity_type = \Drupal::state()->get('multiversion_user_migration_to_json_done');
+    if ($entity_type_id == 'user' && empty($support_user_entity_type)) {
+      return FALSE;
+    }
     if (in_array($entity_type_id, $this->entityTypeBlackList)) {
       return FALSE;
     }

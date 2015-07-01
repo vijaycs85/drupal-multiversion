@@ -45,6 +45,12 @@ class RevisionFieldTest extends FieldTestBase {
 
       // Simulate the input from a replication.
 
+      if ($entity_type_id == 'block_content') {
+        $info['info'] = $this->randomMachineName();
+      }
+      if ($entity_type_id == 'user') {
+        $info['name'] = $this->randomMachineName();
+      }
       $entity = entity_create($entity_type_id, $info);
       $sample_rev = RevisionItem::generateSampleValue($entity->_rev->getFieldDefinition());
 

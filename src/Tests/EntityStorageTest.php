@@ -85,8 +85,18 @@ class EntityStorageTest extends MultiversionWebTestBase {
         'link' => [['uri' => 'user-path:/']],
       ),
       'data_table' => 'menu_link_content_data',
-      'revision_table' => 'block_content_field_revision',
+      'revision_table' => 'menu_link_content_field_revision',
       'id' => 'id',
+    ),
+    'user' => array(
+      'info' => array(
+        'name' => 'User',
+        'mail' => 'user@example.com',
+        'status' => 1,
+      ),
+      'data_table' => 'users_field_data',
+      'revision_table' => 'user_field_revision',
+      'id' => 'uid',
     ),
   );
 
@@ -115,7 +125,11 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $ids = array();
       $entity = entity_create($entity_type_id, $info['info']);
       $return = $entity->save();
-      $this->assertEqual($return, SAVED_NEW, "$entity_type_id was saved.");
+      // @todo Remove this check when https://www.drupal.org/node/2462265 will
+      // be commited.
+      if ($entity_type_id != 'user') {
+        $this->assertEqual($return, SAVED_NEW, "$entity_type_id was saved.");
+      }
 
       $ids[] = $entity->id();
       $loaded = entity_load($entity_type_id, $ids[0]);
@@ -125,9 +139,13 @@ class EntityStorageTest extends MultiversionWebTestBase {
       // Update and save a new revision.
       $entity->{$info['name']} = $this->randomMachineName();
       $entity->save();
+      // For user entity type we should have three entities: anonymous, root
+      // user and the new created user. For other entity types we should have
+      // just the new created entity.
+      $revision_id = $entity_type_id == 'user' ? 3 : 1;
       /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
-      $revision = entity_revision_load($entity_type_id, 1);
-      $this->assertTrue(($revision->getRevisionId() == 1 && !$revision->isDefaultRevision()), "Old revision of $entity_type_id was loaded.");
+      $revision = entity_revision_load($entity_type_id, $revision_id);
+      $this->assertTrue(($revision->getRevisionId() == $revision_id && !$revision->isDefaultRevision()), "Old revision of $entity_type_id was loaded.");
 
       if ($entity_type_id == 'block_content') {
         $info['info']['info'] = $this->randomMachineName();
@@ -149,10 +167,13 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $revision_id = $entity->getRevisionId();
       entity_delete_multiple($entity_type_id, array($id));
 
+      // For user entity type we should have revision ID 4 because we have three
+      // users: anonymous, root user and the new user (it was deleted).
+      $revision = $entity_type_id == 'user' ? 4 : 2;
       $record = db_select($info['revision_table'], 'e')
         ->fields('e')
         ->condition('e.' . $info['id'], $id)
-        ->condition('e.' . $info['revision_id'], '2')
+        ->condition('e.' . $info['revision_id'], $revision)
         ->execute()
         ->fetchObject();
 
@@ -225,12 +246,19 @@ class EntityStorageTest extends MultiversionWebTestBase {
       if ($entity_type_id == 'block_content') {
         $info['info']['info'] = $this->randomMachineName();
       }
+      if ($entity_type_id == 'user') {
+        $info['info']['name'] = $this->randomMachineName();
+      }
       $entity = entity_create($entity_type_id, $info['info']);
       $uuid = $entity->uuid->value;
       $entity->save();
       $first_id = $entity->id();
       $first_rev = $entity->_rev->value;
       try {
+        // Temporary solution.
+        // @todo Remove when https://www.drupal.org/node/2453153 will be fixed.
+        $entity->original = clone $entity;
+
         // Trigger an error by setting the ID too large.
         $entity->{$id_key}->value = PHP_INT_MAX;
         $entity->save();
@@ -302,6 +330,9 @@ class EntityStorageTest extends MultiversionWebTestBase {
       if ($entity_type_id == 'block_content') {
         $info['info']['info'] = $this->randomMachineName();
       }
+      if ($entity_type_id == 'user') {
+        $info['info']['name'] = $this->randomMachineName();
+      }
       $entity = entity_create($entity_type_id, $info['info']);
       $entity->save();
       $this->assertEqual($entity->workspace->target_id, $workspace->id(), "$entity_type_id was saved in new workspace.");
@@ -312,6 +343,9 @@ class EntityStorageTest extends MultiversionWebTestBase {
     foreach ($this->entityTypes as $entity_type_id => $info) {
       if ($entity_type_id == 'block_content') {
         $info['info']['info'] = $this->randomMachineName();
+      }
+      if ($entity_type_id == 'user') {
+        $info['info']['name'] = $this->randomMachineName();
       }
       $entity = entity_create($entity_type_id, $info['info']);
       $entity->save();

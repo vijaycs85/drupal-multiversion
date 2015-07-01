@@ -65,7 +65,8 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     'taxonomy',
     'comment',
     'block_content',
-    'menu_link_content'
+    'menu_link_content',
+    'file',
   );
 
   protected function setUp() {
@@ -79,8 +80,6 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     $this->workspaceManager = $this->container->get('workspace.manager');
     $this->entityManager = $this->container->get('entity.manager');
     $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
-
-    $this->entityDefinitionUpdateManager->applyUpdates();
 
     // Create Basic page and Article node types.
     if ($this->profile != 'standard') {

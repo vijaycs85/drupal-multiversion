@@ -89,7 +89,7 @@ class CommentStatistics extends CoreCommentStatistics {
           'comment_count' => 0,
           // Use the created date of the entity if it's set, or default to
           // REQUEST_TIME.
-          'last_comment_timestamp' => ($entity instanceof EntityChangedInterface) ? $entity->getChangedTime() : REQUEST_TIME,
+          'last_comment_timestamp' => ($entity instanceof EntityChangedInterface) ? $entity->getChangedTimeAcrossTranslations() : REQUEST_TIME,
           'last_comment_name' => '',
           'last_comment_uid' => $last_comment_uid,
         ))

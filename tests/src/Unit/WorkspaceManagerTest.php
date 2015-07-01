@@ -55,6 +55,13 @@ class WorkspaceManagerTest extends UnitTestCase {
   protected $requestStack;
 
   /**
+   * The cache render.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
+  protected $cacheRender;
+
+  /**
    * The ID of the type of the entity under test.
    *
    * @var string
@@ -97,25 +104,27 @@ class WorkspaceManagerTest extends UnitTestCase {
       ),
     );
 
-    $this->entityType = $this->getMock('\Drupal\multiversion\Entity\WorkspaceInterface');
-    $this->entityManager = $this->getMock('\Drupal\Core\Entity\EntityManagerInterface');
+    $this->entityType = $this->getMock('Drupal\multiversion\Entity\WorkspaceInterface');
+    $this->entityManager = $this->getMock('Drupal\Core\Entity\EntityManagerInterface');
+    $this->cacheRender = $this->getMock('Drupal\Core\Cache\CacheBackendInterface');
     $this->entityManager->expects($this->any())
       ->method('getDefinition')
       ->with($this->entityTypeId)
       ->will($this->returnValue($this->entityType));
-    $this->requestStack = $this->getMock('\Symfony\Component\HttpFoundation\RequestStack');
+    $this->requestStack = $this->getMock('Symfony\Component\HttpFoundation\RequestStack');
 
     $container = new ContainerBuilder();
     $container->set('entity.manager', $this->entityManager);
     $container->set('request_stack', $this->requestStack);
+    $container->set('cache.render', $this->cacheRender);
     \Drupal::setContainer($container);
 
     foreach ($this->values as $value) {
-      $this->entities[] = $this->getMock('\Drupal\multiversion\Entity\Workspace', array(), array($value, $this->entityTypeId));
+      $this->entities[] = $this->getMock('Drupal\multiversion\Entity\Workspace', array(), array($value, $this->entityTypeId));
     }
 
-    $this->workspaceNegotiators[] = array($this->getMock('\Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator'));
-    $this->workspaceNegotiators[] = array($this->getMock('\Drupal\multiversion\Workspace\SessionWorkspaceNegotiator'));
+    $this->workspaceNegotiators[] = array($this->getMock('Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator'));
+    $this->workspaceNegotiators[] = array($this->getMock('Drupal\multiversion\Workspace\SessionWorkspaceNegotiator'));
   }
 
   /**
@@ -124,11 +133,11 @@ class WorkspaceManagerTest extends UnitTestCase {
    * @covers ::addNegotiator()
    */
   public function testAddNegotiator() {
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[0][0], 0);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[1][0], 1);
 
-    $property = new \ReflectionProperty('\Drupal\multiversion\Workspace\WorkspaceManager', 'negotiators');
+    $property = new \ReflectionProperty('Drupal\multiversion\Workspace\WorkspaceManager', 'negotiators');
     $property->setAccessible(TRUE);
 
     $this->assertSame($this->workspaceNegotiators, $property->getValue($workspace_manager));
@@ -141,7 +150,7 @@ class WorkspaceManagerTest extends UnitTestCase {
    */
   public function testLoad() {
     $workspace_id = $this->values[0]['id'];
-    $storage = $this->getMock('\Drupal\Core\Entity\EntityStorageInterface');
+    $storage = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
     $storage->expects($this->once())
       ->method('load')
       ->with($workspace_id)
@@ -152,7 +161,7 @@ class WorkspaceManagerTest extends UnitTestCase {
       ->with($this->entityTypeId)
       ->will($this->returnValue($storage));
 
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
     $entity = $workspace_manager->load($workspace_id);
 
     $this->assertSame($this->entities[0], $entity);
@@ -165,7 +174,7 @@ class WorkspaceManagerTest extends UnitTestCase {
    */
   public function testLoadMultiple() {
     $ids = array($this->values[0]['id'], $this->values[1]['id']);
-    $storage = $this->getMock('\Drupal\Core\Entity\EntityStorageInterface');
+    $storage = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
     $storage->expects($this->once())
       ->method('loadMultiple')
       ->with($ids)
@@ -176,7 +185,7 @@ class WorkspaceManagerTest extends UnitTestCase {
       ->with($this->entityTypeId)
       ->will($this->returnValue($storage));
 
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
     $entities = $workspace_manager->loadMultiple($ids);
 
     $this->assertSame($this->entities, $entities);
@@ -189,7 +198,7 @@ class WorkspaceManagerTest extends UnitTestCase {
    * @covers ::getActiveWorkspace()
    */
   public function testSetActiveWorkspace() {
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
     $workspace_manager->setActiveWorkspace($this->entities[0]);
     $this->assertSame($this->entities[0], $workspace_manager->getActiveWorkspace());
   }
@@ -216,7 +225,7 @@ class WorkspaceManagerTest extends UnitTestCase {
       ->method('getCurrentRequest')
       ->will($this->returnValue($request));
 
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[1][0], 1);
 
     $this->workspaceNegotiators[1][0]->expects($this->any())
@@ -238,18 +247,18 @@ class WorkspaceManagerTest extends UnitTestCase {
    * @covers ::getSortedNegotiators()
    */
   public function testGetSortedNegotiators() {
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[0][0], 1);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[1][0], 3);
 
-    $method = new \ReflectionMethod('\Drupal\multiversion\Workspace\WorkspaceManager', 'getSortedNegotiators');
+    $method = new \ReflectionMethod('Drupal\multiversion\Workspace\WorkspaceManager', 'getSortedNegotiators');
     $method->setAccessible(TRUE);
 
-    $sorted_negotiators = new \ReflectionProperty('\Drupal\multiversion\Workspace\WorkspaceManager', 'sortedNegotiators');
+    $sorted_negotiators = new \ReflectionProperty('Drupal\multiversion\Workspace\WorkspaceManager', 'sortedNegotiators');
     $sorted_negotiators->setAccessible(TRUE);
     $sorted_negotiators_value = $sorted_negotiators->getValue($workspace_manager);
 
-    $negotiators = new \ReflectionProperty('\Drupal\multiversion\Workspace\WorkspaceManager', 'negotiators');
+    $negotiators = new \ReflectionProperty('Drupal\multiversion\Workspace\WorkspaceManager', 'negotiators');
     $negotiators->setAccessible(TRUE);
     $negotiators_value = $negotiators->getValue($workspace_manager);
 

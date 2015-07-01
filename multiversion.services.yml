@@ -25,7 +25,7 @@ services:
     arguments: ['@workspace.manager', '@serializer']
   workspace.manager:
     class: Drupal\multiversion\Workspace\WorkspaceManager
-    arguments: ['@request_stack', '@entity.manager']
+    arguments: ['@request_stack', '@entity.manager', '@cache.render']
     tags:
       - { name: service_collector, tag: workspace_negotiator, call: addNegotiator }
 
