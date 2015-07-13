@@ -8,7 +8,6 @@
 namespace Drupal\multiversion_ui\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 class RevisionController extends ControllerBase {

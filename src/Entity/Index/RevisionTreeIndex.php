@@ -4,7 +4,6 @@ namespace Drupal\multiversion\Entity\Index;
 
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
-use Symfony\Component\Validator\Tests\Fixtures\EntityInterface;
 
 /**
  * @todo Consider caching once/if rev and rev tree indices are merged.
@@ -236,4 +235,5 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
       }
     }
   }
+
 }

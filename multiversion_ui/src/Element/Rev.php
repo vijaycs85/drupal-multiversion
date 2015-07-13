@@ -1,5 +1,4 @@
 <?php
-use Drupal\Core\Render\Renderer;
 
 /**
  * @file
@@ -9,7 +8,6 @@ use Drupal\Core\Render\Renderer;
 namespace Drupal\multiversion_ui\Element;
 
 use Drupal\Core\Render\Element\RenderElement;
-use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Provides a render element for a items in a revision tree.

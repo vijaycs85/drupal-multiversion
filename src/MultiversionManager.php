@@ -137,4 +137,5 @@ class MultiversionManager implements MultiversionManagerInterface {
     // @todo: Switch to BERT serialization format instead of JSON.
     return $this->serializer->serialize($term, 'json');
   }
+
 }

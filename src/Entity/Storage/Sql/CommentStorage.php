@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\multiversion\Entity\Storage\Sql\CommentStorage.
+ * Contains Drupal\multiversion\Entity\Storage\Sql\CommentStorage.
  */
 
 namespace Drupal\multiversion\Entity\Storage\Sql;

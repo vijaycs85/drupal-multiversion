@@ -66,4 +66,5 @@ class Workspace extends ConfigEntityBase implements WorkspaceInterface {
     }
     parent::save();
   }
+
 }

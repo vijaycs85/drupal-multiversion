@@ -31,4 +31,5 @@ interface WorkspaceInterface extends ConfigEntityInterface {
    *   Creation timestamp of the workspace.
    */
   public function getStartTime();
+
 }

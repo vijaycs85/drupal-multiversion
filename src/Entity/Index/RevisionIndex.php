@@ -17,4 +17,5 @@ class RevisionIndex extends EntityIndex implements RevisionIndexInterface {
   protected function buildKey(EntityInterface $entity) {
     return $entity->_rev->value;
   }
+
 }

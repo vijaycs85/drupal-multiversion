@@ -274,4 +274,5 @@ class WorkspaceManagerTest extends UnitTestCase {
     }
     $this->assertSame($sorted_negotiators_value, $method->invoke($workspace_manager));
   }
+
 }

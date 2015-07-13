@@ -75,7 +75,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
   protected $entityType;
 
   /**
-   * @var \Drupal\multiversion\Workspace\SessionWorkspaceNegotiator|PHPUnit_Framework_MockObject_MockObject
+   * @var \Drupal\multiversion\Workspace\SessionWorkspaceNegotiator|\PHPUnit_Framework_MockObject_MockObject
    */
   protected $negotiator;
 
@@ -242,4 +242,5 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
     $links = $negotiator->getWorkspaceSwitchLinks($this->request, $url);
     $this->assertSame($expected_links, $links);
   }
+
 }

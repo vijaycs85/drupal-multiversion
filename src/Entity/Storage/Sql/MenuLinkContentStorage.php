@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\multiversion\Entity\Storage\Sql\MenuLinkContentStorage.
+ * Contains Drupal\multiversion\Entity\Storage\Sql\MenuLinkContentStorage.
  */
 
 namespace Drupal\multiversion\Entity\Storage\Sql;

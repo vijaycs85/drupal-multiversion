@@ -161,4 +161,5 @@ class EntityIndex implements EntityIndexInterface {
       'status' => $status,
     );
   }
+
 }
