@@ -25,4 +25,5 @@ class MigratePasswordTest extends MultiversionWebTestBase {
     $migrated_password = $password_migrate->hash($password);
     $this->assertEqual($migrated_password, $password, 'Migrated password was not hashed.');
   }
+
 }

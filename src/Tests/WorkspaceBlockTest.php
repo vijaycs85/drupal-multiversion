@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Contains \Drupal\multiversion\Tests\WorkspaceBlockTest.
@@ -82,4 +81,5 @@ class WorkspaceBlockTest extends MultiversionWebTestBase {
     $this->drupalGet('');
     $this->assertNoText($id, 'The id of the deleted workspace was not displayed in the Workspace switcher block.');
   }
+
 }

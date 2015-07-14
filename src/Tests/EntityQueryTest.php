@@ -1,8 +1,11 @@
 <?php
 
-namespace Drupal\multiversion\Tests;
+/**
+ * @file
+ * Contains \Drupal\multiversion\Tests\EntityQueryTest.
+ */
 
-use Drupal\simpletest\WebTestBase;
+namespace Drupal\multiversion\Tests;
 
 /**
  * Test the altered entity query functionality.
@@ -115,4 +118,5 @@ class EntityQueryTest extends MultiversionWebTestBase {
       $this->assertIdentical($results, array(2 => '1'), "Revision query on deleted $entity_type_id returned expected result.");
     }
   }
+
 }

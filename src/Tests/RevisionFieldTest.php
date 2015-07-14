@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Tests\RevisionFieldTest.
+ */
+
 namespace Drupal\multiversion\Tests;
 
 use Drupal\multiversion\Plugin\Field\FieldType\RevisionItem;
@@ -62,4 +67,5 @@ class RevisionFieldTest extends FieldTestBase {
       $this->assertEqual($entity->_rev->value, $sample_rev['value']);
     }
   }
+
 }

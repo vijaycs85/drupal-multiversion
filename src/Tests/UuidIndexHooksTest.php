@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Tests\UuidIndexHooksTest.
+ */
+
 namespace Drupal\multiversion\Tests;
 
 /**
@@ -33,4 +38,5 @@ class UuidIndexHooksTest extends MultiversionWebTestBase {
     $keys = $this->uuidIndex->get($entity->uuid());
     $this->assertTrue(!empty($keys), 'Index entry should not be removed when an entity is deleted.');
   }
+
 }
