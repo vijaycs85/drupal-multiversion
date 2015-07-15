@@ -54,6 +54,7 @@ trait ContentEntityStorageTrait {
     $current_request = \Drupal::service('request_stack')->getCurrentRequest();
     $form_id = $current_request->request->get('form_id');
     // Don't add this condition when an user tries to login.
+    // @todo: See if there is a cleaner way to detect login.
     if ($form_id != 'user_login_form') {
       $query->condition("$revision_alias.workspace", $this->getActiveWorkspaceId());
     }
