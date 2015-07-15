@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Tests\MultiversionManagerTest.
+ */
+
 namespace Drupal\multiversion\Tests;
 
 /**
@@ -60,4 +65,5 @@ class MultiversionManagerTest extends MultiversionWebTestBase {
     $revs[] = $this->multiversionManager->newRevisionId($test_entity, 0);
     $this->assertTrue(count($revs) == count(array_unique($revs)), 'Revision ID varies on deleted flag.');
   }
+
 }

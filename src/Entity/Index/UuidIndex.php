@@ -17,4 +17,5 @@ class UuidIndex extends EntityIndex implements UuidIndexInterface {
   protected function buildKey(EntityInterface $entity) {
     return $entity->uuid();
   }
+
 }

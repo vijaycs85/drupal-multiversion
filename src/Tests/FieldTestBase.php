@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Tests\FieldTestBase.
+ */
+
 namespace Drupal\multiversion\Tests;
 
 abstract class FieldTestBase extends MultiversionWebTestBase {
@@ -85,4 +90,5 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
       $this->assertFalse($entity->{$this->fieldName}->isEmpty(), "Field was attached on deleted $entity_type_id.");
     }
   }
+
 }

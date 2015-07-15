@@ -51,7 +51,13 @@ trait ContentEntityStorageTrait {
     }
     // Entities in other workspaces than the active one can only be queried with
     // the Entity Query API and not by the storage handler itself.
-    $query->condition("$revision_alias.workspace", $this->getActiveWorkspaceId());
+    $current_request = \Drupal::service('request_stack')->getCurrentRequest();
+    $form_id = $current_request->request->get('form_id');
+    // Don't add this condition when an user tries to login.
+    // @todo: See if there is a cleaner way to detect login.
+    if ($form_id != 'user_login_form') {
+      $query->condition("$revision_alias.workspace", $this->getActiveWorkspaceId());
+    }
     return $query;
   }
 
@@ -185,7 +191,7 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function delete(array $entities) {
-    // Entites are always "deleted" as new revisions when using a Multiversion
+    // Entities are always "deleted" as new revisions when using a Multiversion
     // storage handler.
     foreach ($entities as $entity) {
       $entity->_deleted->value = TRUE;
@@ -267,4 +273,5 @@ trait ContentEntityStorageTrait {
       $this->cacheBackend->set($this->buildCacheId($id), $entity, CacheBackendInterface::CACHE_PERMANENT, $cache_tags);
     }
   }
+
 }

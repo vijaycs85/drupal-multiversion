@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Tests\SequenceIndexTest.
+ */
+
 namespace Drupal\multiversion\Tests;
 
 /**
@@ -63,4 +68,5 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $values = $this->sequenceIndex->getRange(3);
     $this->assertEqual(count($values), 1, 'One index entry was added to the new workspace.');
   }
+
 }

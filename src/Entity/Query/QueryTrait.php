@@ -2,13 +2,7 @@
 
 namespace Drupal\multiversion\Entity\Query;
 
-
 trait QueryTrait {
-
-  /**
-   * @var \Drupal\Core\Entity\EntityManagerInterface
-   */
-  //protected $entityManager;
 
   /**
    * @var null|string
@@ -82,7 +76,13 @@ trait QueryTrait {
     if (!$revision_query) {
       $this->condition('_deleted', (int) $this->isDeleted);
     }
-    $this->condition('workspace', $this->workspaceId ?: \Drupal::service('multiversion.manager')->getActiveWorkspaceId());
+    $current_request = \Drupal::service('request_stack')->getCurrentRequest();
+    $form_id = $current_request->request->get('form_id');
+    // Don't add this condition when a user tries to login.
+    // @todo: See if there is a cleaner way to detect login.
+    if ($form_id != 'user_login_form') {
+      $this->condition('workspace', $this->workspaceId ?: \Drupal::service('multiversion.manager')->getActiveWorkspaceId());
+    }
     return $this;
   }
 

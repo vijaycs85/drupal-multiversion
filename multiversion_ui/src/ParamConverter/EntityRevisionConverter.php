@@ -10,6 +10,7 @@ namespace Drupal\multiversion_ui\ParamConverter;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\ParamConverter\ParamConverterInterface;
+use Drupal\Core\ParamConverter\ParamNotConvertedException;
 use Drupal\Core\TypedData\TranslatableInterface;
 use Symfony\Component\Routing\Route;
 

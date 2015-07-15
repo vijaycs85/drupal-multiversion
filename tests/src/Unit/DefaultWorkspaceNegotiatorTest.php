@@ -63,4 +63,5 @@ class DefaultWorkspaceNegotiatorTest extends UnitTestCase {
   public function testGetWorkspaceId() {
     $this->assertSame('default', $this->workspaceNegotiator->getWorkspaceId($this->request));
   }
+
 }

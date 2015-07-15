@@ -4,7 +4,6 @@ namespace Drupal\multiversion\Entity\Index;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface;
-use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\MultiversionManagerInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
@@ -37,8 +36,8 @@ class SequenceIndex implements SequenceIndexInterface {
 
   /**
    * @param \Drupal\key_value\KeyValueStore\KeyValueSortedSetFactoryInterface $sorted_set_factory
-   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface          $workspace_manager
-   * @param \Drupal\multiversion\MultiversionManagerInterface                 $multiversion_manager
+   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
+   * @param \Drupal\multiversion\MultiversionManagerInterface $multiversion_manager
    */
   public function __construct(KeyValueSortedSetFactoryInterface $sorted_set_factory, WorkspaceManagerInterface $workspace_manager, MultiversionManagerInterface $multiversion_manager) {
     $this->sortedSetFactory = $sorted_set_factory;
@@ -100,4 +99,5 @@ class SequenceIndex implements SequenceIndexInterface {
       'local' => (boolean) $entity->getEntityType()->get('local'),
     );
   }
+
 }

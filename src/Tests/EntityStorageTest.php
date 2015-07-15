@@ -1,8 +1,11 @@
 <?php
 
-namespace Drupal\multiversion\Tests;
+/**
+ * @file
+ * Contains \Drupal\multiversion\Tests\EntityStorageTest.
+ */
 
-use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
+namespace Drupal\multiversion\Tests;
 
 /**
  * Test the content entity storage controller.
