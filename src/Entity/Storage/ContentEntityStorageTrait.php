@@ -174,14 +174,14 @@ trait ContentEntityStorageTrait {
 
     // Decide whether or not this is the default revision.
     if (!$entity->isNew()) {
-      $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
-      if ($entity->_rev->value == $default_rev) {
+//      $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
+//      if ($entity->_rev->value == $default_rev) {
         $entity->isDefaultRevision(TRUE);
-      }
-      // @todo: Needs test.
-      else {
-        $entity->isDefaultRevision(FALSE);
-      }
+//      }
+//      // @todo: Needs test.
+//      else {
+//        $entity->isDefaultRevision(FALSE);
+//      }
     }
 
     return parent::doSave($id, $entity);
