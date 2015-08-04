@@ -7,7 +7,7 @@
 
 namespace Drupal\multiversion;
 
-use Drupal\migrate\MigratePassword as CoreMigratePassword;
+use Drupal\user\MigratePassword as CoreMigratePassword;
 
 /**
  * Extends core MigratePassword class.
