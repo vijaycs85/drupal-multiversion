@@ -206,7 +206,9 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
       $default_branch = array();
       $rev = $default_rev;
       while ($rev != 0) {
-        $default_branch[$rev] = $revs_info[$rev]['status'];
+        if (isset($revs_info[$rev])) {
+          $default_branch[$rev] = $revs_info[$rev]['status'];
+        }
         $rev = $revs[$rev];
       }
       return array(
