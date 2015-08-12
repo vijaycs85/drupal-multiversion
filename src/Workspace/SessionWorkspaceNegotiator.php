@@ -46,9 +46,9 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements Work
 
     // If we have an error on the requested page, set links URL to be <front>.
     if (!empty($query['_exception_statuscode'])) {
-      if ($workspace = $query['workspace']) {
+      if (isset($query['workspace'])) {
         $query = array(
-          'workspace' => $workspace,
+          'workspace' => $query['workspace'],
         );
       }
       $url = URL::fromRoute('<front>');
