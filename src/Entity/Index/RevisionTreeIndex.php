@@ -141,6 +141,10 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    */
   protected static function doBuildTree($revs, $revs_info, $parse = 0, &$tree = array(), &$open_revs = array(), &$conflicts = array()) {
     foreach ($revs as $rev => $parent_rev) {
+      if ($rev == 0) {
+        continue;
+      }
+
       if ($parent_rev == $parse) {
 
         // Avoid bad data to cause endless loops.
@@ -206,7 +210,9 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
       $default_branch = array();
       $rev = $default_rev;
       while ($rev != 0) {
-        $default_branch[$rev] = $revs_info[$rev]['status'];
+        if (isset($revs_info[$rev])) {
+          $default_branch[$rev] = $revs_info[$rev]['status'];
+        }
         $rev = $revs[$rev];
       }
       return array(
