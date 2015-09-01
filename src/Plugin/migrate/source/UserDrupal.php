@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Contains \Drupal\multiversion\Plugin\Migrate\source\UserDrupal.
@@ -7,7 +8,6 @@
 namespace Drupal\multiversion\Plugin\Migrate\source;
 
 use Drupal\migrate\Plugin\migrate\source\SourcePluginBase;
-use Drupal\migrate\Plugin\SourceEntityInterface;
 
 /**
  * User source from Drupal 8 to json.
@@ -16,7 +16,7 @@ use Drupal\migrate\Plugin\SourceEntityInterface;
  *   id = "user_drupal"
  * )
  */
-class UserDrupal extends SourcePluginBase implements SourceEntityInterface {
+class UserDrupal extends SourcePluginBase {
 
   /**
    * Initialize the iterator with the source data.
@@ -119,4 +119,5 @@ class UserDrupal extends SourcePluginBase implements SourceEntityInterface {
   public function __toString() {
     // TODO: Implement __toString() method.
   }
+
 }

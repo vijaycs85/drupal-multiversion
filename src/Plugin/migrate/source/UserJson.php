@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Contains \Drupal\multiversion\Plugin\Migrate\source\UserJson.
@@ -7,8 +8,6 @@
 namespace Drupal\multiversion\Plugin\Migrate\source;
 
 use Drupal\migrate\Entity\MigrationInterface;
-use Drupal\migrate\Plugin\SourceEntityInterface;
-use Drupal\migrate\Row;
 use Drupal\migrate\Plugin\migrate\source\SourcePluginBase;
 
 /**
