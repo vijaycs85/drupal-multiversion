@@ -19,7 +19,10 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
     'entity_test_rev' => array(),
     'entity_test_mul' => array(),
     'entity_test_mulrev' => array(),
-    'node' => array('type' => 'article'),
+    'node' => array(
+      'type' => 'article',
+      'title' => 'New article',
+    ),
     'taxonomy_term' => array(
       'name' => 'A term',
       'vid' => 123,

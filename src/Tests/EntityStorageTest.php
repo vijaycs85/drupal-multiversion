@@ -47,6 +47,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
     'node' => array(
       'info' => array(
         'type' => 'article',
+        'title' => 'New article',
       ),
       'data_table' => 'node_field_data',
       'revision_table' => 'node_field_revision',
