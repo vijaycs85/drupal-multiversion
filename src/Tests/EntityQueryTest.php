@@ -26,7 +26,7 @@ class EntityQueryTest extends MultiversionWebTestBase {
     'entity_test_mulrev' => array(),
     'node' => array(
       'type' => 'article',
-      'title' => 'New article',RevisionFieldTest
+      'title' => 'New article',
     ),
     'taxonomy_term' => array(
       'name' => 'A term',
