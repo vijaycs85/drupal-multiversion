@@ -15,16 +15,6 @@ namespace Drupal\multiversion\Tests;
 class WorkspaceBlockTest extends MultiversionWebTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
-   */
-  public static $modules = array(
-    'multiversion',
-    'block',
-  );
-
-  /**
    * The profile to install as a basis for testing.
    *
    * @var string
@@ -39,10 +29,13 @@ class WorkspaceBlockTest extends MultiversionWebTestBase {
   protected function setUp() {
     parent::setUp();
     $this->webUser = $this->drupalCreateUser(array(
+      'administer blocks',
+      'create article content',
+      'access administration pages',
       'access content',
-      'create article content'
     ));
     $this->drupalLogin($this->webUser);
+    $this->drupalPlaceBlock('local_tasks_block');
   }
 
   public function testBlock() {

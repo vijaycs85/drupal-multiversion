@@ -40,13 +40,17 @@ class CommentStatisticsTest extends MultiversionWebTestBase {
 
     $this->adminUser = $this->drupalCreateUser(array(
       'administer content types',
+      'administer blocks',
       'administer comments',
       'administer comment types',
       'post comments',
+      'create article content',
+      'access administration pages',
       'access comments',
       'access content',
     ));
     $this->drupalLogin($this->adminUser);
+    $this->drupalPlaceBlock('local_tasks_block');
 
     $this->node = entity_create('node', array(
       'type' => 'article',
