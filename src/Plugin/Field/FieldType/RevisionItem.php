@@ -41,6 +41,13 @@ class RevisionItem extends FieldItemBase {
       ->setRequired(FALSE)
       ->setComputed(TRUE);
 
+    $properties['is_stub'] = DataDefinition::create('boolean')
+      ->setLabel(t('Is stub flag'))
+      ->setDescription(t('This will be true just in case if the current revision is the children of a stub revision.'))
+      ->setRequired(FALSE)
+      ->setComputed(TRUE)
+      ->setClass('\Drupal\multiversion\IsStub');
+
     return $properties;
   }
 
@@ -68,6 +75,7 @@ class RevisionItem extends FieldItemBase {
         'value' => '0-00000000000000000000000000000000',
         'new_edit' => TRUE,
         'revisions' => array(),
+        'is_stub' => FALSE,
       ),
       $notify);
     return $this;
@@ -85,6 +93,8 @@ class RevisionItem extends FieldItemBase {
       'value' => $token,
       'new_edit' => TRUE,
       'revisions' => array($hash, md5(rand()), md5(rand())),
+      'is_stub' => FALSE,
     );
   }
+
 }
