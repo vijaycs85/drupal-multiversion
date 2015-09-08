@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
 /**
- * Subscriber for Devel routes.
+ * Subscriber for Multiversion UI routes.
  */
 class RouteSubscriber extends RouteSubscriberBase {
 
