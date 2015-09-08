@@ -120,7 +120,7 @@ trait ContentEntityStorageTrait {
     // This is a regular local save operation and a new revision token should be
     // generated. The new_edit property will be set to FALSE during replication
     // to ensure the revision token is saved as-is.
-    if ($entity->_rev->new_edit) {
+    if ($entity->_rev->new_edit || $entity->_rev->is_stub) {
       // If this is the first revision it means that there's no parent.
       // By definition the existing revision value is the parent revision.
       $parent_rev = $i == 0 ? 0 : $rev;
@@ -169,18 +169,24 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   protected function doSave($id, EntityInterface $entity) {
-    // Enforce new revision if any module messed with it in a hook.
-    $entity->setNewRevision();
+    if ($entity->_rev->is_stub) {
+      $entity->isDefaultRevision(TRUE);
+      $entity->_rev->is_stub = FALSE;
+    }
+    else {
+      // Enforce new revision if any module messed with it in a hook.
+      $entity->setNewRevision();
 
-    // Decide whether or not this is the default revision.
-    if (!$entity->isNew()) {
-      $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
-      if ($entity->_rev->value == $default_rev) {
-        $entity->isDefaultRevision(TRUE);
-      }
-      // @todo: Needs test.
-      else {
-        $entity->isDefaultRevision(FALSE);
+      // Decide whether or not this is the default revision.
+      if (!$entity->isNew()) {
+        $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
+        if ($entity->_rev->value == $default_rev) {
+          $entity->isDefaultRevision(TRUE);
+        }
+        // @todo: Needs test.
+        else {
+          $entity->isDefaultRevision(FALSE);
+        }
       }
     }
 
