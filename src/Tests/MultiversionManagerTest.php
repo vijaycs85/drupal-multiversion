@@ -7,6 +7,8 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\Core\Entity\ContentEntityTypeInterface;
+
 /**
  * Test the MultiversionManager class.
  *
@@ -64,6 +66,13 @@ class MultiversionManagerTest extends MultiversionWebTestBase {
     $test_entity->_deleted->value = TRUE;
     $revs[] = $this->multiversionManager->newRevisionId($test_entity, 0);
     $this->assertTrue(count($revs) == count(array_unique($revs)), 'Revision ID varies on deleted flag.');
+  }
+  
+  public function testGetSupportedEntityTypes() {
+    foreach ($this->multiversionManager->getSupportedEntityTypes() as $entity_type_id => $entity_type) {
+      $label = $entity_type->get('label');
+      $this->assertTrue($entity_type instanceof ContentEntityTypeInterface, "$label is an instance of ContentEntityTypeInterface");
+    }
   }
 
 }

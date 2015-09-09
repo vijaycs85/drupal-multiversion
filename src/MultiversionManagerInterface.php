@@ -28,6 +28,11 @@ interface MultiversionManagerInterface {
   public function isSupportedEntityType(EntityTypeInterface $entity_type);
 
   /**
+   * @return array
+   */
+  public function getSupportedEntityTypes();
+
+  /**
    * @return integer
    */
   public function newSequenceId();

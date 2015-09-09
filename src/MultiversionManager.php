@@ -5,6 +5,7 @@ namespace Drupal\multiversion;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\Serializer\Serializer;
 
@@ -51,9 +52,10 @@ class MultiversionManager implements MultiversionManagerInterface {
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
    * @param \Symfony\Component\Serializer\Serializer $serializer
    */
-  public function __construct(WorkspaceManagerInterface $workspace_manager, Serializer $serializer) {
+  public function __construct(WorkspaceManagerInterface $workspace_manager, Serializer $serializer, EntityManagerInterface $entity_manager) {
     $this->workspaceManager = $workspace_manager;
     $this->serializer = $serializer;
+    $this->entityManager = $entity_manager;
   }
 
   /**
@@ -109,6 +111,20 @@ class MultiversionManager implements MultiversionManagerInterface {
       return FALSE;
     }
     return ($entity_type instanceof ContentEntityTypeInterface);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getSupportedEntityTypes() {
+    $entity_types = [];
+    foreach ($this->entityManager->getDefinitions() as $entity_type_id => $entity_type) {
+      if ($this->isSupportedEntityType($entity_type)) {
+        $entity_types[$entity_type->id()] = $entity_type;
+      }
+    }
+    
+    return $entity_types;
   }
 
   /**
