@@ -1,0 +1,11 @@
+name: 'Multiversion test views'
+type: module
+description: 'Provides default views for views multiversion tests.'
+package: Testing
+version: VERSION
+core: 8.x
+dependencies:
+  - multiversion
+  - node
+  - views
+  - language
