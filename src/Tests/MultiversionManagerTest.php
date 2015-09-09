@@ -70,7 +70,8 @@ class MultiversionManagerTest extends MultiversionWebTestBase {
   
   public function testGetSupportedEntityTypes() {
     foreach ($this->multiversionManager->getSupportedEntityTypes() as $entity_type_id => $entity_type) {
-      $this->assertTrue($entity_type instanceof ContentEntityTypeInterface);
+      $label = $entity_type->get('label');
+      $this->assertTrue($entity_type instanceof ContentEntityTypeInterface, "$label is an instance of ContentEntityTypeInterface");
     }
   }
 
