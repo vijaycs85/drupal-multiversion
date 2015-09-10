@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Workspace\WorkspaceSwitcherInterface.
+ */
+
 namespace Drupal\multiversion\Workspace;
 
 use Drupal\Core\Url;

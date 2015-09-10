@@ -152,8 +152,6 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
 
   /**
    * Tests the applies() method.
-   *
-   * @covers ::applies()
    */
   public function testApplies() {
     $this->assertTrue($this->workspaceNegotiator->applies($this->request));
@@ -161,8 +159,6 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
 
   /**
    * Tests the getWorkspaceId() method.
-   *
-   * @covers ::getWorkspaceId()
    */
   public function testGetWorkspaceId() {
     $this->assertSame($this->defaultId, $this->workspaceNegotiator->getWorkspaceId($this->request));
@@ -170,8 +166,6 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
 
   /**
    * Tests the persist() method.
-   *
-   * @covers ::persist()
    */
   public function testPersist() {
     $this->entities[0]->expects($this->once())
@@ -183,8 +177,6 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
 
   /**
    * Tests the getWorkspaceSwitchLinks() method.
-   *
-   * @covers ::getWorkspaceSwitchLinks()
    */
   public function testGetWorkspaceSwitchLinks() {
     $second_id = $this->values[1]['id'];
