@@ -76,11 +76,8 @@ trait QueryTrait {
     if (!$revision_query) {
       $this->condition('_deleted', (int) $this->isDeleted);
     }
-    $current_request = \Drupal::service('request_stack')->getCurrentRequest();
-    $form_id = $current_request->request->get('form_id');
-    // Don't add this condition when a user tries to login.
-    // @todo: See if there is a cleaner way to detect login.
-    if ($form_id != 'user_login_form') {
+    // Don't add this condition user entity type.
+    if ($entity_type->id() !== 'user') {
       $this->condition('workspace', $this->workspaceId ?: \Drupal::service('multiversion.manager')->getActiveWorkspaceId());
     }
     return $this;

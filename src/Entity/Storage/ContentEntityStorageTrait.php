@@ -6,6 +6,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\multiversion\Entity\Exception\ConflictException;
+use Drupal\multiversion\Entity\Storage\Sql\UserStorage;
 
 trait ContentEntityStorageTrait {
 
@@ -51,11 +52,8 @@ trait ContentEntityStorageTrait {
     }
     // Entities in other workspaces than the active one can only be queried with
     // the Entity Query API and not by the storage handler itself.
-    $current_request = \Drupal::service('request_stack')->getCurrentRequest();
-    $form_id = $current_request->request->get('form_id');
-    // Don't add this condition when an user tries to login.
-    // @todo: See if there is a cleaner way to detect login.
-    if ($form_id != 'user_login_form') {
+    // Just UserStorage can be queried in all workspaces by the storage handler.
+    if (!($this instanceof UserStorage)) {
       $query->condition("$revision_alias.workspace", $this->getActiveWorkspaceId());
     }
     return $query;
