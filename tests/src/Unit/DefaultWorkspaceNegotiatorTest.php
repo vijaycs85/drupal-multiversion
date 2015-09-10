@@ -48,8 +48,6 @@ class DefaultWorkspaceNegotiatorTest extends UnitTestCase {
 
   /**
    * Tests the applies() method.
-   *
-   * @covers ::applies()
    */
   public function testApplies() {
     $this->assertTrue($this->workspaceNegotiator->applies($this->request));
@@ -57,8 +55,6 @@ class DefaultWorkspaceNegotiatorTest extends UnitTestCase {
 
   /**
    * Tests the getWorkspaceId() method.
-   *
-   * @covers ::getWorkspaceId()
    */
   public function testGetWorkspaceId() {
     $this->assertSame('default', $this->workspaceNegotiator->getWorkspaceId($this->request));

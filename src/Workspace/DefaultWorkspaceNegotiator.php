@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator.
+ */
+
 namespace Drupal\multiversion\Workspace;
 
 use Symfony\Component\HttpFoundation\Request;
