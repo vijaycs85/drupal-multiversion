@@ -366,9 +366,20 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $entity = entity_load($entity_type_id, $ids[$entity_type_id]);
-      $this->assertTrue(empty($entity), "$entity_type_id was not loaded in a workspace it does not belongs to.");
+      if ($entity_type_id == 'user') {
+        $this->assertFalse(empty($entity), "$entity_type_id was loaded in a workspace it does not belongs to.");
+      }
+      else {
+        $this->assertTrue(empty($entity), "$entity_type_id was not loaded in a workspace it does not belongs to.");
+      }
       $entity = $this->entityManager->loadEntityByUuid($entity_type_id, $uuids[$entity_type_id]);
-      $this->assertTrue(empty($entity), "$entity_type_id was not loaded by UUID in a workspace it does not belong to.");
+      if ($entity_type_id == 'user') {
+        $this->assertFalse(empty($entity), "$entity_type_id was loaded by UUID in a workspace it does not belong to.");
+      }
+      else {
+        $this->assertTrue(empty($entity), "$entity_type_id was not loaded by UUID in a workspace it does not belong to.");
+      }
+
     }
   }
 
