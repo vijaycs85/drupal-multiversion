@@ -217,22 +217,15 @@ trait ContentEntityStorageTrait {
     // Ensure that the entities are keyed by ID.
      $keyed_entities = [];
      foreach ($entities as $entity) {
+       // TODO: set $entity to key_value
        $keyed_entities [$entity->id()] = $entity;
      }
-    $this->doPurge($keyed_entities);
+    parent::doDelete($keyed_entities);
     $this->resetCache(array_keys($keyed_entities));
   }
 
-  public function doPurge(array $entities) {
-    // ContentEntityStorageBase::doDelete
-    foreach ($entities as $entity) {
-      $this->invokeFieldMethod('delete', $entity);
-    }
-    $this->doDeleteFieldItems($entities);
-  }
-
   public function compact(array $entities) {
-    
+    //TODO: Work out how to compact the entity.
   }
 
   /**
