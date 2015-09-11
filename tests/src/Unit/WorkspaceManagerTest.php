@@ -129,8 +129,6 @@ class WorkspaceManagerTest extends UnitTestCase {
 
   /**
    * Tests the addNegotiator() method.
-   *
-   * @covers ::addNegotiator()
    */
   public function testAddNegotiator() {
     $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
@@ -145,8 +143,6 @@ class WorkspaceManagerTest extends UnitTestCase {
 
   /**
    * Tests the load() method.
-   *
-   * @covers ::load()
    */
   public function testLoad() {
     $workspace_id = $this->values[0]['id'];
@@ -169,8 +165,6 @@ class WorkspaceManagerTest extends UnitTestCase {
 
   /**
    * Tests the loadMultiple() method.
-   *
-   * @covers ::loadMultiple()
    */
   public function testLoadMultiple() {
     $ids = array($this->values[0]['id'], $this->values[1]['id']);
@@ -193,9 +187,6 @@ class WorkspaceManagerTest extends UnitTestCase {
 
   /**
    * Tests the setActiveWorkspace() and getActiveWorkspace() methods.
-   *
-   * @covers ::setActiveWorkspace()
-   * @covers ::getActiveWorkspace()
    */
   public function testSetActiveWorkspace() {
     $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
@@ -205,8 +196,6 @@ class WorkspaceManagerTest extends UnitTestCase {
 
   /**
    * Tests the getWorkspaceSwitchLinks() method.
-   *
-   * @covers ::getWorkspaceSwitchLinks()
    */
   public function testGetWorkspaceSwitchLinks() {
     $path = '<front>';
@@ -243,8 +232,6 @@ class WorkspaceManagerTest extends UnitTestCase {
 
   /**
    * Tests the getSortedNegotiators() method.
-   *
-   * @covers ::getSortedNegotiators()
    */
   public function testGetSortedNegotiators() {
     $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);

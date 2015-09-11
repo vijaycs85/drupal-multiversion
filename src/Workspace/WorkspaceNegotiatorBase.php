@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Workspace\WorkspaceNegotiatorBase.
+ */
+
 namespace Drupal\multiversion\Workspace;
 
 use Drupal\Core\Session\AccountInterface;
