@@ -3,14 +3,20 @@
 use Drupal\Core\Site\Settings;
 
 /**
- * Implement hook_install().
+ * Implements hook_requirements().
  */
-function multiversion_install() {
-  drupal_flush_all_caches();
-  // Check if private directory is configured.
-  if (!Settings::get('file_private_path')) {
-    throw new Exception(t('Private directory is not configured.'));
+function multiversion_requirements($phase) {
+  $requirements = array();
+
+  if ($phase == 'install' && !Settings::get('file_private_path')) {
+    $requirements['multiversion'] = array(
+      'title' => t('Multiversion need private files configured in order to perform data migration tasks.'),
+      'value' => 'Not configured',
+      'severity' => REQUIREMENT_ERROR
+    );
   }
+
+  return $requirements;
 }
 
 /**
