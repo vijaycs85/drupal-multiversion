@@ -18,6 +18,24 @@ use Drupal\node\NodeStorage as CoreNodeStorage;
  */
 class NodeStorage extends CoreNodeStorage implements ContentEntityStorageInterface {
 
-  use ContentEntityStorageTrait;
+  use ContentEntityStorageTrait {
+    // @todo Rename to doDelete for consistency with other storage handlers.
+    delete as deleteEntities;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function delete(array $entities) {
+    // Delete all comments before deleting the nodes.
+    $comment_storage = \Drupal::entityManager()->getStorage('comment');
+    foreach ($entities as $entity) {
+      if ($entity->comment) {
+        $comments = $comment_storage->loadThread($entity, 'comment', 1);
+        $comment_storage->delete($comments);
+      }
+    }
+    $this->deleteEntities($entities);
+  }
 
 }
