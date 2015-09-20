@@ -1,9 +1,10 @@
-id: migrate_users_from_drupal8_to_json
-label: Migrate users from Drupal 8 to a JSON file
+id: user_from_tmp
+label: Migrating user from temporary storage.
+entity_type_id: user
 migration_groups:
   - Multiversion
 source:
-  plugin: user_drupal
+  plugin: tempstore
 process:
   uid: uid
   uuid: uuid
@@ -23,4 +24,5 @@ process:
   roles: roles
   user_picture: user_picture
 destination:
-  plugin: json_file
+  plugin: entity_user
+  configure_passwords: true

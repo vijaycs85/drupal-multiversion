@@ -3,27 +3,10 @@
 use Drupal\Core\Site\Settings;
 
 /**
- * Implements hook_requirements().
- */
-function multiversion_requirements($phase) {
-  $requirements = array();
-
-  if ($phase == 'install' && !Settings::get('file_private_path')) {
-    $requirements['multiversion'] = array(
-      'title' => t('Multiversion need private files configured in order to perform data migration tasks.'),
-      'value' => 'Not configured',
-      'severity' => REQUIREMENT_ERROR
-    );
-  }
-
-  return $requirements;
-}
-
-/**
  * Implements hook_uninstall().
  */
 function multiversion_uninstall() {
-  \Drupal::state()->delete('multiversion_user_migration_to_json_done');
+  \Drupal::state()->delete('multiversion_migration_done');
   \Drupal::service('config.factory')
     ->getEditable('migrate.migration.migrate_users_from_json_to_drupal8')
     ->delete();
