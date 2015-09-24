@@ -18,7 +18,7 @@ function multiversion_modules_installed($modules) {
     \Drupal::service('entity.definition_update_manager')->applyUpdates();
 
     $batch = array(
-      'title' => t('Migrates content between the old and new storage.'),
+      'title' => t('Migrating content between the old and new storage.'),
       'operations' => array(
         array('_multiversion_migrate_install_dependencies', array()),
         array('_multiversion_migrate_content_to_tmp', array()),

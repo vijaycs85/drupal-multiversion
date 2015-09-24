@@ -24,5 +24,5 @@ process:
   roles: roles
   user_picture: user_picture
 destination:
-  plugin: entity_user
-  configure_passwords: true
+  plugin: multiversion
+  has_password: true

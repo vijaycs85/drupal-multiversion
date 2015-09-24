@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\multiversion\Plugin\migrate\destination\User.
+ * Contains \Drupal\multiversion\Plugin\migrate\destination\ContentEntityBase.
  */
 
 namespace Drupal\multiversion\Plugin\migrate\destination;
@@ -16,11 +16,20 @@ use Drupal\migrate\Row;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
+ * Migration destination class for content entities.
+ *
+ * @todo: Implement derivatives for all content entity types and bundles.
+ *
  * @MigrateDestination(
- *   id = "entity_user"
+ *   id = "multiversion"
  * )
  */
-class User extends EntityContentBase {
+class ContentEntityBase extends EntityContentBase {
+
+  /**
+   * @var string
+   */
+  protected $entityTypeId;
 
   /**
    * The password service class.
@@ -51,7 +60,7 @@ class User extends EntityContentBase {
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, EntityStorageInterface $storage, array $bundles, EntityManagerInterface $entity_manager, PasswordInterface $password) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $migration, $storage, $bundles, $entity_manager);
-    if (isset($configuration['configure_passwords'])) {
+    if (isset($configuration['has_password'])) {
       $this->password = $password;
     }
   }
@@ -60,14 +69,16 @@ class User extends EntityContentBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration = NULL) {
-    $entity_type = static::getEntityTypeId($plugin_id);
+    // @todo: Fetch entity type ID from the plugin ID once derivatives are implemented.
+    $entity_type_id = $migration->entity_type_id;
+
     return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
       $migration,
-      $container->get('entity.manager')->getStorage($entity_type),
-      array_keys($container->get('entity.manager')->getBundleInfo($entity_type)),
+      $container->get('entity.manager')->getStorage($entity_type_id),
+      array_keys($container->get('entity.manager')->getBundleInfo($entity_type_id)),
       $container->get('entity.manager'),
       $container->get('password')
     );

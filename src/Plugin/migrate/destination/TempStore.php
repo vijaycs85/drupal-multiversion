@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\multiversion\Plugin\migrate\destination\SharedTempStore.
+ * Contains \Drupal\multiversion\Plugin\migrate\destination\TempStore.
  */
 
 namespace Drupal\multiversion\Plugin\migrate\destination;
@@ -78,7 +78,7 @@ class TempStore extends DestinationBase implements ContainerFactoryPluginInterfa
   public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, EntityManagerInterface $entity_manager, KeyValueExpirableFactoryInterface $temp_store_factory) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $migration);
 
-    $this->entityTypeId = $this->migration->entity_type_id;
+    $this->entityTypeId = $migration->entity_type_id;
     $entity_type = $entity_manager->getDefinition($this->entityTypeId);
     $this->entityIdKey = $entity_type->getKey('id');
 

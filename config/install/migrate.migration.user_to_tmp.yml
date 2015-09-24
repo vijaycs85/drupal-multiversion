@@ -4,7 +4,7 @@ entity_type_id: user
 migration_groups:
   - Multiversion
 source:
-  plugin: user_drupal
+  plugin: multiversion
 process:
   uid: uid
   uuid: uuid

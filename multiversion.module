@@ -74,6 +74,8 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
   if ($manager->isSupportedEntityType($entity_type)) {
     $fields = array();
 
+    // @todo: Alter the entity label field to make it revisionable.
+
     // This will essentially overwrite the revision field definition but also
     // ensure that entity types that we enabled revisions for get a revision
     // field definition of a type that we expect.
