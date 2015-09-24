@@ -212,20 +212,11 @@ trait ContentEntityStorageTrait {
     throw new ConflictException(NULL, 'Revisions can not be deleted when using a Multiversion storage handler.');
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function purge(array $entities) {
-    // EntityStorageBase::delete
-    // Ensure that the entities are keyed by ID.
-     $keyed_entities = [];
-     foreach ($entities as $entity) {
-       // TODO: set $entity to key_value
-       $keyed_entities [$entity->id()] = $entity;
-     }
-    parent::doDelete($keyed_entities);
-    $this->resetCache(array_keys($keyed_entities));
-  }
-
-  public function compact(array $entities) {
-    //TODO: Work out how to compact the entity.
+    parent::delete($entities);
   }
 
   /**
