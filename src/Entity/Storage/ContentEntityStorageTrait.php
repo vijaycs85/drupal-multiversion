@@ -6,7 +6,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\multiversion\Entity\Exception\ConflictException;
-use Drupal\multiversion\Entity\Storage\Sql\UserStorage;
+use Drupal\user\UserStorageInterface;
 
 trait ContentEntityStorageTrait {
 
@@ -53,7 +53,7 @@ trait ContentEntityStorageTrait {
     // Entities in other workspaces than the active one can only be queried with
     // the Entity Query API and not by the storage handler itself.
     // Just UserStorage can be queried in all workspaces by the storage handler.
-    if (!($this instanceof UserStorage)) {
+    if (!($this instanceof UserStorageInterface)) {
       $query->condition("$revision_alias.workspace", $this->getActiveWorkspaceId());
     }
     return $query;
