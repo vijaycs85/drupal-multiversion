@@ -25,13 +25,25 @@ class CommentStorage extends CoreCommentStorage implements ContentEntityStorageI
    * {@inheritdoc}
    */
   public function delete(array $entities) {
-    if (!empty($entities)) {
-      $child_cids = $this->getChildCids($entities);
-      if (!empty($child_cids)) {
-        entity_delete_multiple('comment', $child_cids);
+    // Ensure that the entities are keyed by ID.
+    $keyed_entities = [];
+    foreach ($entities as $entity) {
+      $keyed_entities[$entity->id()] = $entity;
+    }
+
+    // Delete received comments and all their children.
+    if (!empty($keyed_entities)) {
+      $child_cids = $this->getChildCids($keyed_entities);
+      while (!empty($child_cids)) {
+        $child_entities = $this->loadMultiple($child_cids);
+        $keyed_entities = $keyed_entities + $child_entities;
+        $child_cids = $this->getChildCids($child_entities);
       }
     }
-    $this->deleteEntities($entities);
+    // Sort the array with entities descending to delete children before their
+    // parents.
+    krsort($keyed_entities);
+    $this->deleteEntities($keyed_entities);
   }
 
 }

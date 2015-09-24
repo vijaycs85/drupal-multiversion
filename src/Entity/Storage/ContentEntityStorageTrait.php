@@ -195,12 +195,21 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function delete(array $entities) {
+    // Ensure that the entities are keyed by ID.
+    $keyed_entities = [];
+    foreach ($entities as $entity) {
+      $keyed_entities[$entity->id()] = $entity;
+    }
+
     // Entities are always "deleted" as new revisions when using a Multiversion
     // storage handler.
     foreach ($entities as $entity) {
       $entity->_deleted->value = TRUE;
       $this->save($entity);
     }
+
+    // Reset the static cache for the "deleted" entities.
+    $this->resetCache(array_keys($keyed_entities));
   }
 
   /**
