@@ -222,6 +222,13 @@ trait ContentEntityStorageTrait {
   /**
    * {@inheritdoc}
    */
+  public function purge(array $entities) {
+    parent::delete($entities);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function resetCache(array $ids = NULL) {
     parent::resetCache($ids);
     $ws = $this->getActiveWorkspaceId();

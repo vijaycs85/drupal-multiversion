@@ -18,4 +18,8 @@ interface ContentEntityStorageInterface extends EntityStorageInterface {
    */
   public function loadMultipleDeleted(array $ids = NULL);
 
+  /**
+   * @param array $entities
+   */
+  public function purge(array $entities);
 }
