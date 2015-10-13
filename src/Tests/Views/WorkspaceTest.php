@@ -22,7 +22,7 @@ class WorkspaceTest extends MultiversionTestBase {
    *
    * @var array
    */
-  public static $testViews = array('test_workspace', 'test_current_workspace');
+  public static $testViews = array('test_current_workspace');
 
   /**
    * Tests the workspace filter.
@@ -44,19 +44,6 @@ class WorkspaceTest extends MultiversionTestBase {
     // Create two nodes on 'new_workspace' workspace.
     $node3 = $this->drupalCreateNode(array('uid' => $uid));
     $node4 = $this->drupalCreateNode(array('uid' => $uid));
-
-    // Test workspace filter.
-    $this->drupalGet('test_workspace', ['query' => ['workspace' => 'new_workspace']]);
-    $this->assertNoText($node1->label());
-    $this->assertNoText($node2->label());
-    $this->assertNoText($node3->label());
-    $this->assertNoText($node4->label());
-
-    $this->drupalGet('test_workspace', ['query' => ['workspace' => 'default']]);
-    $this->assertText($node1->label());
-    $this->assertText($node2->label());
-    $this->assertNoText($node3->label());
-    $this->assertNoText($node4->label());
 
     // Test current_workspace filter.
     $this->drupalGet('test_current_workspace', ['query' => ['workspace' => 'new_workspace']]);
