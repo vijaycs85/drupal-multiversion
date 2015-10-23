@@ -6,7 +6,8 @@ use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
 /**
- * @todo Consider caching once/if rev and rev tree indices are merged.
+ * @todo: {@link https://www.drupal.org/node/2597444 Consider caching once/if
+ * rev and rev tree indices are merged.}
  */
 class RevisionTreeIndex implements RevisionTreeIndexInterface {
 
@@ -72,8 +73,8 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   /**
    * {@inheritdoc}
    *
-   * @todo The revision tree also contain missing revisions. We need a better
-   * way to count.
+   * @todo: {@link https://www.drupal.org/node/2597422 The revision tree also
+   * contain missing revisions. We need a better way to count.}
    */
   public function countRevs($uuid) {
     $values = $this->buildTree($uuid);
@@ -137,7 +138,8 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    *   Returns an array containing the built tree, open revisions, default
    *   revision, default branch and conflicts.
    *
-   * @todo Implement 'deleted_conflicts'
+   * @todo: {@link https://www.drupal.org/node/2597430 Implement
+   * 'deleted_conflicts'.}
    */
   protected static function doBuildTree($revs, $revs_info, $parse = 0, &$tree = array(), &$open_revs = array(), &$conflicts = array()) {
     foreach ($revs as $rev => $parent_rev) {
@@ -148,7 +150,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
       if ($parent_rev == $parse) {
 
         // Avoid bad data to cause endless loops.
-        // @todo Needs test.
+        // @todo: {@link https://www.drupal.org/node/2597434 Needs test.}
         if ($rev == $parse) {
           throw new \InvalidArgumentException('Child and parent revision can not be the same value.');
         }
@@ -229,7 +231,8 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    * Helper method to update the default revision.
    */
   protected static function updateDefaultRevision(&$tree, $default_rev) {
-    // @todo: We can temporarily flip the sort to find the default rev earlier.
+    // @todo: {@link https://www.drupal.org/node/2597442 We can temporarily
+    // flip the sort to find the default rev earlier.}
     foreach ($tree as &$element) {
       if (isset($element['#rev']) && $element['#rev'] == $default_rev) {
         $element['#rev_info']['default'] = TRUE;

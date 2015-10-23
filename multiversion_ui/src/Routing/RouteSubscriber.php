@@ -63,7 +63,8 @@ class RouteSubscriber extends RouteSubscriberBase {
               '_controller' => '\Drupal\multiversion_ui\Controller\RevisionsController::revisions',
               '_title' => 'Revisions',
             ),
-            // @todo: Provide more granular permissions here.
+            // @todo: {@link https://www.drupal.org/node/2596783 Provide more
+            // granular permissions.}
             array('_permission' => 'administer multiversion revisions'),
             $options
           );
@@ -80,7 +81,8 @@ class RouteSubscriber extends RouteSubscriberBase {
               '_controller' => '\Drupal\multiversion_ui\Controller\RevisionController::view',
               '_title_callback' => '\Drupal\multiversion_ui\Controller\RevisionController::viewTitle',
             ),
-            // @todo: Provide more granular permissions here.
+            // @todo: {@link https://www.drupal.org/node/2596783 Provide more
+            // granular permissions.}
             array('_permission' => 'administer multiversion revisions'),
             $options
           );

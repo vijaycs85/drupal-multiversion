@@ -83,8 +83,8 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
 
-    // @todo Make this not revisionable, currently it's not possible.
-    // @see https://www.drupal.org/node/2362433
+    // @todo: {@link https://www.drupal.org/node/2362433 Make this not
+    // revisionable, currently it's not possible.}
     $fields['workspace'] = BaseFieldDefinition::create('workspace_reference')
       ->setLabel('Workspace reference')
       ->setDescription('The workspace this entity belongs to.')
@@ -308,7 +308,8 @@ function multiversion_workspace_uri(WorkspaceInterface $entity) {
  */
 function multiversion_form_node_type_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
   // Users don't have the option to disable revisions when using Multiversion.
-  // @todo: See if there's a way to just disable this particular option.
+  // @todo: {@link https://www.drupal.org/node/2597393 See if there's a way
+  // to just disable this particular option.}
   unset($form['workflow']['options']['#options']['revision']);
 }
 

@@ -12,7 +12,8 @@ namespace Drupal\multiversion\Tests;
  *
  * @group multiversion
  *
- * @todo: Test more entity types, like in \Drupal\multiversion\Tests\EntityStorageTest
+ * @todo: {@link https://www.drupal.org/node/2597486 Test more entity types,
+ * like in \Drupal\multiversion\Tests\EntityStorageTest.}
  */
 class RevisionTreeIndexTest extends MultiversionWebTestBase {
 

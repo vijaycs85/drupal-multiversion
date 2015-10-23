@@ -181,7 +181,7 @@ trait ContentEntityStorageTrait {
         if ($entity->_rev->value == $default_rev) {
           $entity->isDefaultRevision(TRUE);
         }
-        // @todo: Needs test.
+        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
         else {
           $entity->isDefaultRevision(FALSE);
         }

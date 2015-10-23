@@ -30,7 +30,8 @@ class MultiversionManager implements MultiversionManagerInterface {
    * Multiversion's tests in really strange ways.
    *
    * @var array
-   * @todo Fix these some day. Some contrib modules might behave the same way?
+   * @todo: {@link https://www.drupal.org/node/2597333 Fix these some day.
+   * Some contrib modules might behave the same way?}
    */
   protected $entityTypeBlackList = array(
     'entity_test_no_id',
@@ -76,7 +77,8 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * {@inheritdoc}
    *
-   * @todo Consider using the nextId API to generate more sequential IDs.
+   * @todo: {@link https://www.drupal.org/node/2597337 Consider using the
+   * nextId API to generate more sequential IDs.}
    * @see \Drupal\Core\Database\Connection::nextId
    */
   public function newSequenceId() {
@@ -106,7 +108,8 @@ class MultiversionManager implements MultiversionManagerInterface {
     if (in_array($entity_type_id, $this->entityTypeBlackList)) {
       return FALSE;
     }
-    // @todo Remove this when there are no entity types left to implement.
+    // @todo: {@link https://www.drupal.org/node/2597339 Remove this when there
+    // are no entity types left to implement.}
     if (in_array($entity_type_id, $this->entityTypeToDo)) {
       return FALSE;
     }
@@ -142,15 +145,18 @@ class MultiversionManager implements MultiversionManagerInterface {
     }
     // The terms being serialized are:
     // - deleted
-    // - old sequence ID (@todo)
+    // - old sequence ID (@todo: {@link https://www.drupal.org/node/2597341
+    // Address this property.})
     // - old revision hash
     // - normalized entity (without revision info field)
-    // - attachments (@todo)
+    // - attachments (@todo: {@link https://www.drupal.org/node/2597341
+    // Address this property.})
     return ($index + 1) . '-' . md5($this->termToBinary(array($deleted, 0, $old_rev, $normalized_entity, array())));
   }
 
   protected function termToBinary(array $term) {
-    // @todo: Switch to BERT serialization format instead of JSON.
+    // @todo: {@link https://www.drupal.org/node/2597478 Switch to BERT
+    // serialization format instead of JSON.}
     return $this->serializer->serialize($term, 'json');
   }
 

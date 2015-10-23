@@ -129,8 +129,8 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $ids = array();
       $entity = entity_create($entity_type_id, $info['info']);
       $return = $entity->save();
-      // @todo Remove this check when https://www.drupal.org/node/2462265 will
-      // be commited.
+      // @todo: {@link https://www.drupal.org/node/2597496 Remove this check
+      // now that https://www.drupal.org/node/2462265 is committed.}
       if ($entity_type_id != 'user') {
         $this->assertEqual($return, SAVED_NEW, "$entity_type_id was saved.");
       }
@@ -139,7 +139,8 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $loaded = entity_load($entity_type_id, $ids[0]);
       $this->assertEqual($ids[0], $loaded->id(), "Single $entity_type_id was loaded.");
 
-      // @todo Test loadEntityByUuid
+      // @todo: {@link https://www.drupal.org/node/2597508 Test
+      // loadEntityByUuid.}
       // Update and save a new revision.
       $entity->{$info['name']} = $this->randomMachineName();
       $entity->save();
@@ -260,7 +261,8 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $first_rev = $entity->_rev->value;
       try {
         // Temporary solution.
-        // @todo Remove when https://www.drupal.org/node/2453153 will be fixed.
+        // @todo: {@link https://www.drupal.org/node/2597516 Remove now that
+        // https://www.drupal.org/node/2453153 is fixed.}
         $entity->original = clone $entity;
 
         // Trigger an error by setting the ID too large.

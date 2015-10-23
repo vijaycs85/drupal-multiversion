@@ -26,7 +26,8 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements Work
   public function getWorkspaceId(Request $request) {
     $workspace_id = $request->query->get('workspace') ?: NULL;
     if (!$workspace_id && isset($_SESSION['workspace'])) {
-      // @todo Review from a security perspective.
+      // @todo: {@link https://www.drupal.org/node/2597464 Review from a
+      // security perspective.}
       $workspace_id = $_SESSION['workspace'];
     }
     return $workspace_id ?: $this->container->getParameter('workspace.default');

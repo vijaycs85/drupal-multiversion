@@ -17,14 +17,16 @@ use Drupal\taxonomy\TermStorage as CoreTermStorage;
 class TermStorage extends CoreTermStorage implements ContentEntityStorageInterface {
 
   use ContentEntityStorageTrait {
-    // @todo Rename to doDelete for consistency with other storage handlers.
+    // @todo: {@link https://www.drupal.org/node/2597526 Rename to doDelete
+    // for consistency with other storage handlers.}
     delete as deleteEntities;
   }
 
   /**
    * {@inheritdoc}
    *
-   * @todo Can we do a query alter instead of overriding this method?
+   * @todo: {@link https://www.drupal.org/node/2597530 Can we do a query alter
+   * instead of overriding this method?}
    */
   public function loadTree($vid, $parent = 0, $max_depth = NULL, $load_entities = FALSE) {
     $cache_key = implode(':', func_get_args());

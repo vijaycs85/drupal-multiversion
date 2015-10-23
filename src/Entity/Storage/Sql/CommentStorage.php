@@ -17,7 +17,8 @@ use Drupal\comment\CommentStorage as CoreCommentStorage;
 class CommentStorage extends CoreCommentStorage implements ContentEntityStorageInterface {
 
   use ContentEntityStorageTrait {
-    // @todo Rename to doDelete for consistency with other storage handlers.
+    // @todo: {@link https://www.drupal.org/node/2597526 Rename to doDelete
+    // for consistency with other storage handlers.}
     delete as deleteEntities;
   }
 
