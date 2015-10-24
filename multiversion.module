@@ -265,6 +265,17 @@ function multiversion_entity_update(EntityInterface $entity) {
  * @param string $entity_type
  * @param integer $id
  * @param boolean $reset
+ *
+ * @return \Drupal\Core\Entity\EntityInterface|null
+ *   The entity object, or NULL if there is no entity with the given ID.
+ *
+ * @deprecated in Multiversion 8.x-1.x,
+ *   will be removed before Multiversion 8.x-2.x.
+ *   Use the entity manager service to load the entity
+ *   from the entity storage:
+ * @code
+ * \Drupal::entityManager()->getStorage($entity_type)->loadDeleted($id)
+ * @endcode
  */
 function entity_load_deleted($entity_type, $id, $reset = FALSE) {
   $controller = \Drupal::entityManager()->getStorage($entity_type);
@@ -280,6 +291,17 @@ function entity_load_deleted($entity_type, $id, $reset = FALSE) {
  * @param string $entity_type
  * @param array $ids
  * @param boolean $reset
+ *
+ * @return array
+ *   An array of entity objects indexed by their IDs.
+ *
+ * @deprecated in Multiversion 8.x-1.x,
+ *   will be removed before Multiversion 8.x-2.x.
+ *   Use the entity manager service to load the entity
+ *   from the entity storage:
+ * @code
+ * \Drupal::entityManager()->getStorage($entity_type)->loadMultipleDeleted($id)
+ * @endcode
  */
 function entity_load_multiple_deleted($entity_type, $ids, $reset = FALSE) {
   $controller = \Drupal::entityManager()->getStorage($entity_type);
