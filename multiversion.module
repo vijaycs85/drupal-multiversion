@@ -178,7 +178,9 @@ function multiversion_views_data_alter(array &$data) {
 function multiversion_views_post_execute(ViewExecutable $view) {
   // Add deleted entities if we have rows for them.
   // When we want to get deleted entities using the _deleted field, entities
-  // should be loaded with entity_load_deleted() or entity_load_multiple_deleted(),
+  // should be loaded with
+  // \Drupal::entityManager()->getStorage($entity_type)->loadDeleted($id) or
+  // \Drupal::entityManager()->getStorage($entity_type)->loadMultipleDeleted($ids),
   // otherwise the _entity field in the view result rows will be null.
   $base_field = $view->storage->get('base_field');
   $table_info = $view->query->getEntityTableInfo();
@@ -190,7 +192,7 @@ function multiversion_views_post_execute(ViewExecutable $view) {
         $ids[$index] = $row->{$base_field};
       }
     }
-    $entities = entity_load_multiple_deleted($content_type, $ids);
+    $entities = \Drupal::entityManager()->getStorage($content_type)->loadMultipleDeleted($ids);
     foreach ($view->result as $index => $row) {
       if (empty($row->_entity) && !empty($row->{$base_field}) && isset($entities[$row->{$base_field}])) {
         $view->result[$index]->_entity = $entities[$row->{$base_field}];
