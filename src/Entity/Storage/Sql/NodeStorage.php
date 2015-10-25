@@ -13,9 +13,6 @@ use Drupal\node\NodeStorage as CoreNodeStorage;
 
 /**
  * Defines the controller class for nodes.
- *
- * @todo: {@link https://www.drupal.org/node/2597534 Remove this, as it's not
- * needed anymore.}
  */
 class NodeStorage extends CoreNodeStorage implements ContentEntityStorageInterface {
 
@@ -26,6 +23,9 @@ class NodeStorage extends CoreNodeStorage implements ContentEntityStorageInterfa
 
   /**
    * {@inheritdoc}
+   *
+   * @todo: {@link https://www.drupal.org/node/2597534 Figure out why we need
+   * this}, core seems to solve it some other way.
    */
   public function delete(array $entities) {
     // Delete all comments before deleting the nodes.
