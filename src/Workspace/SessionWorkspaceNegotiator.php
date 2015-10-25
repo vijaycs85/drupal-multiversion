@@ -63,6 +63,7 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements Work
     $workspaces = $this->workspaceManager->loadMultiple();
     ksort($workspaces);
     foreach ($workspaces as $workspace) {
+      // @todo {@link https://www.drupal.org/node/2600382 Access check.}
       $workspace_id = $workspace->id();
       $links[$workspace_id] = array(
         'url' => $url,

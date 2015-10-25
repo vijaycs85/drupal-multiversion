@@ -75,6 +75,8 @@ class WorkspaceManager implements WorkspaceManagerInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo {@link https://www.drupal.org/node/2600382 Access check.}
    */
   public function getActiveWorkspace() {
     $this->cacheRender->deleteAll();
