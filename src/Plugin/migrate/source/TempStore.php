@@ -5,7 +5,7 @@
  * Contains \Drupal\multiversion\Plugin\Migrate\source\TempStore.
  */
 
-namespace Drupal\multiversion\Plugin\Migrate\source;
+namespace Drupal\multiversion\Plugin\migrate\source;
 
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\KeyValueStore\KeyValueExpirableFactoryInterface;

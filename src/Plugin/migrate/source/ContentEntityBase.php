@@ -5,7 +5,7 @@
  * Contains \Drupal\multiversion\Plugin\Migrate\source\ContentEntityBase.
  */
 
-namespace Drupal\multiversion\Plugin\Migrate\source;
+namespace Drupal\multiversion\Plugin\migrate\source;
 
 /**
  * Migration source class for content entities.
