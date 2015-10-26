@@ -1,8 +1,7 @@
-id: user_to_tmp
+id: user__from_tmp
 label:
-entity_type_id: user
 source:
-  plugin: multiversion
+  plugin: tempstore
 process:
   uid: uid
   uuid: uuid
@@ -22,4 +21,5 @@ process:
   roles: roles
   user_picture: user_picture
 destination:
-  plugin: tempstore
+  plugin: multiversion
+  has_password: true

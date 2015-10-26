@@ -2,38 +2,23 @@
 
 /**
  * @file
- * Contains \Drupal\multiversion\Plugin\migrate\destination\TempStore.
+ * Contains \Drupal\multiversion\Plugin\Migrate\source\SourcePluginBase.
  */
 
-namespace Drupal\multiversion\Plugin\migrate\destination;
+namespace Drupal\multiversion\Plugin\Migrate\source;
 
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\KeyValueStore\KeyValueExpirableFactoryInterface;
-use Drupal\Core\KeyValueStore\KeyValueStoreExpirableInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\migrate\Entity\MigrationInterface;
-use Drupal\migrate\Plugin\migrate\destination\DestinationBase;
-use Drupal\migrate\Row;
+use Drupal\migrate\Plugin\migrate\source\SourcePluginBase as CoreSourcePluginBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * @MigrateDestination(
- *   id = "tempstore"
- * )
- */
-class TempStore extends DestinationBase implements ContainerFactoryPluginInterface {
+abstract class SourcePluginBase extends CoreSourcePluginBase implements ContainerFactoryPluginInterface {
 
   /**
-   * Time to live in seconds until the storage expire.
-   *
-   * @var int
+   * @var EntityManagerInterface
    */
-  protected $expire = 604800;
-
-  /**
-   * @var KeyValueStoreExpirableInterface
-   */
-  protected $tempStore;
+  protected $entityManager;
 
   /**
    * @var string
@@ -54,8 +39,7 @@ class TempStore extends DestinationBase implements ContainerFactoryPluginInterfa
       $plugin_id,
       $plugin_definition,
       $migration,
-      $container->get('entity.manager'),
-      $container->get('keyvalue.expirable')
+      $container->get('entity.manager')
     );
   }
 
@@ -72,27 +56,16 @@ class TempStore extends DestinationBase implements ContainerFactoryPluginInterfa
    *   The migration.
    * @param EntityManagerInterface $entity_manager
    *   The entity manager.
-   * @param KeyValueExpirableFactoryInterface $temp_store_factory
-   *   The temp store factory.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, EntityManagerInterface $entity_manager, KeyValueExpirableFactoryInterface $temp_store_factory) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, EntityManagerInterface $entity_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $migration);
+    $this->entityManager = $entity_manager;
 
     list($entity_type_id) = explode('__', $migration->id());
     $entity_type = $entity_manager->getDefinition($entity_type_id);
 
     $this->entityTypeId = $entity_type_id;
     $this->entityIdKey = $entity_type->getKey('id');
-    $this->tempStore = $temp_store_factory->get('multiversion_migration_' . $this->entityTypeId);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function import(Row $row, array $old_destination_id_values = array()) {
-    $source = $row->getSource();
-    $this->tempStore->setWithExpire($source['uuid'], $source, $this->expire);
-    return array($this->entityIdKey => $source[$this->entityIdKey]);
   }
 
   /**
@@ -110,8 +83,22 @@ class TempStore extends DestinationBase implements ContainerFactoryPluginInterfa
   /**
    * {@inheritdoc}
    */
-  public function fields(MigrationInterface $migration = NULL) {
+  public function fields() {
     return array();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function bundleMigrationRequired() {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __toString() {
+    return '';
   }
 
 }

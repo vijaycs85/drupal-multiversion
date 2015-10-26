@@ -88,7 +88,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * {@inheritdoc}
    */
   public function migrateContentToTemp() {
-    $this->executeMigration($this->entityType->id() . '_to_tmp');
+    $this->executeMigration($this->entityType->id() . '__to_tmp');
     return $this;
   }
 
@@ -116,7 +116,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * {@inheritdoc}
    */
   public function migrateContentFromTemp() {
-    $this->executeMigration($this->entityType->id() . '_from_tmp');
+    $this->executeMigration($this->entityType->id() . '__from_tmp');
     return $this;
   }
 

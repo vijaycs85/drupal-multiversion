@@ -12,7 +12,6 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Password\PasswordInterface;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\Plugin\migrate\destination\EntityContentBase;
-use Drupal\migrate\Row;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -27,16 +26,29 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class ContentEntityBase extends EntityContentBase {
 
   /**
-   * @var string
-   */
-  protected $entityTypeId;
-
-  /**
    * The password service class.
    *
    * @var \Drupal\Core\Password\PasswordInterface
    */
   protected $password;
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration = NULL) {
+    list($entity_type_id) = explode('__', $migration->id());
+
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $migration,
+      $container->get('entity.manager')->getStorage($entity_type_id),
+      array_keys($container->get('entity.manager')->getBundleInfo($entity_type_id)),
+      $container->get('entity.manager'),
+      $container->get('password')
+    );
+  }
 
   /**
    * Builds an user entity destination.
@@ -60,44 +72,17 @@ class ContentEntityBase extends EntityContentBase {
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, EntityStorageInterface $storage, array $bundles, EntityManagerInterface $entity_manager, PasswordInterface $password) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $migration, $storage, $bundles, $entity_manager);
-    if (isset($configuration['has_password'])) {
-      $this->password = $password;
-    }
+
+    // Since password records from the earlier schema already was hashed we
+    // disable hashing so that passwords stay intact.
+    $this->password = $password;
+    $this->password->disablePasswordHashing();
 
     // Since Multiversion migration involves changing the schema handler
     // on-the-fly we need to ensure that all operations during the migration
     // use new uncached definitions of everything.
     $this->entityManager->useCaches(FALSE);
     $this->storage->resetCache();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration = NULL) {
-    // @todo: Fetch entity type ID from the plugin ID once derivatives are implemented.
-    $entity_type_id = $migration->entity_type_id;
-
-    return new static(
-      $configuration,
-      $plugin_id,
-      $plugin_definition,
-      $migration,
-      $container->get('entity.manager')->getStorage($entity_type_id),
-      array_keys($container->get('entity.manager')->getBundleInfo($entity_type_id)),
-      $container->get('entity.manager'),
-      $container->get('password')
-    );
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function import(Row $row, array $old_destination_id_values = array()) {
-    if ($this->password) {
-      $this->password->disablePasswordHashing();
-    }
-    return parent::import($row, $old_destination_id_values);
   }
 
 }
