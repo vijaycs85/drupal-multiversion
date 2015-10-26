@@ -81,7 +81,7 @@ class ContentEntityBase extends EntityContentBase {
     // Since Multiversion migration involves changing the schema handler
     // on-the-fly we need to ensure that all operations during the migration
     // use new uncached definitions of everything.
-    $this->entityManager->useCaches(FALSE);
+    $this->entityManager->clearCachedDefinitions();
     $this->storage->resetCache();
   }
 
