@@ -73,6 +73,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * {@inheritdoc}
    */
   public function installDependencies() {
+    // Install modules.
     $dependencies = array('migrate', 'migrate_drupal');
     foreach ($dependencies as $i => $module_name) {
       if ($this->moduleHandler->moduleExists($module_name)) {
@@ -80,6 +81,31 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       }
     }
     $this->moduleInstaller->install($dependencies, TRUE);
+
+    // Create migration entities.
+    $template = array(
+      'id' => $this->entityType->id() . '__',
+      'label' => '',
+      'process' => $this->getFieldMap($this->entityType),
+    );
+
+    $migrations = array();
+    $migrations[0] = $template;
+    $migrations[0]['id'] .= 'to_tmp';
+    $migrations[0]['source']['plugin'] = 'multiversion';
+    $migrations[0]['destination']['plugin'] = 'tempstore';
+
+    $migrations[1] = $template;
+    $migrations[1]['id'] .= 'from_tmp';
+    $migrations[1]['source']['plugin'] = 'tempstore';
+    $migrations[1]['destination']['plugin'] = 'multiversion';
+
+    foreach ($migrations as $migration) {
+      // @todo: Figure out why it doesn't work to create with injected manager.
+      //$entity = $this->entityManager->getStorage('migrate')->create($migration);
+      $entity = entity_create('migration', $migration);
+      $entity->save();
+    }
 
     return $this;
   }
@@ -128,6 +154,23 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   }
 
   /**
+   * Helper method to fetch the field map for an entity type.
+   *
+   * @param EntityTypeInterface $entity_type
+   */
+  public function getFieldMap(EntityTypeInterface $entity_type) {
+    $map = array();
+    $bundle_info = $this->entityManager->getBundleInfo($entity_type->id());
+    foreach ($bundle_info as $bundle_id => $bundle_label) {
+      $definitions = $this->entityManager->getFieldDefinitions($entity_type->id(), $bundle_id);
+      foreach ($definitions as $definition) {
+        $map[$definition->getName()] = $definition->getName();
+      }
+    }
+    return $map;
+  }
+
+  /**
    * Helper method for running a migration.
    *
    * @param string $migration_id
@@ -145,6 +188,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
     Database::addConnectionInfo('migrate', 'default', $connection_info['default']);
 
     // Load the migration config entity.
+    // @todo: Figure out why it doesn't work to load with injected manager.
     //$migration = $this->entityManager->getStorage('migration')->load($migration_id);
     $migration = entity_load('migration', $migration_id);
 
