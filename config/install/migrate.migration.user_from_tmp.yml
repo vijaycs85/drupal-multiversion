@@ -1,8 +1,6 @@
 id: user_from_tmp
-label: Migrating user from temporary storage.
+label:
 entity_type_id: user
-migration_groups:
-  - Multiversion
 source:
   plugin: tempstore
 process:

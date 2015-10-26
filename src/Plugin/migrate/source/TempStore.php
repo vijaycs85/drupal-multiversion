@@ -85,31 +85,12 @@ class TempStore extends SourcePluginBase implements ContainerFactoryPluginInterf
     $this->tempStore = $temp_store_factory->get('multiversion_migration_' . $this->entityTypeId);
   }
 
-  public function __toString() {
-    // @todo: Implement this method.
-  }
-
   /**
    * {@inheritdoc}
    */
-  public function fields() {
-    $fields = array(
-      'uid' => $this->t('User ID'),
-      'name' => $this->t('Username'),
-      'pass' => $this->t('Password'),
-      'mail' => $this->t('Email address'),
-      'signature' => $this->t('Signature'),
-      'signature_format' => $this->t('Signature format'),
-      'created' => $this->t('Registered timestamp'),
-      'access' => $this->t('Last access timestamp'),
-      'login' => $this->t('Last login timestamp'),
-      'status' => $this->t('Status'),
-      'timezone' => $this->t('Timezone'),
-      'language' => $this->t('Language'),
-      'picture' => $this->t('Picture'),
-      'init' => $this->t('Init'),
-    );
-    return $fields;
+  protected function initializeIterator() {
+    $values = $this->tempStore->getAll();
+    return new \ArrayIterator($values);
   }
 
   /**
@@ -127,31 +108,26 @@ class TempStore extends SourcePluginBase implements ContainerFactoryPluginInterf
   /**
    * {@inheritdoc}
    */
-  public function bundleMigrationRequired() {
-    return FALSE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function entityTypeId() {
     return $this->entityTypeId;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function count($refresh = FALSE) {
-    $values = $this->tempStore->getAll();
-    return count($values);
+  public function __toString() {
+    return '';
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function initializeIterator() {
-    $values = $this->tempStore->getAll();
-    return new \ArrayIterator($values);
+  public function fields() {
+    return array();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function bundleMigrationRequired() {
+    return FALSE;
   }
 
 }

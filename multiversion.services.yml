@@ -22,7 +22,9 @@ services:
     arguments: ['@database']
   multiversion.manager:
     class: Drupal\multiversion\MultiversionManager
-    arguments: ['@workspace.manager', '@serializer', '@entity.manager']
+    arguments: ['@workspace.manager', '@serializer', '@entity.manager', '@state']
+    calls:
+      - [setContainer, ['@service_container']]
   workspace.manager:
     class: Drupal\multiversion\Workspace\WorkspaceManager
     arguments: ['@request_stack', '@entity.manager', '@cache.render']

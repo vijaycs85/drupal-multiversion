@@ -8,16 +8,6 @@ use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
 
 /**
- * Implements hook_hook_info();
- */
-function multiversion_hook_info() {
-  $hooks['modules_installed'] = array(
-    'group' => 'migrate',
-  );
-  return $hooks;
-}
-
-/**
  * Implements hook_entity_type_alter().
  *
  * @param \Drupal\Core\Entity\EntityTypeInterface[] $entity_types

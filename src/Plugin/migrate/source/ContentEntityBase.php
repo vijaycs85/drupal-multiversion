@@ -71,18 +71,13 @@ class ContentEntityBase extends SourcePluginBase implements ContainerFactoryPlug
   }
 
   /**
-   * Initialize the iterator with the source data.
-   *
-   * @return array
-   *   An array of the data for this source.
-   *
-   * @todo: Make this more generic.
+   * {@inheritdoc}
    */
   protected function initializeIterator() {
-    $entities = entity_load_multiple('user');
+    $entities = $this->entityManager->getStorage('user')->loadMultiple();
     $result = array();
     foreach ($entities as $entity) {
-      foreach ($this->fields() as $field_name => $label) {
+      foreach ($entity as $field_name => $field) {
         if ($field_name == 'roles') {
           $result[$entity->id()][$field_name] = $entity->getRoles();
           continue;
@@ -104,20 +99,6 @@ class ContentEntityBase extends SourcePluginBase implements ContainerFactoryPlug
   /**
    * {@inheritdoc}
    */
-  public function fields() {
-    $return = array();
-
-    /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $definitions */
-    $definitions = $this->entityManager->getBaseFieldDefinitions($this->entityTypeId);
-    foreach ($definitions as $definition) {
-      $return[$definition->getName()] = $definition->getLabel();
-    }
-    return $return;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getIds() {
     return array(
       $this->entityIdKey => array(
@@ -130,13 +111,6 @@ class ContentEntityBase extends SourcePluginBase implements ContainerFactoryPlug
   /**
    * {@inheritdoc}
    */
-  public function bundleMigrationRequired() {
-    return FALSE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function entityTypeId() {
     return $this->entityTypeId;
   }
@@ -144,8 +118,22 @@ class ContentEntityBase extends SourcePluginBase implements ContainerFactoryPlug
   /**
    * {@inheritdoc}
    */
+  public function fields() {
+    return array();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function bundleMigrationRequired() {
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function __toString() {
-    // @todo: Implement
+    return '';
   }
 
 }

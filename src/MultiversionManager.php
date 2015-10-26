@@ -6,10 +6,15 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\State\StateInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\Serializer\Serializer;
 
-class MultiversionManager implements MultiversionManagerInterface {
+class MultiversionManager implements MultiversionManagerInterface, ContainerAwareInterface {
+
+  use ContainerAwareTrait;
 
   /**
    * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
@@ -21,6 +26,19 @@ class MultiversionManager implements MultiversionManagerInterface {
    */
   protected $serializer;
 
+  /**
+   * @var \Drupal\Core\Entity\EntityManagerInterface
+   */
+  protected $entityManager;
+
+  /**
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected $state;
+
+  /**
+   * @var int
+   */
   protected $lastSequenceId;
 
   /**
@@ -52,11 +70,14 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
    * @param \Symfony\Component\Serializer\Serializer $serializer
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\State\StateInterface $state
    */
-  public function __construct(WorkspaceManagerInterface $workspace_manager, Serializer $serializer, EntityManagerInterface $entity_manager) {
+  public function __construct(WorkspaceManagerInterface $workspace_manager, Serializer $serializer, EntityManagerInterface $entity_manager, StateInterface $state) {
     $this->workspaceManager = $workspace_manager;
     $this->serializer = $serializer;
     $this->entityManager = $entity_manager;
+    $this->state = $state;
   }
 
   /**
@@ -99,15 +120,18 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function isSupportedEntityType(EntityTypeInterface $entity_type) {
+  public function isSupportedEntityType(EntityTypeInterface $entity_type, $ignore_status = FALSE) {
     $entity_type_id = $entity_type->id();
-    $support_user_entity_type = \Drupal::state()->get('multiversion_migration_done');
-    if ($entity_type_id == 'user' && empty($support_user_entity_type)) {
-      return FALSE;
-    }
+
     if (in_array($entity_type_id, $this->entityTypeBlackList)) {
       return FALSE;
     }
+
+    $enabled = $this->state->get('multiversion_enabled', array());
+    if (!$ignore_status && !in_array($entity_type_id, $enabled)) {
+      return FALSE;
+    }
+
     // @todo: {@link https://www.drupal.org/node/2597339 Remove this when there
     // are no entity types left to implement.}
     if (in_array($entity_type_id, $this->entityTypeToDo)) {
@@ -119,15 +143,51 @@ class MultiversionManager implements MultiversionManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getSupportedEntityTypes() {
+  public function getSupportedEntityTypes($ignore_status = FALSE) {
     $entity_types = [];
     foreach ($this->entityManager->getDefinitions() as $entity_type_id => $entity_type) {
-      if ($this->isSupportedEntityType($entity_type)) {
+      if ($this->isSupportedEntityType($entity_type, $ignore_status)) {
         $entity_types[$entity_type->id()] = $entity_type;
       }
     }
     
     return $entity_types;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function enableEntityType(EntityTypeInterface $entity_type) {
+    $migration = $this->createMigration($entity_type);
+
+    $migration
+      ->installDependencies()
+      ->migrateContentToTemp()
+      ->emptyOldStorage();
+
+    $enabled = $this->state->get('multiversion_enabled', array());
+    $enabled[] = $entity_type->id();
+    $this->state->set('multiversion_enabled', $enabled);
+
+    // @todo: State caching issue only fixed by reset on global container. Why??
+    \Drupal::state()->resetCache();
+
+    $migration
+      ->applyNewStorage()
+      ->migrateContentFromTemp()
+      ->uninstallDependencies();
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function enableEntityTypes() {
+    foreach ($this->getSupportedEntityTypes(TRUE) as $entity_type) {
+      $this->enableEntityType($entity_type);
+    }
+    return $this;
   }
 
   /**
@@ -160,4 +220,14 @@ class MultiversionManager implements MultiversionManagerInterface {
     return $this->serializer->serialize($term, 'json');
   }
 
+  /**
+   * Factory method for a new Multiversion migration.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   * @return \Drupal\multiversion\MultiversionMigrationInterface
+   */
+  protected function createMigration(EntityTypeInterface $entity_type) {
+    $migration = MultiversionMigration::create($this->container, $entity_type, $this->entityManager);
+    return $migration;
+  }
 }

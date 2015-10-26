@@ -3,14 +3,19 @@
 use Drupal\Core\Site\Settings;
 
 /**
+ * Implements hook_modules_installed().
+ */
+function multiversion_modules_installed($modules) {
+  if (in_array('multiversion', $modules)) {
+    /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
+    $manager = \Drupal::getContainer()->get('multiversion.manager');
+    $manager->enableEntityTypes();
+  }
+}
+
+/**
  * Implements hook_uninstall().
  */
 function multiversion_uninstall() {
-  \Drupal::state()->delete('multiversion_migration_done');
-  \Drupal::service('config.factory')
-    ->getEditable('migrate.migration.migrate_users_from_json_to_drupal8')
-    ->delete();
-  \Drupal::service('config.factory')
-    ->getEditable('migrate.migration.migrate_users_from_drupal8_to_json')
-    ->delete();
+  \Drupal::state()->delete('multiversion_enabled');
 }
