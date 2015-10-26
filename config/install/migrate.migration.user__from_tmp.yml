@@ -22,4 +22,3 @@ process:
   user_picture: user_picture
 destination:
   plugin: multiversion
-  has_password: true
