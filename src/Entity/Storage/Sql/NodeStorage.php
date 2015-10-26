@@ -29,12 +29,18 @@ class NodeStorage extends CoreNodeStorage implements ContentEntityStorageInterfa
    */
   public function delete(array $entities) {
     // Delete all comments before deleting the nodes.
-    $comment_storage = \Drupal::entityManager()->getStorage('comment');
-    foreach ($entities as $entity) {
-      if ($entity->comment) {
-        $comments = $comment_storage->loadThread($entity, 'comment', 1);
-        $comment_storage->delete($comments);
+    try {
+      $comment_storage = \Drupal::entityManager()->getStorage('comment');
+      foreach ($entities as $entity) {
+        if ($entity->comment) {
+          $comments = $comment_storage->loadThread($entity, 'comment', 1);
+          $comment_storage->delete($comments);
+        }
       }
+    }
+    catch (\Exception $e) {
+      // Failing likely due to comment module not being enabled. But we also
+      // don't want node delete to fail because of broken comments.
     }
     $this->deleteEntities($entities);
   }
