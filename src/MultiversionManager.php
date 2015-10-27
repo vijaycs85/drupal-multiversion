@@ -153,8 +153,10 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function enableEntityTypes() {
-    $entity_types = $this->getSupportedEntityTypes(TRUE);
+    $this->state->set('multiversion.migration_active', TRUE);
+    $entity_types = $this->getSupportedEntityTypes();
     $migration = $this->createMigration();
+
     $migration->installDependencies();
 
     // For data integrity and consistency reasons we need to migrate all entity
@@ -170,11 +172,13 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
     $migration->applyNewStorage();
 
-    foreach ($entity_types as $entity_type) {
+    foreach ($entity_types as $entity_type_id => $entity_type) {
       $migration->migrateContentFromTemp($entity_type);
+      $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
     }
 
     $migration->uninstallDependencies();
+    $this->state->set('multiversion.migration_active', FALSE);
     return $this;
   }
 
