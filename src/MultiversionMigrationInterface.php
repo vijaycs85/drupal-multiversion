@@ -12,11 +12,10 @@ interface MultiversionMigrationInterface {
    * Factory method.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    * @return \Drupal\multiversion\MultiversionMigrationInterface
    */
-  public static function create(ContainerInterface $container, EntityTypeInterface $entity_type, EntityManagerInterface $entity_manager);
+  public static function create(ContainerInterface $container, EntityManagerInterface $entity_manager);
 
   /**
    * @return \Drupal\multiversion\MultiversionMigrationInterface
@@ -24,14 +23,16 @@ interface MultiversionMigrationInterface {
   public function installDependencies();
 
   /**
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    * @return \Drupal\multiversion\MultiversionMigrationInterface
    */
-  public function migrateContentToTemp();
+  public function migrateContentToTemp(EntityTypeInterface $entity_type);
 
   /**
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    * @return \Drupal\multiversion\MultiversionMigrationInterface
    */
-  public function emptyOldStorage();
+  public function emptyOldStorage(EntityTypeInterface $entity_type);
 
   /**
    * @return \Drupal\multiversion\MultiversionMigrationInterface
@@ -39,9 +40,10 @@ interface MultiversionMigrationInterface {
   public function applyNewStorage();
 
   /**
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    * @return \Drupal\multiversion\MultiversionMigrationInterface
    */
-  public function migrateContentFromTemp();
+  public function migrateContentFromTemp(EntityTypeInterface $entity_type);
 
   /**
    * @return \Drupal\multiversion\MultiversionMigrationInterface

@@ -77,11 +77,6 @@ class ContentEntityBase extends EntityContentBase {
     // disable hashing so that passwords stay intact.
     $this->password = $password;
     $this->password->disablePasswordHashing();
-
-    // Since Multiversion migration involves changing the schema handler
-    // on-the-fly we need to ensure that all operations during the migration
-    // use new uncached definitions of everything.
-    $this->entityManager->clearCachedDefinitions();
     $this->storage->resetCache();
   }
 
