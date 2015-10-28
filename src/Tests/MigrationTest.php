@@ -77,9 +77,9 @@ class MigrationTest extends WebTestBase {
     // Now check that the previosuly created entities still exist, have the
     // right IDs and are multiversion enabled. That means profit. Big profit.
     foreach ($this->entityTypes as $entity_type_id => $values) {
-      // @todo: Seems impossible to get $this->entityManager to return an
-      // up-to-date storage handler right after the installation to use here.
-      $after[$entity_type_id] = \Drupal::entityManager()->getStorage($entity_type_id)->loadMultiple();
+      $storage = \Drupal::entityManager()->getStorage($entity_type_id);
+      $storage->resetCache();
+      $after[$entity_type_id] = $storage->loadMultiple();
       $this->assertEqual(count($before[$entity_type_id]), count($after[$entity_type_id]), "All ${entity_type_id}s were migrated.");
 
       foreach ($after[$entity_type_id] as $entity_id => $entity) {
