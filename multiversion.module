@@ -229,8 +229,10 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
     );
     // We shouldn't filter user content type when creating a new node because
     // we need the author info for this.
-    if (strpos(\Drupal::url('<current>'), 'node/add/'
-      && $base_table == 'users_field_data') !== TRUE) {
+    if (
+      !strpos(\Drupal::url('<current>'), 'node/add/') &&
+      $base_table == 'users_field_data'
+    ) {
       $view->query->where[1]['conditions'][] = array(
         'field' => $base_table . '.workspace',
         'value' => multiversion_get_active_workspace_id(),
