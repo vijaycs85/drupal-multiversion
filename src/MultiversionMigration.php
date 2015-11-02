@@ -5,9 +5,11 @@ namespace Drupal\multiversion;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\migrate\Entity\Migration;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateExecutable;
@@ -99,9 +101,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   /**
    * {@inheritdoc}
    */
-  public function emptyOldStorage(EntityTypeInterface $entity_type) {
-    $class = $entity_type->getStorageClass();
-    $storage = $this->entityManager->createHandlerInstance($class, $entity_type);
+  public function emptyOldStorage(EntityTypeInterface $entity_type, EntityStorageInterface $storage) {
     $entities = $storage->loadMultiple();
     if ($entities) {
       $storage->delete($entities);
@@ -119,6 +119,9 @@ class MultiversionMigration implements MultiversionMigrationInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo: Create the migration with the correct parameters for using stub
+   *   entities for entity references.
    */
   public function migrateContentFromTemp(EntityTypeInterface $entity_type) {
     $values = [
@@ -153,11 +156,8 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       $definitions = $this->entityManager->getFieldDefinitions($entity_type->id(), $bundle_id);
       foreach ($definitions as $definition) {
         $name = $definition->getName();
-        // Multiversion's field definitions will be identified and installed
-        // as "new individual fields" before the rest of the schema is in place.
-        // This causes trouble for Multiversion due to how our storage handler
-        // works, so we don't include our own fields in the migration. They will
-        // be taken care of when the entire schema is applied in the end.
+        // We don't want our own fields to be part of the migration mapping or
+        // they would get assigned NULL instead of default values.
         if (!in_array($name, ['workspace', '_deleted', '_rev'])) {
           $map[$name] = $name;
         }

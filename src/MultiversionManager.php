@@ -6,6 +6,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -81,6 +82,23 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   }
 
   /**
+   * Static method maintaining the migration status.
+   *
+   * This method is needed because there might exist multiple instances of this
+   * manager.
+   *
+   * @param boolean $status
+   * @return boolean
+   */
+  public static function migrationIsActive($status = NULL) {
+    static $cache = FALSE;
+    if ($status !== NULL) {
+      $cache = $status;
+    }
+    return $cache;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getActiveWorkspaceId() {
@@ -145,7 +163,29 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
         $entity_types[$entity_type->id()] = $entity_type;
       }
     }
-    
+    return $entity_types;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isEnabledEntityType(EntityTypeInterface $entity_type) {
+    if ($this->isSupportedEntityType($entity_type)) {
+      $done = $this->state->get('multiversion.migration_done.' . $entity_type->id(), FALSE);
+      return ($done || self::migrationIsActive());
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getEnabledEntityTypes() {
+    $entity_types = [];
+    foreach ($this->getSupportedEntityTypes() as $entity_type_id => $entity_type) {
+      if ($this->isEnabledEntityType($entity_type)) {
+        $entity_types[$entity_type_id] = $entity_type;
+      }
+    }
     return $entity_types;
   }
 
@@ -153,32 +193,62 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function enableEntityTypes() {
-    $this->state->set('multiversion.migration_active', TRUE);
     $entity_types = $this->getSupportedEntityTypes();
     $migration = $this->createMigration();
 
     $migration->installDependencies();
 
-    // For data integrity and consistency reasons we need to migrate all entity
-    // types first, before we start deleting the records in the old storage.
+    // For data integrity and consistency reasons we need to finish each
+    // migration step for all entity types before moving on to the next step.
+
+    $has_data = [];
+    // Migrate content to temporary storage.
     foreach ($entity_types as $entity_type_id => $entity_type) {
-      $original = $this->entityManager->getLastInstalledDefinition($entity_type_id);
-      $migration->migrateContentToTemp($original);
-    }
-    foreach ($entity_types as $entity_type_id => $entity_type) {
-      $original = $this->entityManager->getLastInstalledDefinition($entity_type_id);
-      $migration->emptyOldStorage($original);
+      $storage = $this->entityManager->getStorage($entity_type_id);
+
+      $has_data[$entity_type_id] = FALSE;
+      if ($storage->hasData()) {
+        $has_data[$entity_type_id] = TRUE;
+        $migration->migrateContentToTemp($entity_type);
+      }
     }
 
+    // Because of the way the Entity API treats entity definition updates we
+    // need to ensure each storage is empty before we can apply the new
+    // definition.
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      if ($has_data[$entity_type_id]) {
+        $storage = $this->entityManager->getStorage($entity_type_id);
+        $migration->emptyOldStorage($entity_type, $storage);
+
+      }
+    }
+
+    // Nasty workaround until {@link https://www.drupal.org/node/2549143 there
+    // is a better way to invalidate caches in services}.
+    \Drupal::entityManager()->clearCachedDefinitions();
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      $cid = "entity_base_field_definitions:$entity_type_id:" . \Drupal::languageManager()->getCurrentLanguage()->getId();
+      \Drupal::cache('discovery')->invalidate($cid);
+    }
+
+    self::migrationIsActive(TRUE);
     $migration->applyNewStorage();
 
+    // Definitions will now be updated. So fetch the new ones.
+    $entity_types = $this->getSupportedEntityTypes();
+
+    // Migrate from the temporary storage to the new shiny home.
     foreach ($entity_types as $entity_type_id => $entity_type) {
-      $migration->migrateContentFromTemp($entity_type);
-      $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
+      if ($has_data[$entity_type_id]) {
+        $migration->migrateContentFromTemp($entity_type);
+        $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
+      }
     }
 
+    // Clean up after us.
     $migration->uninstallDependencies();
-    $this->state->set('multiversion.migration_active', FALSE);
+    self::migrationIsActive(FALSE);
     return $this;
   }
 

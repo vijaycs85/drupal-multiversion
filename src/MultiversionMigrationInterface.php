@@ -3,7 +3,9 @@
 namespace Drupal\multiversion;
 
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 interface MultiversionMigrationInterface {
@@ -30,9 +32,10 @@ interface MultiversionMigrationInterface {
 
   /**
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
    * @return \Drupal\multiversion\MultiversionMigrationInterface
    */
-  public function emptyOldStorage(EntityTypeInterface $entity_type);
+  public function emptyOldStorage(EntityTypeInterface $entity_type, EntityStorageInterface $storage);
 
   /**
    * @return \Drupal\multiversion\MultiversionMigrationInterface
