@@ -22,9 +22,9 @@ class MigrationTest extends WebTestBase {
    * @var array
    */
   protected $entityTypes = array(
+    'entity_test_mul' => array(),
     'entity_test' => array(),
     'entity_test_rev' => array(),
-    'entity_test_mul' => array(),
     'entity_test_mulrev' => array(),
     'user' => array(),
     'node' => array('type' => 'article', 'title' => 'foo')
