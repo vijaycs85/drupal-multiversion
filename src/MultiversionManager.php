@@ -242,8 +242,9 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     foreach ($entity_types as $entity_type_id => $entity_type) {
       if ($has_data[$entity_type_id]) {
         $migration->migrateContentFromTemp($entity_type);
-        $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
       }
+      // Mark the migration as done even if no actual content was migrated.
+      $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
     }
 
     // Clean up after us.
