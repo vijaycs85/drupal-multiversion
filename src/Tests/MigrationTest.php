@@ -111,8 +111,7 @@ class MigrationTest extends WebTestBase {
         $this->assertEqual($workspace, 1, "$entity_type_id $entity_id has correct workspace in database");
         $this->assertEqual($deleted, 1, "$entity_type_id $entity_id is not marked as deleted in database");
 
-        $storage->resetCache();
-        $entity = $storage->loadRevision($revision_id);
+        $entity = $storage->loadUnchanged($entity_id);
 
         $this->assertTrue(!empty($entity->_rev->value), "$entity_type_id $entity_id has a revision hash when loaded.");
         $this->assertEqual($entity->workspace->target_id, 'default', "$entity_type_id $entity_id has correct workspace when loaded.");
