@@ -192,6 +192,8 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
   /**
    * {@inheritdoc}
+   *
+   * @todo Ensure nothing breaks if the migration is run twice.
    */
   public function enableEntityTypes() {
     $entity_types = $this->getSupportedEntityTypes();

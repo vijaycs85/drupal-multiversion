@@ -85,15 +85,18 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * {@inheritdoc}
    */
   public function migrateContentToTemp(EntityTypeInterface $entity_type) {
-    $values = [
-      'id' => $entity_type->id() . '__to_tmp',
-      'label' => '',
-      'process' => $this->getFieldMap($entity_type),
-      'source' => ['plugin' => 'multiversion'],
-      'destination' => ['plugin' => 'tempstore'],
-    ];
-    $migration = Migration::create($values);
-    $migration->save();
+    $id = $entity_type->id() . '__to_tmp';
+    if (!$migration = Migration::load($id)) {
+      $values = [
+        'id' => $id,
+        'label' => '',
+        'process' => $this->getFieldMap($entity_type),
+        'source' => ['plugin' => 'multiversion'],
+        'destination' => ['plugin' => 'tempstore'],
+      ];
+      $migration = Migration::create($values);
+      $migration->save();
+    }
     $this->executeMigration($migration);
     return $this;
   }
@@ -124,15 +127,18 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    *   entities for entity references.
    */
   public function migrateContentFromTemp(EntityTypeInterface $entity_type) {
-    $values = [
-      'id' => $entity_type->id() . '__from_tmp',
-      'label' => '',
-      'process' => $this->getFieldMap($entity_type),
-      'source' => ['plugin' => 'tempstore'],
-      'destination' => ['plugin' => 'multiversion'],
-    ];
-    $migration = Migration::create($values);
-    $migration->save();
+    $id = $entity_type->id() . '__from_tmp';
+    if (!$migration = Migration::load($id)) {
+      $values = [
+        'id' => $id,
+        'label' => '',
+        'process' => $this->getFieldMap($entity_type),
+        'source' => ['plugin' => 'tempstore'],
+        'destination' => ['plugin' => 'multiversion'],
+      ];
+      $migration = Migration::create($values);
+      $migration->save();
+    }
     $this->executeMigration($migration);
     return $this;
   }
