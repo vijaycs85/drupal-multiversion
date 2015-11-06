@@ -231,7 +231,7 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
     // we need the author info for this.
     if (
       !strpos(\Drupal::url('<current>'), 'node/add/') &&
-      $base_table == 'users_field_data'
+      $base_table != 'users_field_data'
     ) {
       $view->query->where[1]['conditions'][] = array(
         'field' => $base_table . '.workspace',
