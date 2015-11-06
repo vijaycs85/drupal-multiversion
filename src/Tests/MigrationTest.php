@@ -7,6 +7,8 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\multiversion\Entity\Query\QueryInterface;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\simpletest\WebTestBase;
 
 /**
@@ -78,12 +80,15 @@ class MigrationTest extends WebTestBase {
       $storage = \Drupal::entityManager()->getStorage($entity_type_id);
       $query = $storage->getQuery();
 
+      $this->assertTrue($storage instanceof ContentEntityStorageInterface, "$entity_type_id got the correct storage handler assigned.");
+      $this->assertTrue($query instanceof QueryInterface, "$entity_type_id got the correct query handler assigned.");
+
       $ids_after[$entity_type_id] = $query->execute();
       $this->assertEqual($count_before[$entity_type_id], count($ids_after[$entity_type_id]), "All ${entity_type_id}s were migrated.");
 
       foreach ($ids_after[$entity_type_id] as $revision_id => $entity_id) {
         $entity = $storage->loadRevision($revision_id);
-        $this->assertTrue(!empty($entity->_rev), "$entity_type_id got a revision hash");
+        $this->assertTrue(!empty($entity->_rev->value), "$entity_type_id got a revision hash");
         $this->assertEqual($entity->workspace->target_id, 'default', "$entity_type_id was created in the correct workspace.");
       }
     }
