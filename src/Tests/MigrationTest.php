@@ -65,26 +65,26 @@ class MigrationTest extends WebTestBase {
           $storage->create($values)->save();
         }
       }
-
-      $before[$entity_type_id] = $storage->loadMultiple();
-      $this->assertEqual($count, count($before[$entity_type_id]), "There are $count ${entity_type_id}s before migration.");
+      $count_before[$entity_type_id] = $count;
     }
 
     // Installing Multiversion will trigger the migration of existing content.
     \Drupal::service('module_installer')->install(array('multiversion'));
 
-    $after = array();
+    $ids_after = array();
     // Now check that the previosuly created entities still exist, have the
     // right IDs and are multiversion enabled. That means profit. Big profit.
     foreach ($this->entityTypes as $entity_type_id => $values) {
       $storage = \Drupal::entityManager()->getStorage($entity_type_id);
-      $storage->resetCache();
-      $after[$entity_type_id] = $storage->loadMultiple();
-      $this->assertEqual(count($before[$entity_type_id]), count($after[$entity_type_id]), "All ${entity_type_id}s were migrated.");
+      $query = $storage->getQuery();
 
-      foreach ($after[$entity_type_id] as $entity_id => $entity) {
-        $this->assertEqual($entity->uuid(), $before[$entity_type_id][$entity_id]->uuid(), "Entity ID mapped correctly for $entity_type_id $entity_id");
-        $this->assertTrue(!empty($entity->_rev->value), "$entity_type_id $entity_id has a revision hash.");
+      $ids_after[$entity_type_id] = $query->execute();
+      $this->assertEqual($count_before[$entity_type_id], count($ids_after[$entity_type_id]), "All ${entity_type_id}s were migrated.");
+
+      foreach ($ids_after[$entity_type_id] as $revision_id => $entity_id) {
+        $entity = $storage->loadRevision($revision_id);
+        $this->assertTrue(!empty($entity->_rev), "$entity_type_id got a revision hash");
+        $this->assertEqual($entity->workspace->target_id, 'default', "$entity_type_id was created in the correct workspace.");
       }
     }
   }
