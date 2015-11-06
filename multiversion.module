@@ -66,10 +66,17 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
 
     // @todo: Alter the entity label field to make it revisionable.
 
+    // In some scenarios where's in a state of limbo where we've already
+    // altered and enabled the entity type but we're given an old entity type
+    // definition for this hook and we get an empty revision key. However,
+    // these are always the entity types that Multiversion has enabled revisions
+    // on, so we can assume the same name of the revision key.
+    $revision_key = $entity_type->getKey('revision') ?: 'revision_id';
+
     // This will essentially overwrite the revision field definition but also
     // ensure that entity types that we enabled revisions for get a revision
     // field definition of a type that we expect.
-    $fields[$entity_type->getKey('revision')] = BaseFieldDefinition::create('integer')
+    $fields[$revision_key] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Revision ID'))
       ->setDescription(t('The local revision ID of the entity.'))
       ->setReadOnly(TRUE)

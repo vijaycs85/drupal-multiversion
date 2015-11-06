@@ -203,13 +203,26 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // migration step for all entity types before moving on to the next step.
 
     $has_data = [];
-    // Migrate content to temporary storage.
+    // Walk through and verify that the original storage is in good order.
+    // Flakey contrib modules or mocked tests where some schemas aren't properly
+    // installed should be ignored.
     foreach ($entity_types as $entity_type_id => $entity_type) {
       $storage = $this->entityManager->getStorage($entity_type_id);
 
       $has_data[$entity_type_id] = FALSE;
-      if ($storage->hasData()) {
-        $has_data[$entity_type_id] = TRUE;
+      try {
+        if ($storage->hasData()) {
+          $has_data[$entity_type_id] = TRUE;
+        }
+      }
+      catch (\Exception $e) {
+        // Don't bother with this entity type any more.
+        unset($entity_types[$entity_type_id]);
+      }
+    }
+    // Migrate content to temporary storage.
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      if ($has_data[$entity_type_id]) {
         $migration->migrateContentToTemp($entity_type);
       }
     }
@@ -221,7 +234,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       if ($has_data[$entity_type_id]) {
         $storage = $this->entityManager->getStorage($entity_type_id);
         $migration->emptyOldStorage($entity_type, $storage);
-
       }
     }
 
@@ -255,10 +267,10 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $migration->uninstallDependencies();
     self::migrationIsActive(FALSE);
 
-    // Finish off by ensuring that everyone sees the new definitions for the
-    // remainder of this request.
-    $this->entityManager->clearCachedDefinitions();
-    $this->entityManager->useCaches(FALSE);
+    // Another nasty workaround because the cache is getting skewed somewhere.
+    // And resetting the cache on the injected state service does not work.
+    // Very strange.
+    \Drupal::state()->resetCache();
 
     return $this;
   }
