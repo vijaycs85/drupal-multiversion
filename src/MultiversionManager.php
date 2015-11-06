@@ -229,7 +229,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // is a better way to invalidate caches in services}.
     // For some reason we have to clear cache on the "global" service as opposed
     // to the injected one. Services in the dark corners of Entity API won't see
-    // the same same result otherwise. Very strange.
+    // the same result otherwise. Very strange.
     \Drupal::entityManager()->clearCachedDefinitions();
     foreach ($entity_types as $entity_type_id => $entity_type) {
       $cid = "entity_base_field_definitions:$entity_type_id:" . \Drupal::languageManager()->getCurrentLanguage()->getId();
