@@ -74,9 +74,6 @@ class MigrationTest extends WebTestBase {
     // Installing Multiversion will trigger the migration of existing content.
     \Drupal::service('module_installer')->install(array('multiversion'));
 
-    \Drupal::entityManager()->clearCachedDefinitions();
-    \Drupal::entityManager()->useCaches(FALSE);
-
     $ids_after = array();
     // Now check that the previosuly created entities still exist, have the
     // right IDs and are multiversion enabled. That means profit. Big profit.
