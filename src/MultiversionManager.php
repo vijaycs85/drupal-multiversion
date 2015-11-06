@@ -84,8 +84,9 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   /**
    * Static method maintaining the migration status.
    *
-   * This method is needed because there might exist multiple instances of this
-   * manager.
+   * This method neededs to be static because in some strange situations Drupal
+   * might create multiple instances of this manager. Is this only an issue
+   * during tests perhaps?
    *
    * @param boolean $status
    * @return boolean
@@ -226,6 +227,9 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
     // Nasty workaround until {@link https://www.drupal.org/node/2549143 there
     // is a better way to invalidate caches in services}.
+    // For some reason we have to clear cache on the "global" service as opposed
+    // to the injected one. Services in the dark corners of Entity API won't see
+    // the same same result otherwise. Very strange.
     \Drupal::entityManager()->clearCachedDefinitions();
     foreach ($entity_types as $entity_type_id => $entity_type) {
       $cid = "entity_base_field_definitions:$entity_type_id:" . \Drupal::languageManager()->getCurrentLanguage()->getId();
@@ -250,6 +254,12 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // Clean up after us.
     $migration->uninstallDependencies();
     self::migrationIsActive(FALSE);
+
+    // Finish off by ensuring that everyone sees the new definitions for the
+    // remainder of this request.
+    $this->entityManager->clearCachedDefinitions();
+    $this->entityManager->useCaches(FALSE);
+
     return $this;
   }
 
