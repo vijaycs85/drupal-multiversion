@@ -74,6 +74,9 @@ class MigrationTest extends WebTestBase {
     // Installing Multiversion will trigger the migration of existing content.
     \Drupal::service('module_installer')->install(array('multiversion'));
 
+    \Drupal::entityManager()->clearCachedDefinitions();
+    \Drupal::entityManager()->useCaches(FALSE);
+
     $ids_after = array();
     // Now check that the previosuly created entities still exist, have the
     // right IDs and are multiversion enabled. That means profit. Big profit.
@@ -111,7 +114,9 @@ class MigrationTest extends WebTestBase {
         $this->assertEqual($workspace, 1, "$entity_type_id $entity_id has correct workspace in database");
         $this->assertEqual($deleted, 1, "$entity_type_id $entity_id is not marked as deleted in database");
 
+        $storage->resetCache();
         $entity = $storage->loadRevision($revision_id);
+
         $this->assertTrue(!empty($entity->_rev->value), "$entity_type_id $entity_id has a revision hash when loaded.");
         $this->assertEqual($entity->workspace->target_id, 'default', "$entity_type_id $entity_id has correct workspace when loaded.");
       }
