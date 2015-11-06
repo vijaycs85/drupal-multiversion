@@ -7,6 +7,7 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
 use Drupal\multiversion\Entity\Query\QueryInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\simpletest\WebTestBase;
@@ -77,19 +78,42 @@ class MigrationTest extends WebTestBase {
     // Now check that the previosuly created entities still exist, have the
     // right IDs and are multiversion enabled. That means profit. Big profit.
     foreach ($this->entityTypes as $entity_type_id => $values) {
+      $entity_type = \Drupal::entityManager()->getDefinition($entity_type_id);
       $storage = \Drupal::entityManager()->getStorage($entity_type_id);
-      $query = $storage->getQuery();
+      $id_key = $entity_type->getKey('id');
 
       $this->assertTrue($storage instanceof ContentEntityStorageInterface, "$entity_type_id got the correct storage handler assigned.");
-      $this->assertTrue($query instanceof QueryInterface, "$entity_type_id got the correct query handler assigned.");
+      $this->assertTrue($storage->getQuery() instanceof QueryInterface, "$entity_type_id got the correct query handler assigned.");
 
-      $ids_after[$entity_type_id] = $query->execute();
+      $ids_after[$entity_type_id] = $storage->getQuery()->execute();
       $this->assertEqual($count_before[$entity_type_id], count($ids_after[$entity_type_id]), "All ${entity_type_id}s were migrated.");
 
       foreach ($ids_after[$entity_type_id] as $revision_id => $entity_id) {
+        $rev = (int) $storage->getQuery()
+          ->condition($id_key, $entity_id)
+          ->condition('_rev', 'NULL', '<>')
+          ->count()
+          ->execute();
+
+        $workspace = (int) $storage->getQuery()
+          ->condition($id_key, $entity_id)
+          ->condition('workspace', 'default')
+          ->count()
+          ->execute();
+
+        $deleted = (int) $storage->getQuery()
+          ->condition($id_key, $entity_id)
+          ->condition('_deleted', 0)
+          ->count()
+          ->execute();
+
+        $this->assertEqual($rev, 1, "$entity_type_id $entity_id has a revision hash in database");
+        $this->assertEqual($workspace, 1, "$entity_type_id $entity_id has correct workspace in database");
+        $this->assertEqual($deleted, 1, "$entity_type_id $entity_id is not marked as deleted in database");
+
         $entity = $storage->loadRevision($revision_id);
-        $this->assertTrue(!empty($entity->_rev->value), "$entity_type_id got a revision hash");
-        $this->assertEqual($entity->workspace->target_id, 'default', "$entity_type_id was created in the correct workspace.");
+        $this->assertTrue(!empty($entity->_rev->value), "$entity_type_id $entity_id has a revision hash when loaded.");
+        $this->assertEqual($entity->workspace->target_id, 'default', "$entity_type_id $entity_id has correct workspace when loaded.");
       }
     }
   }
