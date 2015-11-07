@@ -6,8 +6,8 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\State\StateInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -36,6 +36,11 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * @var \Drupal\Core\State\StateInterface
    */
   protected $state;
+
+  /**
+   * @var \Drupal\Core\Language\LanguageManagerInterface
+   */
+  protected $languageManager;
 
   /**
    * @var int
@@ -245,7 +250,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // For some reason we have to clear cache on the "global" service as opposed
     // to the injected one. Services in the dark corners of Entity API won't see
     // the same result otherwise. Very strange.
-    \Drupal::entityManager()->clearCachedDefinitions();
+    $this->entityManager->clearCachedDefinitions();
     foreach ($entity_types as $entity_type_id => $entity_type) {
       $cid = "entity_base_field_definitions:$entity_type_id:" . $this->languageManager->getCurrentLanguage()->getId();
       \Drupal::cache('discovery')->invalidate($cid);
@@ -273,7 +278,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // Another nasty workaround because the cache is getting skewed somewhere.
     // And resetting the cache on the injected state service does not work.
     // Very strange.
-    \Drupal::state()->resetCache();
+    $this->state->resetCache();
 
     return $this;
   }
