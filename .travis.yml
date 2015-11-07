@@ -57,11 +57,9 @@ before_script:
   - sudo echo -e "$a\$settings['file_private_path'] = 'sites/default/files/private';" >> sites/default/settings.php
 
   # Enable required modules and ignore any output to not break the test.
-  - drush --yes pm-enable multiversion || true
+  - drush --yes pm-enable simpletest multiversion || true
 
 script:
-  # Enable Simpletest and run Simpletest tests.
-  - drush en --yes simpletest
   - drush cr
   - cd $TRAVIS_BUILD_DIR/../drupal
   - ./vendor/bin/phpunit --group multiversion --verbose --debug --coverage-text -c core/phpunit.xml.dist | tee ; export TEST_PHPUNIT=${PIPESTATUS[0]}
