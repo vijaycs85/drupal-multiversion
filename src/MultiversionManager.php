@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -41,6 +42,11 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * @var \Drupal\Core\Language\LanguageManagerInterface
    */
   protected $languageManager;
+
+  /**
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected $cache;
 
   /**
    * @var int
@@ -78,13 +84,16 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    * @param \Drupal\Core\State\StateInterface $state
+   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache
    */
-  public function __construct(WorkspaceManagerInterface $workspace_manager, Serializer $serializer, EntityManagerInterface $entity_manager, StateInterface $state, LanguageManagerInterface $language_manager) {
+  public function __construct(WorkspaceManagerInterface $workspace_manager, Serializer $serializer, EntityManagerInterface $entity_manager, StateInterface $state, LanguageManagerInterface $language_manager, CacheBackendInterface $cache) {
     $this->workspaceManager = $workspace_manager;
     $this->serializer = $serializer;
     $this->entityManager = $entity_manager;
     $this->state = $state;
     $this->languageManager = $language_manager;
+    $this->cache = $cache;
   }
 
   /**
@@ -253,7 +262,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $this->entityManager->clearCachedDefinitions();
     foreach ($entity_types as $entity_type_id => $entity_type) {
       $cid = "entity_base_field_definitions:$entity_type_id:" . $this->languageManager->getCurrentLanguage()->getId();
-      \Drupal::cache('discovery')->invalidate($cid);
+      $this->cache->invalidate($cid);
     }
 
     self::migrationIsActive(TRUE);
