@@ -277,7 +277,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
         $migration->migrateContentFromTemp($entity_type);
       }
       // Mark the migration as done even if no actual content was migrated.
-      \Drupal::state()->set("multiversion.migration_done.$entity_type_id", TRUE);
+      $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
     }
 
     // Clean up after us.
