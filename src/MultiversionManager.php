@@ -259,7 +259,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // For some reason we have to clear cache on the "global" service as opposed
     // to the injected one. Services in the dark corners of Entity API won't see
     // the same result otherwise. Very strange.
-    $this->entityManager->clearCachedDefinitions();
+    \Drupal::entityManager()->clearCachedDefinitions();
     foreach ($entity_types as $entity_type_id => $entity_type) {
       $cid = "entity_base_field_definitions:$entity_type_id:" . $this->languageManager->getCurrentLanguage()->getId();
       $this->cache->invalidate($cid);
@@ -277,7 +277,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
         $migration->migrateContentFromTemp($entity_type);
       }
       // Mark the migration as done even if no actual content was migrated.
-      $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
+      \Drupal::state()->set("multiversion.migration_done.$entity_type_id", TRUE);
     }
 
     // Clean up after us.
