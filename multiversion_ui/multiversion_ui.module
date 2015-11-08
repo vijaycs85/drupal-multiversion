@@ -58,7 +58,7 @@ function template_preprocess_multiversion_rev(&$variables) {
   $title = Unicode::truncate($rev, $length, FALSE, TRUE);
 
   if (!empty($rev_info['revision_id'])) {
-    $entity_revision = entity_revision_load($rev_info['entity_type_id'], $rev_info['revision_id']);
+    $entity_revision = \Drupal::entityManager()->getStorage($rev_info['entity_type_id'])->loadRevision($rev_info['revision_id']);
     $variables['title'] = \Drupal::l($title, $entity_revision->urlInfo('revision'));
   }
   else {
