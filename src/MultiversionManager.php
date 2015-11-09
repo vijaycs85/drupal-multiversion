@@ -287,7 +287,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // Another nasty workaround because the cache is getting skewed somewhere.
     // And resetting the cache on the injected state service does not work.
     // Very strange.
-    $this->state->resetCache();
+    \Drupal::state()->resetCache();
 
     return $this;
   }
