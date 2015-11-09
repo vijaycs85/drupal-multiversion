@@ -187,6 +187,12 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    */
   public function isEnabledEntityType(EntityTypeInterface $entity_type) {
     if ($this->isSupportedEntityType($entity_type)) {
+      // Check if the whole migration is done.
+      if ($this->state->get('multiversion.migration_done', FALSE)) {
+        return TRUE;
+      }
+      // Check if the migration for this particular entity type is done or if
+      // the migration is still active.
       $done = $this->state->get('multiversion.migration_done.' . $entity_type->id(), FALSE);
       return ($done || self::migrationIsActive());
     }
@@ -276,13 +282,19 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       if ($has_data[$entity_type_id]) {
         $migration->migrateContentFromTemp($entity_type);
       }
-      // Mark the migration as done even if no actual content was migrated.
+      // Mark the migration for this particular entity type as done even if no
+      // actual content was migrated.
       $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
     }
 
     // Clean up after us.
     $migration->uninstallDependencies();
     self::migrationIsActive(FALSE);
+
+    // Mark the whole migration as done. Any entity types installed after this
+    // will not need a migration since they will be created directly on top of
+    // the Multiversion storage.
+    $this->state->set('multiversion.migration_done', TRUE);
 
     // Another nasty workaround because the cache is getting skewed somewhere.
     // And resetting the cache on the injected state service does not work.

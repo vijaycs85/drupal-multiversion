@@ -7,7 +7,6 @@
 
 namespace Drupal\multiversion\Tests;
 
-use Drupal\Core\Entity\Sql\SqlEntityStorageInterface;
 use Drupal\multiversion\Entity\Query\QueryInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\simpletest\WebTestBase;
@@ -20,6 +19,16 @@ use Drupal\simpletest\WebTestBase;
 class MigrationTest extends WebTestBase {
 
   protected $strictConfigSchema = FALSE;
+
+  /**
+   * @var \Drupal\multiversion\MultiversionManagerInterface
+   */
+  protected $multiversionManager;
+
+  /**
+   * @var \Drupal\Core\Extension\ModuleInstallerInterface
+   */
+  protected $moduleInstaller;
 
   /**
    * @var array
@@ -46,6 +55,8 @@ class MigrationTest extends WebTestBase {
    */
   protected function setUp() {
     parent::setUp();
+    $this->moduleInstaller = \Drupal::service('module_installer');
+
     $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
   }
 
@@ -72,7 +83,8 @@ class MigrationTest extends WebTestBase {
     }
 
     // Installing Multiversion will trigger the migration of existing content.
-    \Drupal::service('module_installer')->install(array('multiversion'));
+    $this->moduleInstaller->install(['multiversion']);
+    $this->multiversionManager = \Drupal::service('multiversion.manager');
 
     $ids_after = array();
     // Now check that the previosuly created entities still exist, have the
@@ -82,6 +94,7 @@ class MigrationTest extends WebTestBase {
       $storage = \Drupal::entityManager()->getStorage($entity_type_id);
       $id_key = $entity_type->getKey('id');
 
+      $this->assertTrue($this->multiversionManager->isEnabledEntityType($entity_type), "$entity_type_id was enabled for Multiversion.");
       $this->assertTrue($storage instanceof ContentEntityStorageInterface, "$entity_type_id got the correct storage handler assigned.");
       $this->assertTrue($storage->getQuery() instanceof QueryInterface, "$entity_type_id got the correct query handler assigned.");
 
@@ -112,6 +125,13 @@ class MigrationTest extends WebTestBase {
         $this->assertEqual($deleted, 1, "$entity_type_id $entity_id is not marked as deleted in database");
       }
     }
+
+    // Now install a module with an entity type AFTER the migration and assert
+    // that is being returned as supported and enabled.
+    $this->moduleInstaller->install(['taxonomy']);
+
+    $entity_type = \Drupal::entityManager()->getDefinition('taxonomy_term');
+    $this->assertTrue($this->multiversionManager->isEnabledEntityType($entity_type), 'Newly installed entity types gets enabled as well.');
   }
 
 }
