@@ -7,32 +7,69 @@
 
 namespace Drupal\multiversion;
 
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\Core\Menu\MenuTreeStorage as CoreMenuTreeStorage;
 
 class MenuTreeStorage extends CoreMenuTreeStorage {
 
   /**
-   * {@inheritdocs}
+   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
    */
-  protected function buildTreeCacheId($menu_name, MenuTreeParameters $parameters) {
-    $cid = parent::buildTreeCacheId($menu_name, $parameters);
-    return "$cid." . $this->getActiveWorkspaceId();
+  protected $workspaceManager;
+
+  /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(Connection $connection, CacheBackendInterface $menu_cache_backend, CacheTagsInvalidatorInterface $cache_tags_invalidator, $table, array $options = array()) {
+    $this->connection = $connection;
+    $this->cacheTagsInvalidator = $cache_tags_invalidator;
+    $this->table = $table;
+    $this->options = $options;
+
+    $this->entityTypeManager = \Drupal::service('entity_type.manager');
+    $this->workspaceManager = \Drupal::service('workspace.manager');
+
+    $this->menuCacheBackend = new CacheBackendDecorator(
+      $menu_cache_backend,
+      $this->workspaceManager
+    );
   }
 
   /**
-   * {@inheritdocs}
+   * {@inheritdoc}
    */
-  protected function buildLinksQuery($menu_name, MenuTreeParameters $parameters) {
-    $query = parent::buildLinksQuery($menu_name, $parameters);
-    $query->condition('workspace', $this->getActiveWorkspaceId());
-    return $query;
-  }
+  protected function loadLinks($menu_name, MenuTreeParameters $parameters) {
+    $links = parent::loadLinks($menu_name, $parameters);
+    $map = [];
+    // Collect all menu_link_content IDs from the links.
+    foreach ($links as $i => $link) {
+      if ($link['provider'] != 'menu_link_content') {
+        continue;
+      }
+      $metadata = unserialize($link['metadata']);
+      $map[$metadata['entity_id']] = $i;
+    }
 
-  /**
-   * Helper method to get the active workspace ID.
-   */
-  protected function getActiveWorkspaceId() {
-    return \Drupal::service('workspace.manager')->getActiveWorkspace()->id();
+    // Load all menu_link_content entities and remove links for the those that
+    // don't belong to the active workspace.
+    $active_workspace_id = $this->workspaceManager->getActiveWorkspace()->id();
+    $entities = $this->entityTypeManager
+      ->getStorage('menu_link_content')
+      ->loadMultiple(array_keys($map));
+
+    foreach ($entities as $entity_id => $entity) {
+      if ($entity->workspace->target_id != $active_workspace_id) {
+        unset($links[$map[$entity_id]]);
+      }
+    }
+    return $links;
   }
 }
