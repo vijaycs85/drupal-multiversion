@@ -65,11 +65,12 @@ class MenuTreeStorage extends CoreMenuTreeStorage {
       ->getStorage('menu_link_content')
       ->loadMultiple(array_keys($map));
 
-    foreach ($entities as $entity_id => $entity) {
-      if ($entity->workspace->target_id != $active_workspace_id) {
-        unset($links[$map[$entity_id]]);
+    foreach ($map as $entity_id => $link_id) {
+      if (!isset($entities[$entity_id]) || $active_workspace_id != $entities[$entity_id]->workspace->target_id) {
+        unset($links[$link_id]);
       }
     }
-    return $links;
+    // If there were no entities to load there also be no links to return.
+    return empty($entities) ? [] : $links;
   }
 }
