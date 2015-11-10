@@ -7,6 +7,8 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\entity_test\Entity\EntityTest;
+
 /**
  * Test the methods on the UuidIndex class.
  *
@@ -15,7 +17,7 @@ namespace Drupal\multiversion\Tests;
 class UuidIndexTest extends MultiversionWebTestBase {
 
   public function testMethods() {
-    $entity = entity_create('entity_test');
+    $entity = EntityTest::create();
     $uuid = $entity->uuid();
 
     $this->uuidIndex->add($entity);
@@ -28,7 +30,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'rev' => $entity->_rev->value,
       'status' => 'indexed',
     );
-    $this->assertEqual($entry, $expected, 'Single entry is correct for an entity that was not yet saved.');
+    $this->assertEqual($expected, $entry, 'Single entry is correct for an entity that was not yet saved.');
 
     $entity->save();
     $this->uuidIndex->add($entity);
@@ -41,17 +43,17 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'rev' => $entity->_rev->value,
       'status' => 'available',
     );
-    $this->assertEqual($entry, $expected, 'Single entry is correct for an entity that was saved.');
+    $this->assertEqual($expected, $entry, 'Single entry is correct for an entity that was saved.');
 
     $entities = array();
     $uuid = array();
     $rev = array();
 
-    $entity = $entities[] = entity_create('entity_test');
+    $entity = $entities[] = EntityTest::create();
     $uuid[] = $entity->uuid();
     $rev[] = $entity->_rev->value;
 
-    $entity = $entities[] = entity_create('entity_test');
+    $entity = $entities[] = EntityTest::create();
     $uuid[] = $entity->uuid();
     $rev[] = $entity->_rev->value;
 
@@ -74,16 +76,18 @@ class UuidIndexTest extends MultiversionWebTestBase {
         'status' => 'indexed',
       ),
     );
-    $entries = $this->uuidIndex->getMultiple(array($uuid[0], $uuid[1]));
-    $this->assertEqual($entries, $expected, 'Multiple entries are correct.');
+    $entries = $this->uuidIndex->getMultiple([$uuid[0], $uuid[1]]);
+    $this->assertEqual($expected, $entries, 'Multiple entries are correct.');
 
-    // Create a new workspaces and query those.
+    /** @var \Drupal\Core\Entity\EntityStorageInterface $workspace_storage */
+    $workspace_storage = $this->container->get('entity.manager')->getStorage('workspace');
+    // Create new workspaces and query those.
     $ws1 = $this->randomMachineName();
-    entity_create('workspace', array('id' => $ws1));
+    $workspace_storage->create(['id' => $ws1]);
     $ws2 = $this->randomMachineName();
-    entity_create('workspace', array('id' => $ws2));
+    $workspace_storage->create(['id' => $ws2]);
 
-    $entity = entity_create('entity_test');
+    $entity = EntityTest::create();
     $uuid = $entity->uuid();
     $rev = $entity->_rev->value;
 
@@ -101,15 +105,15 @@ class UuidIndexTest extends MultiversionWebTestBase {
       ->useWorkspace($ws2)
       ->get($uuid);
 
-    $expected = array(
+    $expected = [
       'entity_type_id' => 'entity_test',
       'entity_id' => 0,
       'revision_id' => 0,
       'rev' => $rev,
       'uuid' => $uuid,
       'status' => 'indexed',
-    );
-    $this->assertEqual($entry, $expected, 'Entry was added and fetched from new workspace.');
+    ];
+    $this->assertEqual($expected, $entry, 'Entry was added and fetched from new workspace.');
   }
 
 }

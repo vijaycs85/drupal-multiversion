@@ -33,22 +33,19 @@ class MigrationTest extends WebTestBase {
   /**
    * @var array
    */
-  protected $entityTypes = array(
-    'entity_test' => array(),
-    'entity_test_rev' => array(),
-    'entity_test_mul' => array(),
-    'entity_test_mulrev' => array(),
-    'user' => array(),
-    'node' => array('type' => 'article', 'title' => 'foo')
-  );
+  protected $entityTypes = [
+    'entity_test' => [],
+    'entity_test_rev' => [],
+    'entity_test_mul' => [],
+    'entity_test_mulrev' => [],
+    'user' => [],
+    'node' => ['type' => 'article', 'title' => 'foo']
+  ];
 
   /**
    * {@inheritdoc}
    */
-  public static $modules = array(
-    'entity_test',
-    'node'
-  );
+  public static $modules = ['entity_test', 'node'];
 
   /**
    * {@inheritdoc}
@@ -57,17 +54,15 @@ class MigrationTest extends WebTestBase {
     parent::setUp();
     $this->moduleInstaller = \Drupal::service('module_installer');
 
-    $this->drupalCreateContentType(array('type' => 'article', 'name' => 'Article'));
+    $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
   }
 
   public function testEnableWithExistingContent() {
-    $before = array();
-
     foreach ($this->entityTypes as $entity_type_id => $values) {
       $storage = \Drupal::entityManager()->getStorage($entity_type_id);
 
       if ($entity_type_id == 'user') {
-        $this->createUser(array('administer nodes'));
+        $this->createUser(['administer nodes']);
         // There should now be 3 users in total, including the initial anonymous
         // and admin users.
         $count = 3;
@@ -86,7 +81,7 @@ class MigrationTest extends WebTestBase {
     $this->moduleInstaller->install(['multiversion']);
     $this->multiversionManager = \Drupal::service('multiversion.manager');
 
-    $ids_after = array();
+    $ids_after = [];
     // Now check that the previosuly created entities still exist, have the
     // right IDs and are multiversion enabled. That means profit. Big profit.
     foreach ($this->entityTypes as $entity_type_id => $values) {
