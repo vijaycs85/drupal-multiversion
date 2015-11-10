@@ -28,7 +28,7 @@ services:
       - [setContainer, ['@service_container']]
   workspace.manager:
     class: Drupal\multiversion\Workspace\WorkspaceManager
-    arguments: ['@request_stack', '@entity.manager', '@cache.render']
+    arguments: ['@request_stack', '@entity.manager']
     tags:
       - { name: service_collector, tag: workspace_negotiator, call: addNegotiator }
   cache_context.workspace:
