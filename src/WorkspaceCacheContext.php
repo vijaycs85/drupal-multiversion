@@ -7,7 +7,8 @@
 
 namespace Drupal\multiversion;
 
-use Drupal\Core\Cache\CacheContextInterface;
+use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Cache\Context\CacheContextInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
 /**
@@ -44,6 +45,13 @@ class WorkspaceCacheContext implements CacheContextInterface {
    */
   public function getContext() {
     return 'ws.' . $this->workspaceManager->getActiveWorkspace()->id();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheableMetadata($type = NULL) {
+    return new CacheableMetadata();
   }
 
 }
