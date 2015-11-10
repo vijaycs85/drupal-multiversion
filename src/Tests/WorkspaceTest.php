@@ -30,12 +30,11 @@ class WorkspaceTest extends KernelTestBase {
     $this->installConfig(['multiversion']);
   }
 
-
   public function testOperations() {
     $default = Workspace::load('default');
     $this->assertTrue(!empty($default), 'Default workspace was created when installing Multiversion module.');
     $id = $this->randomMachineName();
-    $entity = Workspace::create(array('id' => $id));
+    $entity = Workspace::create(['id' => $id]);
 
     $this->assertTrue($entity instanceof WorkspaceInterface, 'Workspace entity was created.');
 

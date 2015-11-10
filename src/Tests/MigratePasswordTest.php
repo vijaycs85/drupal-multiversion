@@ -25,7 +25,6 @@ class MigratePasswordTest extends KernelTestBase {
     'user',
   ];
 
-
   public function testPasswordMigration() {
     $password_migrate = \Drupal::service('password_migrate');
     $password = $this->randomMachineName();
