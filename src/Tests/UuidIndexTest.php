@@ -22,32 +22,32 @@ class UuidIndexTest extends MultiversionWebTestBase {
 
     $this->uuidIndex->add($entity);
     $entry = $this->uuidIndex->get($uuid);
-    $expected = array(
+    $expected = [
       'entity_type_id' => 'entity_test',
       'entity_id' => 0,
       'revision_id' => 0,
       'uuid' => $uuid,
       'rev' => $entity->_rev->value,
       'status' => 'indexed',
-    );
+    ];
     $this->assertEqual($expected, $entry, 'Single entry is correct for an entity that was not yet saved.');
 
     $entity->save();
     $this->uuidIndex->add($entity);
     $entry = $this->uuidIndex->get($uuid);
-    $expected = array(
+    $expected = [
       'entity_type_id' => 'entity_test',
       'entity_id' => 1,
       'revision_id' => 1,
       'uuid' => $uuid,
       'rev' => $entity->_rev->value,
       'status' => 'available',
-    );
+    ];
     $this->assertEqual($expected, $entry, 'Single entry is correct for an entity that was saved.');
 
-    $entities = array();
-    $uuid = array();
-    $rev = array();
+    $entities = [];
+    $uuid = [];
+    $rev = [];
 
     $entity = $entities[] = EntityTest::create();
     $uuid[] = $entity->uuid();
@@ -58,24 +58,24 @@ class UuidIndexTest extends MultiversionWebTestBase {
     $rev[] = $entity->_rev->value;
 
     $this->uuidIndex->addMultiple($entities);
-    $expected = array(
-      $uuid[0] => array(
+    $expected = [
+      $uuid[0] => [
         'entity_type_id' => 'entity_test',
         'entity_id' => 0,
         'revision_id' => 0,
         'rev' => $rev[0],
         'uuid' => $uuid[0],
         'status' => 'indexed',
-      ),
-      $uuid[1] => array(
+      ],
+      $uuid[1] => [
         'entity_type_id' => 'entity_test',
         'entity_id' => 0,
         'revision_id' => 0,
         'rev' => $rev[1],
         'uuid' => $uuid[1],
         'status' => 'indexed',
-      ),
-    );
+      ],
+    ];
     $entries = $this->uuidIndex->getMultiple([$uuid[0], $uuid[1]]);
     $this->assertEqual($expected, $entries, 'Multiple entries are correct.');
 

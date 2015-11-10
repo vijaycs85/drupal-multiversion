@@ -8,10 +8,7 @@
 namespace Drupal\multiversion\Tests;
 
 use Drupal\comment\Tests\CommentTestTrait;
-use Drupal\Component\Utility\Unicode;
 use Drupal\simpletest\WebTestBase;
-use Drupal\system\Entity\Menu;
-use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
  * Defines a base class for testing the Multiversion module.
@@ -76,6 +73,9 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     'file',
   ];
 
+  /**
+   * {@inheritdoc}
+   */
   protected function setUp() {
     parent::setUp();
 
@@ -94,33 +94,6 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     }
     // Create comment field on article.
     $this->addDefaultCommentField('node', 'article');
-  }
-
-  /**
-   * Returns a new vocabulary with random properties.
-   */
-  function createVocabulary() {
-    // Create a vocabulary.
-    $vocabulary = Vocabulary::create([
-      'name' => $this->randomMachineName(),
-      'vid' => Unicode::strtolower($this->randomMachineName()),
-    ]);
-    $vocabulary->save();
-    return $vocabulary;
-  }
-
-  /**
-   * Returns a new menu with random properties.
-   */
-  function createMenu() {
-    // Create a menu.
-    $menu = Menu::create([
-      'id' => 'menu_test',
-      'label' => 'Test menu',
-      'description' => 'Description text',
-    ]);
-    $menu->save();
-    return $menu;
   }
 
 }

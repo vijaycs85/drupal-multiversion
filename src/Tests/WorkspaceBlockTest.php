@@ -42,12 +42,12 @@ class WorkspaceBlockTest extends WebTestBase {
 
   protected function setUp() {
     parent::setUp();
-    $this->webUser = $this->drupalCreateUser(array(
+    $this->webUser = $this->drupalCreateUser([
       'administer blocks',
       'create article content',
       'access administration pages',
       'access content',
-    ));
+    ]);
     $this->drupalLogin($this->webUser);
     $this->drupalPlaceBlock('local_tasks_block');
   }
