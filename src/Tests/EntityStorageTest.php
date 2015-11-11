@@ -126,8 +126,14 @@ class EntityStorageTest extends MultiversionWebTestBase {
     }
   }
 
-  public function testSaveAndLoad() {
+  public function testEntityStorage() {
+    // Test save and load.
+
     foreach ($this->entityTypes as $entity_type_id => $info) {
+      // User name should be unique.
+      if ($entity_type_id == 'user') {
+        $info['info']['name'] = $this->randomMachineName();
+      }
       $storage = $this->entityManager->getStorage($entity_type_id);
       $ids = [];
       $entity = $storage->create($info['info']);
@@ -151,21 +157,18 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $revision = $storage->loadRevision($revision_id);
       $this->assertTrue(($revision->getRevisionId() == $revision_id && !$revision->isDefaultRevision()), "Old revision of $entity_type_id was loaded.");
 
-      if ($entity_type_id == 'block_content') {
-        $info['info']['info'] = $this->randomMachineName();
-      }
       $entity = $storage->create($info['info']);
       $entity->save();
       $ids[] = $entity->id();
 
       $entities = $storage->loadMultiple($ids);
       $this->assertEqual(count($entities), 2, "Multiple $entity_type_id was loaded.");
-    }
-  }
 
-  public function testDelete() {
-    foreach ($this->entityTypes as $entity_type_id => $info) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
+      // Test delete.
+
+      if ($entity_type_id == 'user') {
+        $info['info']['name'] = $this->randomMachineName();
+      }
       $entity = $storage->create($info['info']);
       $entity->save();
       $id = $entity->id();
@@ -173,13 +176,10 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $entities = $storage->loadMultiple([$id]);
       $storage->delete($entities);
 
-      // For user entity type we should have revision ID 4 because we have three
-      // users: anonymous, root user and the new user (it was deleted).
-      $revision = $entity_type_id == 'user' ? 4 : 2;
       $record = db_select($info['revision_table'], 'e')
         ->fields('e')
         ->condition('e.' . $info['id'], $id)
-        ->condition('e.' . $info['revision_id'], $revision)
+        ->condition('e.' . $info['revision_id'], $revision_id + 1)
         ->execute()
         ->fetchObject();
 
@@ -193,12 +193,12 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       $entities = $storage->loadMultipleDeleted([$id]);
       $this->assertTrue(!empty($entities), "Deleted $entity_type_id loaded with entity_load_multiple_deleted() function.");
-    }
-  }
 
-  public function testRevisions() {
-    foreach ($this->entityTypes as $entity_type_id => $info) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
+      // Test revisions.
+
+      if ($entity_type_id == 'user') {
+        $info['info']['name'] = $this->randomMachineName();
+      }
       $entity = $storage->create($info['info']);
       $entity->save();
       $id = $entity->id();
@@ -212,17 +212,14 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $new_revision_id = ($revision_id + 1);
       $revision = $storage->loadRevision($new_revision_id);
       $this->assertTrue(($revision->_deleted->value == TRUE && $revision->getRevisionId() == $new_revision_id), "Deleted $entity_type_id was loaded.");
-    }
-  }
 
-  public function testExceptions() {
-    foreach ($this->entityTypes as $entity_type_id => $info) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
+      // Test exceptions.
+
       $entity_type = $this->entityManager->getDefinition($entity_type_id);
       $id_key = $entity_type->getKey('id');
       // Test with exception upon first save.
-      if ($entity_type_id == 'block_content') {
-        $info['info']['info'] = $this->randomMachineName();
+      if ($entity_type_id == 'user') {
+        $info['info']['name'] = $this->randomMachineName();
       }
       $entity = $storage->create($info['info']);
       $uuid = $entity->uuid->value;
@@ -252,9 +249,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertEqual($default_branch, $expected_default_branch, 'Default branch was built after exception on first save followed by re-save.');
 
       // Test with exception upon second save.
-      if ($entity_type_id == 'block_content') {
-        $info['info']['info'] = $this->randomMachineName();
-      }
       if ($entity_type_id == 'user') {
         $info['info']['name'] = $this->randomMachineName();
       }
@@ -293,12 +287,12 @@ class EntityStorageTest extends MultiversionWebTestBase {
         $second_rev => 'available',
       ];
       $this->assertEqual($default_branch, $expected_default_branch, 'Default branch was built after exception on second save followed by re-save.');
-    }
-  }
 
-  public function testWorkspace() {
-    foreach ($this->entityTypes as $entity_type_id => $info) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
+      // Test workspace.
+
+      if ($entity_type_id == 'user') {
+        $info['info']['name'] = $this->randomMachineName();
+      }
       $entity = $storage->create($info['info']);
       $entity->save();
       $entity_id = $entity->id();
@@ -334,18 +328,14 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertEqual($record->workspace, 'default', "The workspace reference was stored for deleted $entity_type_id.");
     }
 
+    // Test workspace when switching the workspace.
+
     // Create a new workspace and switch to it.
     $workspace = Workspace::create(['id' => $this->randomMachineName()]);
     $this->workspaceManager->setActiveWorkspace($workspace);
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $storage = $this->entityManager->getStorage($entity_type_id);
-      if ($entity_type_id == 'block_content') {
-        $info['info']['info'] = $this->randomMachineName();
-      }
-      if ($entity_type_id == 'user') {
-        $info['info']['name'] = $this->randomMachineName();
-      }
       $entity = $storage->create($info['info']);
       $entity->save();
       $this->assertEqual($entity->workspace->target_id, $workspace->id(), "$entity_type_id was saved in new workspace.");
@@ -355,9 +345,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $ids = array();
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $storage = $this->entityManager->getStorage($entity_type_id);
-      if ($entity_type_id == 'block_content') {
-        $info['info']['info'] = $this->randomMachineName();
-      }
       if ($entity_type_id == 'user') {
         $info['info']['name'] = $this->randomMachineName();
       }
@@ -390,7 +377,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
       else {
         $this->assertTrue(empty($entity), "$entity_type_id was not loaded by UUID in a workspace it does not belong to.");
       }
-
     }
   }
 
