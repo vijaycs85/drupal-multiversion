@@ -70,7 +70,6 @@ class MenuTreeStorage extends CoreMenuTreeStorage {
         unset($links[$link_id]);
       }
     }
-    // If there were no entities to load there also be no links to return.
     return $links;
   }
 }
