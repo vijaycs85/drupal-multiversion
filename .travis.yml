@@ -1,3 +1,5 @@
+sudo: false
+
 language: php
 
 php:
@@ -5,73 +7,35 @@ php:
   - 5.6
   - 7.0
 
-matrix:
-  allow_failures:
-    - php: 7.0
-
 mysql:
   database: drupal
   username: root
   encoding: utf8
 
-env:
-  - PATH=$PATH:/home/travis/.composer/vendor/bin
+addons:
+  apt:
+    packages:
+    - nginx
 
-before_install:
-  # Update Composer so that the Drush installation doesn't fail.
-  - composer selfupdate
+cache:
+  directories:
+  - $HOME/www
+  - $HOME/.drush
 
 install:
-  - sudo apt-get update
-  # Install Apache.
-  - sudo apt-get install apache2 libapache2-mod-fastcgi
-
-  # Set up PHP-FPM.
-  - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
-  - if [[ "$TRAVIS_PHP_VERSION" = "7.0" ]]; then sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/www.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/www.conf; fi
-  - sudo a2enmod rewrite actions fastcgi alias
-  - echo "cgi.fix_pathinfo = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  # Install web server.
+  - cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+  - if [[ "$TRAVIS_PHP_VERSION" = "7.0" ]]; then cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/www.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.d/www.conf; fi
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
-
-  # Set up the Apache vhost.
-  - sudo cp -f $TRAVIS_BUILD_DIR/.travis/apache-vhost.conf /etc/apache2/sites-available/default
-  - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$TRAVIS_BUILD_DIR/../drupal?g" --in-place /etc/apache2/sites-available/default
-  - sudo service apache2 restart
-
-  # Install Drush.
-  - composer global require drush/drush:dev-master
-
-before_script:
-  # Try to prevent Mysql has gone away.
-  - mysql -e "SET GLOBAL wait_timeout = 36000;"
-  - mysql -e "SET GLOBAL max_allowed_packet = 134209536;"
-  - mysql -e "SHOW VARIABLES LIKE 'max_allowed_packet';"
-  - mysql -e "SHOW VARIABLES LIKE 'wait_timeout';"
-
-  # Checkout a directory structure with all dependencies.
-  - git clone --depth 1 --branch 8.0.x http://git.drupal.org/project/drupal.git $TRAVIS_BUILD_DIR/../drupal
-  - git clone --branch 8.x-1.x https://github.com/dickolsson/drupal-key_value.git $TRAVIS_BUILD_DIR/../drupal/modules/key_value
-  - ln -s $TRAVIS_BUILD_DIR $TRAVIS_BUILD_DIR/../drupal/modules/multiversion
-
-  # Install the site that will host our tests.
-  - cd $TRAVIS_BUILD_DIR/../drupal
-  - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes site-install --db-url=mysql://root:@127.0.0.1/drupal testing
-  # Create the private directory.
-  - sudo mkdir sites/default/files/private
-  - sudo chmod 777 -R sites/default/files
-  - sudo chmod 0664 sites/default/settings.php
-  - sudo echo -e "$a\$settings['file_private_path'] = 'sites/default/files/private';" >> sites/default/settings.php
-
-  # Enable required modules and ignore any output to not break the test.
-  - drush --yes pm-enable simpletest multiversion || true
+  - nginx -c $TRAVIS_BUILD_DIR/.travis/nginx.conf
+  # Install Drush and Drupal.
+  - wget -P ~/ https://github.com/drush-ops/drush/releases/download/8.0.0-rc3/drush.phar
+  - test ! -f ~/www/index.php && git clone --depth 1 --branch 8.0.x http://git.drupal.org/project/drupal.git ~/www || true
+  - ln -s $TRAVIS_BUILD_DIR ~/www/modules/multiversion
+  - php -d sendmail_path=`which true` ~/drush.phar --root=$HOME/www --yes site-install --db-url=mysql://root:@127.0.0.1/drupal testing
 
 script:
-  - drush cr
-  - cd $TRAVIS_BUILD_DIR/../drupal
-  - ./vendor/bin/phpunit --group multiversion --verbose --debug --coverage-text -c core/phpunit.xml.dist | tee ; export TEST_PHPUNIT=${PIPESTATUS[0]}
-  - if [ $TEST_PHPUNIT -eq 1 ]; then exit 1; fi
-  - php core/scripts/run-tests.sh --verbose --color --concurrency 4 --php `which php` --url http://localhost "key_value,multiversion" | tee /tmp/test.txt ; export TEST_EXIT=${PIPESTATUS[0]}
-  # Simpletest does not exit with code 0 on success, so we will need to analyze
-  # the output to ascertain whether the tests passed.
-  - TEST_SIMPLETEST=$(! egrep -i "([0-9]+ fails)|(PHP Fatal error)|([0-9]+ exceptions)|(The test did not complete due to a fatal error)" /tmp/test.txt > /dev/null)$?
-  - if [ $TEST_EXIT -eq 0 ] && [ $TEST_SIMPLETEST -eq 0 ] && [ $TEST_PHPUNIT -eq 0 ]; then exit 0; else exit 1; fi
+  - cd ~/www && php ./core/scripts/run-tests.sh --verbose --color --concurrency 4 --php `which php` --sqlite /tmp/test.sqlite --url http://localhost:8080 "multiversion" | tee /tmp/test.log ; export TEST_EXIT=${PIPESTATUS[0]}
+  # Workaround so that we exit with the correct status.
+  - TEST_LOG=$(! egrep -i "([0-9]+ fails)|(PHP Fatal error)|([0-9]+ exceptions)" /tmp/test.log > /dev/null)$?
+  - if [ $TEST_EXIT -eq 0 ] && [ $TEST_LOG -eq 0 ]; then exit 0; else exit 1; fi
