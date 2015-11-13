@@ -3,6 +3,7 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
@@ -167,6 +168,11 @@ function multiversion_views_data_alter(array &$data) {
           'label' => t('Current workspace'),
         ),
       );
+      // Unset the 'Workspace reference' filter because users are not allowed to
+      // filter by a specific workspace, other than current active workspace.
+      // To filter by current active workspace will be used the 'Current workspace'
+      // filter.
+      unset($data[$key]['workspace']);
     }
   }
 }
@@ -191,7 +197,7 @@ function multiversion_views_post_execute(ViewExecutable $view) {
         $ids[$index] = $row->{$base_field};
       }
     }
-    $entities = \Drupal::entityManager()->getStorage($content_type)->loadMultipleDeleted($ids);
+    $entities = \Drupal::entityTypeManager()->getStorage($content_type)->loadMultipleDeleted($ids);
     foreach ($view->result as $index => $row) {
       if (empty($row->_entity) && !empty($row->{$base_field}) && isset($entities[$row->{$base_field}])) {
         $view->result[$index]->_entity = $entities[$row->{$base_field}];
@@ -229,8 +235,13 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
     );
     // We shouldn't filter user content type when creating a new node because
     // we need the author info for this.
-    if (strpos(\Drupal::url('<current>'), 'node/add/'
-      && $base_table == 'users_field_data') !== TRUE) {
+    $current_url = Url::fromRoute('<current>')
+      ->toString(TRUE)
+      ->getGeneratedUrl();
+    if (
+      !strpos($current_url, 'node/add/') &&
+      $base_table != 'users_field_data'
+    ) {
       $view->query->where[1]['conditions'][] = array(
         'field' => $base_table . '.workspace',
         'value' => multiversion_get_active_workspace_id(),
@@ -330,7 +341,7 @@ function entity_load_deleted($entity_type, $id, $reset = FALSE) {
  * @endcode
  */
 function entity_load_multiple_deleted($entity_type, $ids, $reset = FALSE) {
-  $controller = \Drupal::entityManager()->getStorage($entity_type);
+  $controller = \Drupal::entityTypeManager()->getStorage($entity_type);
   if ($reset) {
     $controller->resetCache($ids);
   }
