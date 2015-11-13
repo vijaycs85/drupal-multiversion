@@ -9,6 +9,7 @@ namespace Drupal\multiversion\Plugin\migrate\destination;
 
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\Password\PasswordInterface;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\Plugin\migrate\destination\EntityContentBase;
@@ -47,6 +48,7 @@ class ContentEntityBase extends EntityContentBase {
       $container->get('entity.manager')->getStorage($entity_type_id),
       array_keys($container->get('entity.manager')->getBundleInfo($entity_type_id)),
       $container->get('entity.manager'),
+      $container->get('plugin.manager.field.field_type'),
       $container->get('password')
     );
   }
@@ -71,8 +73,8 @@ class ContentEntityBase extends EntityContentBase {
    * @param \Drupal\Core\Password\PasswordInterface $password
    *   The password service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, EntityStorageInterface $storage, array $bundles, EntityManagerInterface $entity_manager, PasswordInterface $password) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $migration, $storage, $bundles, $entity_manager);
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration, EntityStorageInterface $storage, array $bundles, EntityManagerInterface $entity_manager, FieldTypePluginManagerInterface $field_type_manager, PasswordInterface $password) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $migration, $storage, $bundles, $entity_manager, $field_type_manager);
 
     // Since password records from the earlier schema already was hashed we
     // disable hashing so that passwords stay intact.
