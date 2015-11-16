@@ -188,11 +188,11 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertTrue(empty($entity), "Deleted $entity_type_id did not load with entity_load() function.");
 
       $entity = $storage->loadDeleted($id);
-      $this->assertTrue(!empty($entity), "Deleted $entity_type_id loaded with entity_load_deleted() function.");
+      $this->assertTrue(!empty($entity), "Deleted $entity_type_id loaded with loadDeleted() method.");
       $this->assertNotEqual($revision_id, $entity->getRevisionId(), "New revision was generated when deleting $entity_type_id.");
 
       $entities = $storage->loadMultipleDeleted([$id]);
-      $this->assertTrue(!empty($entities), "Deleted $entity_type_id loaded with entity_load_multiple_deleted() function.");
+      $this->assertTrue(!empty($entities), "Deleted $entity_type_id loaded with loadMultipleDeleted() method.");
 
       // Test revisions.
 

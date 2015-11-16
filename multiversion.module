@@ -184,23 +184,27 @@ function multiversion_views_post_execute(ViewExecutable $view) {
   // Add deleted entities if we have rows for them.
   // When we want to get deleted entities using the _deleted field, entities
   // should be loaded with
-  // \Drupal::entityManager()->getStorage($entity_type)->loadDeleted($id) or
-  // \Drupal::entityManager()->getStorage($entity_type)->loadMultipleDeleted($ids),
+  // \Drupal::entityManager()->getTypeStorage($entity_type)->loadDeleted($id) or
+  // \Drupal::entityManager()->getTypeStorage($entity_type)->loadMultipleDeleted($ids),
   // otherwise the _entity field in the view result rows will be null.
   $base_field = $view->storage->get('base_field');
   $table_info = $view->query->getEntityTableInfo();
   $content_type_info = array_column($table_info, 'entity_type');
   if (is_array($view->result) && $content_type = $content_type_info[0]) {
-    $ids = array();
-    foreach ($view->result as $index => $row) {
-      if (empty($row->_entity) && !empty($row->{$base_field})) {
-        $ids[$index] = $row->{$base_field};
+    $manager = \Drupal::service('multiversion.manager');
+    $storage = \Drupal::entityTypeManager()->getStorage($content_type);
+    if ($manager->isEnabledEntityType($storage->getEntityType())) {
+      $ids = array();
+      foreach ($view->result as $index => $row) {
+        if (empty($row->_entity) && !empty($row->{$base_field})) {
+          $ids[$index] = $row->{$base_field};
+        }
       }
-    }
-    $entities = \Drupal::entityTypeManager()->getStorage($content_type)->loadMultipleDeleted($ids);
-    foreach ($view->result as $index => $row) {
-      if (empty($row->_entity) && !empty($row->{$base_field}) && isset($entities[$row->{$base_field}])) {
-        $view->result[$index]->_entity = $entities[$row->{$base_field}];
+      $entities = $storage->loadMultipleDeleted($ids);
+      foreach ($view->result as $index => $row) {
+        if (empty($row->_entity) && !empty($row->{$base_field}) && isset($entities[$row->{$base_field}])) {
+          $view->result[$index]->_entity = $entities[$row->{$base_field}];
+        }
       }
     }
   }
@@ -294,58 +298,6 @@ function multiversion_entity_insert(EntityInterface $entity) {
  */
 function multiversion_entity_update(EntityInterface $entity) {
   multiversion_entity_insert($entity);
-}
-
-/**
- * Load a deleted entity.
- *
- * @param string $entity_type
- * @param integer $id
- * @param boolean $reset
- *
- * @return \Drupal\Core\Entity\EntityInterface|null
- *   The entity object, or NULL if there is no entity with the given ID.
- *
- * @deprecated in Multiversion 8.x-1.x,
- *   will be removed before Multiversion 8.x-2.x.
- *   Use the entity manager service to load the entity
- *   from the entity storage:
- * @code
- * \Drupal::entityManager()->getStorage($entity_type)->loadDeleted($id)
- * @endcode
- */
-function entity_load_deleted($entity_type, $id, $reset = FALSE) {
-  $controller = \Drupal::entityManager()->getStorage($entity_type);
-  if ($reset) {
-    $controller->resetCache(array($id));
-  }
-  return $controller->loadDeleted($id);
-}
-
-/**
- * Load multiple deleted entities.
- *
- * @param string $entity_type
- * @param array $ids
- * @param boolean $reset
- *
- * @return array
- *   An array of entity objects indexed by their IDs.
- *
- * @deprecated in Multiversion 8.x-1.x,
- *   will be removed before Multiversion 8.x-2.x.
- *   Use the entity manager service to load the entity
- *   from the entity storage:
- * @code
- * \Drupal::entityManager()->getStorage($entity_type)->loadMultipleDeleted($id)
- * @endcode
- */
-function entity_load_multiple_deleted($entity_type, $ids, $reset = FALSE) {
-  $controller = \Drupal::entityTypeManager()->getStorage($entity_type);
-  if ($reset) {
-    $controller->resetCache($ids);
-  }
-  return $controller->loadMultipleDeleted($ids);
 }
 
 /**
