@@ -17,7 +17,6 @@ use Drupal\node\NodeStorage as CoreNodeStorage;
 class NodeStorage extends CoreNodeStorage implements ContentEntityStorageInterface {
 
   use ContentEntityStorageTrait {
-    // @todo Rename to doDelete for consistency with other storage handlers.
     delete as deleteEntities;
   }
 
