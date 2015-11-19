@@ -101,11 +101,8 @@ class CommentStatistics extends CoreCommentStatistics {
     }
 
     // Reset the cache of the commented entity so that when the entity is loaded
-    // the next time, the statistics will be loaded again. But don't do this for
-    // stub entities since they don't have all the necessary data at this point.
-    if (!$comment->_rev->is_stub) {
-      $this->entityManager->getStorage($comment->getCommentedEntityTypeId())->resetCache(array($comment->getCommentedEntityId()));
-    }
+    // the next time, the statistics will be loaded again.
+    $this->entityManager->getStorage($comment->getCommentedEntityTypeId())->resetCache(array($comment->getCommentedEntityId()));
   }
 
 }
