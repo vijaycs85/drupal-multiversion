@@ -97,7 +97,6 @@ class SequenceIndex implements SequenceIndexInterface {
       'rev' => $entity->_rev->value,
       'seq' => $this->multiversionManager->newSequenceId(),
       'local' => (boolean) $entity->getEntityType()->get('local'),
-      'is_stub' => (boolean) $entity->_rev->is_stub,
     );
   }
 

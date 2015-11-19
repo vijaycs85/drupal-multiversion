@@ -122,12 +122,7 @@ trait ContentEntityStorageTrait {
       // If this is the first revision it means that there's no parent.
       // By definition the existing revision value is the parent revision.
       $parent_rev = $i == 0 ? 0 : $rev;
-      // Only generate a new revision if this is not a stub entity. This will
-      // ensure that stub entities remain with the default value (0) to make it
-      // clear on a storage level that this is a stub and not a "real" revision.
-      if (!$entity->_rev->is_stub) {
-        $rev = \Drupal::service('multiversion.manager')->newRevisionId($entity, $i);
-      }
+      $rev = \Drupal::service('multiversion.manager')->newRevisionId($entity, $i);
       list(, $hash) = explode('-', $rev);
       $entity->_rev->value = $rev;
       $entity->_rev->revisions = array($hash);
