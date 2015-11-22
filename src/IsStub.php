@@ -18,6 +18,11 @@ class IsStub extends TypedData {
    * {@inheritdoc}
    */
   public function getValue($langcode = NULL) {
+    /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
+    $entity = $this->getRoot()->getValue();
+    if (!$entity->isNew() && $entity->_rev->value == '0-00000000000000000000000000000000') {
+      return TRUE;
+    }
     if ($this->value !== NULL) {
       return $this->value;
     }
