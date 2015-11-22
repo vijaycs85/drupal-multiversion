@@ -7,6 +7,7 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\multiversion\Plugin\Field\FieldType\RevisionItem;
 
 /**
@@ -32,9 +33,9 @@ class RevisionFieldTest extends FieldTestBase {
   protected $itemClass = '\Drupal\multiversion\Plugin\Field\FieldType\RevisionItem';
 
   public function testFieldOperations() {
-    foreach ($this->entityTypes as $entity_type_id => $info) {
+    foreach ($this->entityTypes as $entity_type_id => $values) {
       $storage = $this->entityManager->getStorage($entity_type_id);
-      $entity = $storage->create($info);
+      $entity = $this->createTestEntity($storage, $values);
 
       // Test normal save operations.
 
@@ -50,13 +51,7 @@ class RevisionFieldTest extends FieldTestBase {
 
       // Simulate the input from a replication.
 
-      if ($entity_type_id == 'block_content') {
-        $info['info'] = $this->randomMachineName();
-      }
-      if ($entity_type_id == 'user') {
-        $info['name'] = $this->randomMachineName();
-      }
-      $entity = $storage->create($info);
+      $entity = $this->createTestEntity($storage, $values);
       $sample_rev = RevisionItem::generateSampleValue($entity->_rev->getFieldDefinition());
 
       $entity->_rev->value = $sample_rev['value'];
@@ -65,7 +60,40 @@ class RevisionFieldTest extends FieldTestBase {
       $entity->save();
       // Assert that the revision token did not change.
       $this->assertEqual($entity->_rev->value, $sample_rev['value']);
+
+      // Test the is_stub property.
+
+      $entity = $this->createTestEntity($storage, $values);
+      $entity->save();
+      $entity = $storage->load($entity->id());
+      $this->assertIdentical(FALSE, $entity->_rev->is_stub, 'Entity saved normally is loaded as not stub.');
+
+      $entity = $this->createTestEntity($storage, $values);
+      $entity->_rev->is_stub = FALSE;
+      $entity->save();
+      $entity = $storage->load($entity->id());
+      $this->assertIdentical(FALSE, $entity->_rev->is_stub, 'Entity saved explicitly as not stub is loaded as not stub.');
+
+      $entity = $this->createTestEntity($storage, $values);
+      $entity->_rev->is_stub = TRUE;
+      $entity->save();
+      $entity = $storage->load($entity->id());
+      $this->assertIdentical(TRUE, $entity->_rev->is_stub, 'Entity saved explicitly as stub is loaded as stub.');
+      $this->assertEqual($entity->_rev->value, '0-00000000000000000000000000000000', 'Entity has the revision ID of a stub.');
     }
+  }
+
+  public function createTestEntity(EntityStorageInterface $storage, array $values) {
+    switch ($storage->getEntityTypeId()) {
+      case 'block_content':
+        $values['info'] = $this->randomMachineName();
+        break;
+
+      case 'user':
+        $values['name'] = $this->randomMachineName();
+        break;
+    }
+    return $storage->create($values);
   }
 
 }
