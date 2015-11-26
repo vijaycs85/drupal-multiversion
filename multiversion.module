@@ -115,6 +115,13 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
 }
 
 /**
+ * Implements hook_data_type_info_alter().
+ */
+function multiversion_data_type_info_alter(&$data_types) {
+  $data_types['entity_reference']['class'] = '\Drupal\multiversion\DataType\EntityReference';
+}
+
+/**
  * Implements hook_entity_base_field_info_alter().
  *
  * @param array $fields
