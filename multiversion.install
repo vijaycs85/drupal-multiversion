@@ -15,7 +15,8 @@ function multiversion_modules_installed($modules) {
   $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
   foreach ($entity_types as $entity_type) {
     $base_table = $entity_type->getBaseTable();
-    $schema->dropUniqueKey($base_table, $base_table . '_field__uuid__value');
+    $uuid_key = $entity_type->getKey('uuid');
+    $schema->dropUniqueKey($base_table, $base_table . '_field__' . $uuid_key . '__value');
   }
 }
 
@@ -36,6 +37,7 @@ function multiversion_update_8101() {
   $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
   foreach ($entity_types as $entity_type) {
     $base_table = $entity_type->getBaseTable();
-    $schema->dropUniqueKey($base_table, $base_table . '_field__uuid__value');
+    $uuid_key = $entity_type->getKey('uuid');
+    $schema->dropUniqueKey($base_table, $base_table . '_field__' . $uuid_key . '__value');
   }
 }
