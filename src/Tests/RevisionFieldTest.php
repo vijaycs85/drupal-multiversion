@@ -80,6 +80,8 @@ class RevisionFieldTest extends FieldTestBase {
       $entity = $storage->load($entity->id());
       $this->assertIdentical(TRUE, $entity->_rev->is_stub, 'Entity saved explicitly as stub is loaded as stub.');
       $this->assertEqual($entity->_rev->value, '0-00000000000000000000000000000000', 'Entity has the revision ID of a stub.');
+      $entity->_rev->is_stub = FALSE;
+      $this->assertFalse($entity->_rev->is_stub, 'Setting an explicit value as not stub works after an entity has been saved.');
     }
   }
 
