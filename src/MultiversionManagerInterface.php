@@ -39,6 +39,11 @@ interface MultiversionManagerInterface {
   public function isEnabledEntityType(EntityTypeInterface $entity_type);
 
   /**
+   * @return \Drupal\Core\Entity\EntityTypeInterface[]
+   */
+  public function getEnabledEntityTypes();
+
+  /**
    * @return \Drupal\multiversion\MultiversionManagerInterface
    */
   public function enableEntityTypes();
