@@ -1,6 +1,6 @@
 <?php
 
-use Drupal\Core\Site\Settings;
+use Drupal\Core\Database\Database;
 
 /**
  * Implements hook_modules_installed().
@@ -11,6 +11,12 @@ function multiversion_modules_installed($modules) {
     $manager = \Drupal::getContainer()->get('multiversion.manager');
     $manager->enableEntityTypes();
   }
+  $schema = Database::getConnection()->schema();
+  $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
+  foreach ($entity_types as $entity_type) {
+    $base_table = $entity_type->getBaseTable();
+    $schema->dropUniqueKey($base_table, $base_table . '_field__uuid__value');
+  }
 }
 
 /**
@@ -18,4 +24,18 @@ function multiversion_modules_installed($modules) {
  */
 function multiversion_uninstall() {
   \Drupal::state()->delete('multiversion_enabled');
+}
+
+/**
+ * Impements hook_update_N()
+ *
+ * Removes the unique key from all multiversion supported entities.
+ */
+function multiversion_update_8101() {
+  $schema = Database::getConnection()->schema();
+  $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
+  foreach ($entity_types as $entity_type) {
+    $base_table = $entity_type->getBaseTable();
+    $schema->dropUniqueKey($base_table, $base_table . '_field__uuid__value');
+  }
 }
