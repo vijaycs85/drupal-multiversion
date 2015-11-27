@@ -11,13 +11,6 @@ function multiversion_modules_installed($modules) {
     $manager = \Drupal::getContainer()->get('multiversion.manager');
     $manager->enableEntityTypes();
   }
-  $schema = Database::getConnection()->schema();
-  $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
-  foreach ($entity_types as $entity_type) {
-    $base_table = $entity_type->getBaseTable();
-    $uuid_key = $entity_type->getKey('uuid');
-    $schema->dropUniqueKey($base_table, $base_table . '_field__' . $uuid_key . '__value');
-  }
 }
 
 /**
@@ -30,14 +23,10 @@ function multiversion_uninstall() {
 /**
  * Impements hook_update_N()
  *
- * Removes the unique key from all multiversion supported entities.
+ * Re-run enableEntityTypes();
  */
 function multiversion_update_8101() {
-  $schema = Database::getConnection()->schema();
-  $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
-  foreach ($entity_types as $entity_type) {
-    $base_table = $entity_type->getBaseTable();
-    $uuid_key = $entity_type->getKey('uuid');
-    $schema->dropUniqueKey($base_table, $base_table . '_field__' . $uuid_key . '__value');
-  }
+  /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
+  $manager = \Drupal::getContainer()->get('multiversion.manager');
+  $manager->enableEntityTypes();
 }

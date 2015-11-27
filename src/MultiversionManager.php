@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Database\Connection;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
@@ -49,6 +50,13 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   protected $cache;
 
   /**
+   * The database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $connection;
+
+  /**
    * @var int
    */
   protected $lastSequenceId;
@@ -86,14 +94,16 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * @param \Drupal\Core\State\StateInterface $state
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache
+   * @param \Drupal\Core\Database\Connection $connection
    */
-  public function __construct(WorkspaceManagerInterface $workspace_manager, Serializer $serializer, EntityManagerInterface $entity_manager, StateInterface $state, LanguageManagerInterface $language_manager, CacheBackendInterface $cache) {
+  public function __construct(WorkspaceManagerInterface $workspace_manager, Serializer $serializer, EntityManagerInterface $entity_manager, StateInterface $state, LanguageManagerInterface $language_manager, CacheBackendInterface $cache, Connection $connection) {
     $this->workspaceManager = $workspace_manager;
     $this->serializer = $serializer;
     $this->entityManager = $entity_manager;
     $this->state = $state;
     $this->languageManager = $language_manager;
     $this->cache = $cache;
+    $this->connection = $connection;
   }
 
   /**
@@ -277,8 +287,13 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // Definitions will now be updated. So fetch the new ones.
     $entity_types = $this->getSupportedEntityTypes();
 
-    // Migrate from the temporary storage to the new shiny home.
     foreach ($entity_types as $entity_type_id => $entity_type) {
+      // Drop unique key from uuid on each entity type.
+      $base_table = $entity_type->getBaseTable();
+      $uuid_key = $entity_type->getKey('uuid');
+      $this->connection->schema()->dropUniqueKey($base_table, $base_table . '_field__' . $uuid_key . '__value');
+
+      // Migrate from the temporary storage to the new shiny home.
       if ($has_data[$entity_type_id]) {
         $migration->migrateContentFromTemp($entity_type);
       }
