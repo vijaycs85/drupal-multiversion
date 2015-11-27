@@ -17,14 +17,3 @@ function multiversion_modules_installed($modules) {
 function multiversion_uninstall() {
   \Drupal::state()->delete('multiversion_enabled');
 }
-
-/**
- * Impements hook_update_N()
- *
- * Re-run enableEntityTypes();
- */
-function multiversion_update_8101() {
-  /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
-  $manager = \Drupal::getContainer()->get('multiversion.manager');
-  $manager->enableEntityTypes();
-}
