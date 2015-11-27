@@ -1,7 +1,5 @@
 <?php
 
-use Drupal\Core\Site\Settings;
-
 /**
  * Implements hook_modules_installed().
  */
