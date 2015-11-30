@@ -75,7 +75,9 @@ class RevisionItem extends FieldItemBase {
         'value' => '0-00000000000000000000000000000000',
         'new_edit' => TRUE,
         'revisions' => array(),
-        'is_stub' => FALSE,
+        // We don't have an opinion on the default value and will leave that up
+        // to the logic in the property class to decide.
+        'is_stub' => NULL,
       ),
       $notify);
     return $this;

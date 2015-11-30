@@ -170,11 +170,12 @@ trait ContentEntityStorageTrait {
 
   /**
    * {@inheritdoc}
+   *
+   * @todo Revisit this logic with forward revisions in mind.
    */
   protected function doSave($id, EntityInterface $entity) {
     if ($entity->_rev->is_stub) {
       $entity->isDefaultRevision(TRUE);
-      $entity->_rev->is_stub = FALSE;
     }
     else {
       // Enforce new revision if any module messed with it in a hook.
