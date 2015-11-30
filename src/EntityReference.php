@@ -1,10 +1,10 @@
 <?php
 /**
  * @file
- * Contains \Drupal\multiversion\DataType\EntityReference.
+ * Contains \Drupal\multiversion\EntityReference.
  */
 
-namespace Drupal\multiversion\DataType;
+namespace Drupal\multiversion;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\Plugin\DataType\EntityReference as CoreEntityReference;
@@ -12,7 +12,7 @@ use Drupal\Core\Entity\Plugin\DataType\EntityReference as CoreEntityReference;
 /**
  * Alternative entity reference data type class.
  *
- * This class is being alter in place of the core entity reference data type
+ * This class is being altered in place of the core entity reference data type
  * to allow references to deleted entities. This is needed as deleted entities
  * still exist in the database when using Multiversion module.
  *
