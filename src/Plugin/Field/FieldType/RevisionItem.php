@@ -77,6 +77,7 @@ class RevisionItem extends FieldItemBase {
         'revisions' => array(),
         // We don't have an opinion on the default value and will leave that up
         // to the logic in the property class to decide.
+        // @see \Drupal\multiversion\IsStub::getValue()
         'is_stub' => NULL,
       ),
       $notify);
