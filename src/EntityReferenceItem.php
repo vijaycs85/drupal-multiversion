@@ -41,20 +41,21 @@ class EntityReferenceItem extends CoreEntityReferenceItem {
             ->getKey('id');
 
           // If the referenced entity is a stub, but a full entity already was
-          // created then load and use that.
+          // created, then load and use that entity instead without saving.
           if ($this->entity->_rev->is_stub && !$record['is_stub']) {
             $this->entity = $entity_type_manager
               ->getStorage($entity_type_id)
               ->load($record['entity_id']);
           }
-          // Just map the new record to correct ID.
+          // If the referenced entity is not a stub then map it with the correct
+          // ID from the existing record and save it.
           elseif (!$this->entity->_rev->is_stub) {
             $this->entity->{$id_key}->value = $record['entity_id'];
             $this->entity->enforceIsNew(FALSE);
             $this->entity->save();
           }
         }
-        // If no records exist of this reference, just save it.
+        // Just save the entity if no previous record exists.
         else{
           $this->entity->save();
         }
