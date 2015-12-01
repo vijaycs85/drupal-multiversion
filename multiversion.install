@@ -1,12 +1,13 @@
 <?php
 
+use Drupal\multiversion\Entity\Workspace;
+
 /**
  * Implements hook_install().
  */
 function multiversion_install() {
   // Create default workspace.
-  $storage = \Drupal::entityTypeManager()->getStorage('workspace');
-  $storage->create(['id' => 'default'])->save();
+  Workspace::create(['id' => 'default'])->save();
 }
 
 /**
