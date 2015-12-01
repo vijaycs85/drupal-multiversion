@@ -2,9 +2,9 @@
 
 namespace Drupal\multiversion\Entity;
 
-use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
 
-interface WorkspaceInterface extends ConfigEntityInterface {
+interface WorkspaceInterface extends ContentEntityInterface {
 
   /**
    * Returns the last sequence ID in the workspace's sequence index.

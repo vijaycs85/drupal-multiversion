@@ -1,6 +1,16 @@
 <?php
 
 /**
+ * Implements hook_install().
+ */
+function multiversion_install() {
+  // Create default workspace.
+  $storage = \Drupal::entityTypeManager()->getStorage('workspace');
+  $storage->create(['id' => 'default'])->save();
+}
+
+
+/**
  * Implements hook_modules_installed().
  */
 function multiversion_modules_installed($modules) {

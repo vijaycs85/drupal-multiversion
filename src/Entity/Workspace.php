@@ -3,37 +3,54 @@
 namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\Entity;
-use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
  * The workspace entity class.
  *
- * @ConfigEntityType(
+ * @ContentEntityType(
  *   id = "workspace",
  *   label = @Translation("Workspace"),
- *   config_prefix = "workspace",
+ *   handlers = {
+ *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage"
+ *   },
+ *   base_table = "workspace",
  *   entity_keys = {
  *     "id" = "id",
+ *     "uuid" = "uuid",
  *     "label" = "id",
- *     "created" = "created",
- *   }
+ *     "created" = "created"
+ *   },
+ *   render_cache = FALSE,
+ *   multiversion = FALSE,
+ *   local = TRUE
  * )
  */
-class Workspace extends ConfigEntityBase implements WorkspaceInterface {
+class Workspace extends ContentEntityBase implements WorkspaceInterface {
 
   /**
-   * The name of the workspace.
-   *
-   * @var string
+   * {@inheritdoc}
    */
-  public $id;
+  public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
+    $fields['id'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Workaspace ID'))
+      ->setDescription(t('The workspace ID.'))
+      ->setSetting('max_length', 128)
+      ->setRequired(TRUE);
 
-  /**
-   * The UNIX timestamp of when the workspace has been created.
-   *
-   * @var int
-   */
-  public $created;
+    $fields['uuid'] = BaseFieldDefinition::create('uuid')
+      ->setLabel(t('UUID'))
+      ->setDescription(t('The workspace UUID.'))
+      ->setReadOnly(TRUE);
+
+    $fields['created'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Created'))
+      ->setDescription(t('The UNIX timestamp of when the workspace has been created.'));
+
+    return $fields;
+  }
 
   /**
    * {@inheritdoc}
@@ -46,7 +63,7 @@ class Workspace extends ConfigEntityBase implements WorkspaceInterface {
    * {@inheritdoc}
    */
   public function setCreatedTime($created) {
-    $this->created = (int) $created;
+    $this->set('created', (int) $created);
     return $this;
   }
 
@@ -54,7 +71,7 @@ class Workspace extends ConfigEntityBase implements WorkspaceInterface {
    * {@inheritdoc}
    */
   public function getStartTime() {
-    return $this->created;
+    return $this->get('created')->value;
   }
 
   /**

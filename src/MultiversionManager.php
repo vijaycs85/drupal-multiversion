@@ -165,6 +165,9 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function isSupportedEntityType(EntityTypeInterface $entity_type, $ignore_status = FALSE) {
+    if ($entity_type->get('multiversion') === FALSE) {
+      return FALSE;
+    }
     $entity_type_id = $entity_type->id();
 
     if (in_array($entity_type_id, $this->entityTypeBlackList)) {
