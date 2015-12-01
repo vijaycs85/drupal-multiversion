@@ -9,7 +9,6 @@ function multiversion_install() {
   $storage->create(['id' => 'default'])->save();
 }
 
-
 /**
  * Implements hook_modules_installed().
  */
