@@ -23,7 +23,6 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "label" = "id",
  *     "created" = "created"
  *   },
- *   render_cache = FALSE,
  *   multiversion = FALSE,
  *   local = TRUE
  * )
