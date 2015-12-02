@@ -28,6 +28,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'revision_id' => 0,
       'uuid' => $uuid,
       'rev' => $entity->_rev->value,
+      'is_stub' => $entity->_rev->is_stub,
       'status' => 'indexed',
     ];
     $this->assertEqual($expected, $entry, 'Single entry is correct for an entity that was not yet saved.');
@@ -41,6 +42,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'revision_id' => 1,
       'uuid' => $uuid,
       'rev' => $entity->_rev->value,
+      'is_stub' => $entity->_rev->is_stub,
       'status' => 'available',
     ];
     $this->assertEqual($expected, $entry, 'Single entry is correct for an entity that was saved.');
@@ -48,14 +50,17 @@ class UuidIndexTest extends MultiversionWebTestBase {
     $entities = [];
     $uuid = [];
     $rev = [];
+    $is_stub = [];
 
     $entity = $entities[] = EntityTest::create();
     $uuid[] = $entity->uuid();
     $rev[] = $entity->_rev->value;
+    $is_stub[] = $entity->_rev->is_stub;
 
     $entity = $entities[] = EntityTest::create();
     $uuid[] = $entity->uuid();
     $rev[] = $entity->_rev->value;
+    $is_stub[] = $entity->_rev->is_stub;
 
     $this->uuidIndex->addMultiple($entities);
     $expected = [
@@ -64,6 +69,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
         'entity_id' => 0,
         'revision_id' => 0,
         'rev' => $rev[0],
+        'is_stub' => $is_stub[0],
         'uuid' => $uuid[0],
         'status' => 'indexed',
       ],
@@ -72,6 +78,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
         'entity_id' => 0,
         'revision_id' => 0,
         'rev' => $rev[1],
+        'is_stub' => $is_stub[1],
         'uuid' => $uuid[1],
         'status' => 'indexed',
       ],
@@ -90,6 +97,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
     $entity = EntityTest::create();
     $uuid = $entity->uuid();
     $rev = $entity->_rev->value;
+    $is_stub = $entity->_rev->is_stub;
 
     $this->uuidIndex->useWorkspace($ws1)->add($entity);
     $entry = $this->uuidIndex
@@ -110,6 +118,7 @@ class UuidIndexTest extends MultiversionWebTestBase {
       'entity_id' => 0,
       'revision_id' => 0,
       'rev' => $rev,
+      'is_stub' => $is_stub,
       'uuid' => $uuid,
       'status' => 'indexed',
     ];

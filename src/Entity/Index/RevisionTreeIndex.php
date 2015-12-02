@@ -127,8 +127,13 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    */
   protected function buildTree($uuid) {
     $revs = $this->keyValueStore($uuid)->getAll();
-    $revs_info = $this->revIndex->getMultiple(array_keys($revs));
-    return self::doBuildTree($revs, $revs_info);
+    // Build the keys to fetch from the rev index.
+    $keys = [];
+    foreach (array_keys($revs) as $rev) {
+      $keys[] = "$uuid:$rev";
+    }
+    $revs_info = $this->revIndex->getMultiple($keys);
+    return self::doBuildTree($uuid, $revs, $revs_info);
   }
 
   /**
@@ -141,7 +146,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    * @todo: {@link https://www.drupal.org/node/2597430 Implement
    * 'deleted_conflicts'.}
    */
-  protected static function doBuildTree($revs, $revs_info, $parse = 0, &$tree = array(), &$open_revs = array(), &$conflicts = array()) {
+  protected static function doBuildTree($uuid, $revs, $revs_info, $parse = 0, &$tree = array(), &$open_revs = array(), &$conflicts = array()) {
     foreach ($revs as $rev => $parent_rev) {
       if ($rev == 0) {
         continue;
@@ -159,9 +164,10 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
         $i = count($tree);
         $tree[$i] = array(
           '#type' => 'rev',
+          '#uuid' => $uuid,
           '#rev' => $rev,
           '#rev_info' => array(
-            'status' => isset($revs_info[$rev]['status']) ? $revs_info[$rev]['status'] : 'missing',
+            'status' => isset($revs_info["$uuid:$rev"]['status']) ? $revs_info["$uuid:$rev"]['status'] : 'missing',
             'default' => FALSE,
             'open_rev' => FALSE,
             'conflict' => FALSE,
@@ -170,7 +176,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
         );
 
         // Recurse down through the children.
-        self::doBuildTree($revs, $revs_info, $rev, $tree[$i]['children'], $open_revs, $conflicts);
+        self::doBuildTree($uuid, $revs, $revs_info, $rev, $tree[$i]['children'], $open_revs, $conflicts);
 
         // Sort all tree elements from low to high.
         usort($tree, function($a, $b) {
@@ -179,13 +185,13 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
 
         if (empty($tree[$i]['children'])) {
           $tree[$i]['#rev_info']['open_rev'] = TRUE;
-          $open_revs[$rev] = $revs_info[$rev]['status'];
+          $open_revs[$rev] = $revs_info["$uuid:$rev"]['status'];
           // All open revisions, except deleted and default revisions, are
           // conflicts by definition. We will revert the conflict flag when we
           // find the default revision later on.
           if ($tree[$i]['#rev_info']['status'] != 'deleted') {
             $tree[$i]['#rev_info']['conflict'] = TRUE;
-            $conflicts[$rev] = $revs_info[$rev]['status'];
+            $conflicts[$rev] = $revs_info["$uuid:$rev"]['status'];
           }
         }
       }
@@ -212,8 +218,8 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
       $default_branch = array();
       $rev = $default_rev;
       while ($rev != 0) {
-        if (isset($revs_info[$rev])) {
-          $default_branch[$rev] = $revs_info[$rev]['status'];
+        if (isset($revs_info["$uuid:$rev"])) {
+          $default_branch[$rev] = $revs_info["$uuid:$rev"]['status'];
         }
         $rev = $revs[$rev];
       }

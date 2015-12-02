@@ -89,6 +89,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     $expected_tree = array(
       array(
         '#type' => 'rev',
+        '#uuid' => $uuid,
         '#rev' => $revs[0],
         '#rev_info' => array(
           'status' => 'available',
@@ -99,6 +100,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
         'children' => array(
           array(
             '#type' => 'rev',
+            '#uuid' => $uuid,
             '#rev' => $revs[1],
             '#rev_info' => array(
               'status' => 'available',
@@ -109,6 +111,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
             'children' => array(
               array(
                 '#type' => 'rev',
+                '#uuid' => $uuid,
                 '#rev' => $revs[2],
                 '#rev_info' => array(
                   'status' => 'available',
@@ -120,6 +123,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
               ),
               array(
                 '#type' => 'rev',
+                '#uuid' => $uuid,
                 '#rev' => $revs[3],
                 '#rev_info' => array(
                   'status' => 'available',
@@ -130,6 +134,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
                 'children' => array(
                   array(
                     '#type' => 'rev',
+                    '#uuid' => $uuid,
                     '#rev' => $revs[4],
                     '#rev_info' => array(
                       'status' => 'available',
@@ -145,6 +150,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
           ),
           array(
             '#type' => 'rev',
+            '#uuid' => $uuid,
             '#rev' => $revs[5],
             '#rev_info' => array(
               'status' => 'available',
@@ -262,6 +268,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     $expected_tree = array(
       array(
         '#type' => 'rev',
+        '#uuid' => $uuid,
         '#rev' => $revs[0],
         '#rev_info' => array(
           'status' => 'available',
@@ -272,6 +279,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
         'children' => array(
           array(
             '#type' => 'rev',
+            '#uuid' => $uuid,
             '#rev' => $revs[1],
             '#rev_info' => array(
               'status' => 'deleted',
@@ -282,6 +290,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
             'children' => array(
               array(
                 '#type' => 'rev',
+                '#uuid' => $uuid,
                 '#rev' => $revs[2],
                 '#rev_info' => array(
                   'status' => 'available',
@@ -293,6 +302,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
               ),
               array(
                 '#type' => 'rev',
+                '#uuid' => $uuid,
                 '#rev' => $revs[3],
                 '#rev_info' => array(
                   'status' => 'deleted',
@@ -303,6 +313,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
                 'children' => array(
                   array(
                     '#type' => 'rev',
+                    '#uuid' => $uuid,
                     '#rev' => $revs[4],
                     '#rev_info' => array(
                       'status' => 'deleted',
@@ -318,6 +329,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
           ),
           array(
             '#type' => 'rev',
+            '#uuid' => $uuid,
             '#rev' => $revs[5],
             '#rev_info' => array(
               'status' => 'available',

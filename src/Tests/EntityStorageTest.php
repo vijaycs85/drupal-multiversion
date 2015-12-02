@@ -231,7 +231,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       }
       catch(\Exception $e) {
         $first_rev = $entity->_rev->value;
-        $rev_info = $this->revIndex->get($first_rev);
+        $rev_info = $this->revIndex->get("$uuid:$first_rev");
         $this->assertEqual($rev_info['status'], 'indexed', 'First revision was indexed after exception on first save.');
       }
       // Re-save the same entity with a valid ID.
@@ -240,7 +240,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $second_rev = $entity->_rev->value;
       $this->assertEqual($first_rev, $second_rev, 'New revision was not generated after first re-save.');
 
-      $rev_info = $this->revIndex->get($first_rev);
+      $rev_info = $this->revIndex->get("$uuid:$first_rev");
       $this->assertEqual($rev_info['status'], 'available', 'First revision is available after first re-save.');
       $default_branch = $this->revTree->getDefaultBranch($uuid);
       $expected_default_branch = [
@@ -270,7 +270,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       }
       catch(\Exception $e) {
         $second_rev = $entity->_rev->value;
-        $rev_info = $this->revIndex->get($second_rev);
+        $rev_info = $this->revIndex->get("$uuid:$second_rev");
         $this->assertEqual($rev_info['status'], 'indexed', 'Second revision was indexed after exception on second save.');
       }
       // Re-save the same entity with a valid ID.
@@ -279,7 +279,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $third_rev = $entity->_rev->value;
       $this->assertEqual($second_rev, $third_rev, 'New revision was not generated after second re-save.');
 
-      $rev_info = $this->revIndex->get($second_rev);
+      $rev_info = $this->revIndex->get("$uuid:$second_rev");
       $this->assertEqual($rev_info['status'], 'available', 'Third revision is available after second re-save.');
       $default_branch = $this->revTree->getDefaultBranch($uuid);
       $expected_default_branch = [

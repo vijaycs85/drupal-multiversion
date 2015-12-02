@@ -158,6 +158,7 @@ class EntityIndex implements EntityIndexInterface {
       'revision_id' => $revision_id,
       'uuid' => $entity->uuid(),
       'rev' => $entity->_rev->value,
+      'is_stub' => $entity->_rev->is_stub,
       'status' => $status,
     );
   }

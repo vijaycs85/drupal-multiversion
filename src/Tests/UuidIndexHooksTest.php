@@ -29,6 +29,7 @@ class UuidIndexHooksTest extends MultiversionWebTestBase {
         'entity_id' => $entity->id(),
         'revision_id' => $entity->getRevisionId(),
         'rev' => $entity->_rev->value,
+        'is_stub' => $entity->_rev->is_stub,
         'uuid' => $entity->uuid(),
         'status' => 'available',
       ],

@@ -33,6 +33,7 @@ class Rev extends RenderElement {
    */
   public static function preRenderRev($element) {
     $info = array(
+      '#uuid' => $element['#uuid'],
       '#rev' => $element['#rev'],
       '#rev_info' => $element['#rev_info'],
       '#theme' => 'multiversion_rev',
