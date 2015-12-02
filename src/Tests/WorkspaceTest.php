@@ -16,19 +16,11 @@ use Drupal\multiversion\Entity\WorkspaceInterface;
  *
  * @group multiversion
  */
-class WorkspaceTest extends KernelTestBase {
+class WorkspaceTest extends MultiversionWebTestBase {
 
   protected $strictConfigSchema = FALSE;
 
-  public static $modules = ['multiversion', 'key_value', 'serialization'];
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function setUp() {
-    parent::setUp();
-    $this->installConfig(['multiversion']);
-  }
+  public static $modules = ['multiversion', 'key_value'];
 
   public function testOperations() {
     $default = Workspace::load('default');
@@ -39,21 +31,21 @@ class WorkspaceTest extends KernelTestBase {
     $this->assertTrue($entity instanceof WorkspaceInterface, 'Workspace entity was created.');
 
     $entity->save();
-    $this->assertEquals($id, $entity->id(), 'Workspace entity was saved.');
+    $this->assertEqual($id, $entity->id(), 'Workspace entity was saved.');
 
     $entity = Workspace::load($entity->id());
-    $this->assertEquals($id, $entity->id(), 'Workspace entity was loaded by ID.');
+    $this->assertEqual($id, $entity->id(), 'Workspace entity was loaded by ID.');
 
-    $entity = \Drupal::entityManager()->loadEntityByUuid('workspace', $entity->uuid());
-    $this->assertEquals($id, $entity->id(), 'Workspace entity was loaded by UUID.');
-    $this->assertEquals($id, $entity->label(), 'Label method returns the workspace name.');
+    $entity = $this->entityManager->loadEntityByUuid('workspace', $entity->uuid());
+    $this->assertEqual($id, $entity->id(), 'Workspace entity was loaded by UUID.');
+    $this->assertEqual($id, $entity->label(), 'Label method returns the workspace name.');
 
     $created = $entity->getStartTime();
     $this->assertNotNull($created, "The value for 'created' field is not null.");
 
     $new_created_time = microtime(TRUE) * 1000000;
     $entity->setCreatedTime((int) $new_created_time);
-    $this->assertEquals($new_created_time, $entity->getStartTime(), "Correct value for 'created' field.");
+    $this->assertEqual($new_created_time, $entity->getStartTime(), "Correct value for 'created' field.");
   }
 
 }

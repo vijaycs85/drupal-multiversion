@@ -1,10 +1,15 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Entity\WorkspaceInterface.
+ */
+
 namespace Drupal\multiversion\Entity;
 
-use Drupal\Core\Config\Entity\ConfigEntityInterface;
+use Drupal\Core\Entity\RevisionableInterface;
 
-interface WorkspaceInterface extends ConfigEntityInterface {
+interface WorkspaceInterface extends RevisionableInterface {
 
   /**
    * Returns the last sequence ID in the workspace's sequence index.
