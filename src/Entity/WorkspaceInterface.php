@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Entity\WorkspaceInterface.
+ */
+
 namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;

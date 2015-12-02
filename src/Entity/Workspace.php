@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Entity\Workspace.
+ */
+
 namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\Entity;
@@ -14,8 +19,19 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   id = "workspace",
  *   label = @Translation("Workspace"),
  *   handlers = {
- *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage"
+ *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage",
+ *     "list_builder" = "Drupal\multiversion\WorkspaceListBuilder",
+ *     "form" = {
+ *       "add" = "Drupal\multiversion\WorkspaceForm",
+ *       "edit" = "Drupal\multiversion\WorkspaceForm",
+ *       "default" = "Drupal\multiversion\WorkspaceForm"
+ *     },
  *   },
+ *   links = {
+ *     "edit-form" = "/workspace/{workspace}/edit",
+ *     "collection" = "/admin/structure/workspaces"
+ *   },
+ *   admin_permission = "administer workspaces",
  *   base_table = "workspace",
  *   entity_keys = {
  *     "id" = "id",
