@@ -16,7 +16,8 @@ use Drupal\Core\Entity\Plugin\DataType\EntityReference as CoreEntityReference;
  * to allow references to deleted entities. This is needed as deleted entities
  * still exist in the database when using Multiversion module.
  *
- * @todo This class needs tests.
+ * @todo We have integrations tests that ensure this is working. But some unit
+ *   tests would be good to ensure all possible scenarios are covered.
  */
 class EntityReference extends CoreEntityReference {
 

@@ -14,7 +14,8 @@ use \Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem as CoreEntityR
  * This class is being altered in place of the core entity reference field item
  * type to change the logic around saving auto-created entities.
  *
- * @todo This class needs tests.
+ * @todo We have integrations tests that ensure this is working. But some unit
+ *   tests would be good to ensure all possible scenarios are covered.
  */
 class EntityReferenceItem extends CoreEntityReferenceItem {
 
