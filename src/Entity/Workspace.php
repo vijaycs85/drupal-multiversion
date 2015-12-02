@@ -35,6 +35,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   base_table = "workspace",
  *   entity_keys = {
  *     "id" = "id",
+ *     "revision" = "revision_id",
  *     "uuid" = "uuid",
  *     "label" = "id",
  *     "created" = "created"
@@ -54,6 +55,12 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setDescription(t('The workspace ID.'))
       ->setSetting('max_length', 128)
       ->setRequired(TRUE);
+
+    $fields['revision_id'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Revision ID'))
+      ->setDescription(t('The revision ID.'))
+      ->setReadOnly(TRUE)
+      ->setSetting('unsigned', TRUE);
 
     $fields['uuid'] = BaseFieldDefinition::create('uuid')
       ->setLabel(t('UUID'))

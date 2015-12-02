@@ -7,9 +7,9 @@
 
 namespace Drupal\multiversion\Entity;
 
-use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\RevisionableInterface;
 
-interface WorkspaceInterface extends ContentEntityInterface {
+interface WorkspaceInterface extends RevisionableInterface {
 
   /**
    * Returns the last sequence ID in the workspace's sequence index.
