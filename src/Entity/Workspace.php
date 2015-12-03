@@ -78,7 +78,7 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
    * {@inheritdoc}
    */
   public function getUpdateSeq() {
-    return \Drupal::service('entity.index.sequence')->useWorkspace($this->id)->getLastSequenceId();
+    return \Drupal::service('entity.index.sequence')->useWorkspace($this->id())->getLastSequenceId();
   }
 
   /**
