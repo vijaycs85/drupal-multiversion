@@ -67,6 +67,7 @@ class WorkspaceBlock extends BlockBase implements ContainerFactoryPluginInterfac
           ),
         ),
         '#set_active_class' => TRUE,
+        // @todo: The caching need tests.
         '#cache' => [
           'contexts' => $this->entityTypeManager->getDefinition('workspace')->getListCacheContexts(),
           'tags' => $this->entityTypeManager->getDefinition('workspace')->getListCacheTags(),
