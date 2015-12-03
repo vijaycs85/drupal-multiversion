@@ -294,7 +294,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       // Drop unique key from uuid on each entity type.
       $base_table = $entity_type->getBaseTable();
       $uuid_key = $entity_type->getKey('uuid');
-      $this->connection->schema()->dropUniqueKey($base_table, $base_table . '_field__' . $uuid_key . '__value');
+      $this->connection->schema()->dropUniqueKey($base_table, $entity_type_id . '_field__' . $uuid_key . '__value');
 
       // Migrate from the temporary storage to the new shiny home.
       if ($has_data[$entity_type_id]) {
