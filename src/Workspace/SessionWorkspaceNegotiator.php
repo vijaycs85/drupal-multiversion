@@ -64,12 +64,13 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements Work
     ksort($workspaces);
     foreach ($workspaces as $workspace) {
       // @todo {@link https://www.drupal.org/node/2600382 Access check.}
-      $links[$workspace->id()] = array(
+      $workspace_id = $workspace->id();
+      $links[$workspace_id] = array(
         'url' => $url,
         'title' => $workspace->label(),
         'query' => $query,
       );
-      $links[$workspace_id]['query']['workspace'] = $workspace->id();
+      $links[$workspace_id]['query']['workspace'] = $workspace_id;
       if ($workspace_id == $active_workspace_id) {
         $links[$workspace_id]['attributes']['class'][] = 'session-active';
       }
