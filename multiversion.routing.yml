@@ -9,7 +9,7 @@ multiversion.form_add:
     _permission: 'administer workspaces'
 
 entity.workspace.edit_form:
-  path: '/admin/structure/workspaces{workspace}/edit'
+  path: '/admin/structure/workspaces/{workspace}/edit'
   defaults:
     _entity_form: 'workspace.edit'
     _title: 'Edit workspace'
@@ -19,7 +19,7 @@ entity.workspace.edit_form:
     _permission: 'administer workspaces'
 
 entity.workspace.canonical:
-  path: '/admin/structure/workspaces{workspace}'
+  path: '/admin/structure/workspaces/{workspace}'
   defaults:
     _entity_form: 'workspace.edit'
   options:
