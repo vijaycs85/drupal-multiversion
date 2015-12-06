@@ -48,13 +48,13 @@ class WorkspaceTest extends MultiversionTestBase {
     $node4 = $this->drupalCreateNode(['uid' => $uid]);
 
     // Test current_workspace filter.
-    $this->drupalGet('test_current_workspace', ['query' => ['workspace' => 'new_workspace']]);
+    $this->drupalGet('test_current_workspace', ['query' => ['workspace' => $new_workspace->id()]]);
     $this->assertNoText($node1->label());
     $this->assertNoText($node2->label());
     $this->assertText($node3->label());
     $this->assertText($node4->label());
 
-    $this->drupalGet('test_current_workspace', ['query' => ['workspace' => 'default']]);
+    $this->drupalGet('test_current_workspace', ['query' => ['workspace' => 1]]);
     $this->assertText($node1->label());
     $this->assertText($node2->label());
     $this->assertNoText($node3->label());
