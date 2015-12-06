@@ -25,8 +25,8 @@ class WorkspaceTest extends MultiversionWebTestBase {
   public function testOperations() {
     $default = Workspace::load('default');
     $this->assertTrue(!empty($default), 'Default workspace was created when installing Multiversion module.');
-    $id = $this->randomMachineName();
-    $entity = Workspace::create(['id' => $id]);
+    $machine_name = $this->randomMachineName();
+    $entity = Workspace::create(['machine_name' => $machine_name, 'label' => $machine_name]);
 
     $this->assertTrue($entity instanceof WorkspaceInterface, 'Workspace entity was created.');
 
