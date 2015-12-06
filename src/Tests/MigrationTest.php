@@ -105,7 +105,7 @@ class MigrationTest extends WebTestBase {
 
         $workspace = (int) $storage->getQuery()
           ->condition($id_key, $entity_id)
-          ->condition('workspace', 'default')
+          ->condition('workspace', 1)
           ->count()
           ->execute();
 
