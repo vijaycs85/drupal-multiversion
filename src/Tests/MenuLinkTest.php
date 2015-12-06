@@ -26,6 +26,11 @@ class MenuLinkTest extends WebTestBase {
   protected $workspaceManager;
 
   /**
+   * @var \Drupal\multiversion\Entity\WorkspaceInterface
+   */
+  protected $new_workspace;
+
+  /**
    * Modules to enable.
    *
    * @var array
@@ -46,7 +51,8 @@ class MenuLinkTest extends WebTestBase {
     $this->drupalLogin($web_user);
     $this->drupalPlaceBlock('system_menu_block:main');
 
-    Workspace::create(['id' => 'foo'])->save();
+    $this->new_workspace = Workspace::create(['machine_name' => 'foo', 'label' => 'Foo']);
+    $this->new_workspace->save();
   }
 
   public function testMenuLinksInDifferentWorkspaces() {
@@ -59,12 +65,12 @@ class MenuLinkTest extends WebTestBase {
     $this->drupalGet('user/2');
     $this->assertLink('Pineapple');
 
-    $this->drupalGet('user/2', ['query' => ['workspace' => 'foo']]);
+    $this->drupalGet('user/2', ['query' => ['workspace' => $this->new_workspace->id()]]);
     $this->assertNoLink('Pineapple');
 
     // The previous page request only changed workspace for the session of the
     // request. We have to switch workspace in the test context as well.
-    $this->workspaceManager->setActiveWorkspace(Workspace::load('foo'));
+    $this->workspaceManager->setActiveWorkspace($this->new_workspace);
     // Save another menu link.
     MenuLinkContent::create([
       'menu_name' => 'main',
@@ -78,7 +84,7 @@ class MenuLinkTest extends WebTestBase {
 
     // Switch back to the default workspace and ensure the menu links render
     // as expected.
-    $this->drupalGet('user/2', ['query' => ['workspace' => 'default']]);
+    $this->drupalGet('user/2', ['query' => ['workspace' => 1]]);
     $this->assertLink('Pineapple');
     $this->assertNoLink('Pear');
   }
