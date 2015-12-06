@@ -23,7 +23,7 @@ class WorkspaceTest extends MultiversionWebTestBase {
   public static $modules = ['multiversion', 'key_value'];
 
   public function testOperations() {
-    $default = Workspace::load('default');
+    $default = Workspace::load(1);
     $this->assertTrue(!empty($default), 'Default workspace was created when installing Multiversion module.');
     $machine_name = $this->randomMachineName();
     $entity = Workspace::create(['machine_name' => $machine_name, 'label' => $machine_name]);
