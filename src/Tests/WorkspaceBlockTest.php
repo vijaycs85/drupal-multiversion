@@ -87,7 +87,7 @@ class WorkspaceBlockTest extends WebTestBase {
     $entity->delete();
     drupal_flush_all_caches();
     $this->drupalGet('');
-    $this->assertNoText($id, 'The id of the deleted workspace was not displayed in the Workspace switcher block.');
+    $this->assertNoText($machine_name, 'The name of the deleted workspace was not displayed in the Workspace switcher block.');
   }
 
 }
