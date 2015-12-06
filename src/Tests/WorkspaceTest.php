@@ -31,14 +31,14 @@ class WorkspaceTest extends MultiversionWebTestBase {
     $this->assertTrue($entity instanceof WorkspaceInterface, 'Workspace entity was created.');
 
     $entity->save();
-    $this->assertEqual($id, $entity->id(), 'Workspace entity was saved.');
+    $this->assertEqual($machine_name, $entity->get('machine_name')->value, 'Workspace entity was saved.');
 
     $entity = Workspace::load($entity->id());
-    $this->assertEqual($id, $entity->id(), 'Workspace entity was loaded by ID.');
+    $this->assertEqual($machine_name, $entity->get('machine_name')->value, 'Workspace entity was loaded by ID.');
 
     $entity = $this->entityManager->loadEntityByUuid('workspace', $entity->uuid());
-    $this->assertEqual($id, $entity->id(), 'Workspace entity was loaded by UUID.');
-    $this->assertEqual($id, $entity->label(), 'Label method returns the workspace name.');
+    $this->assertEqual($machine_name, $entity->get('machine_name')->value, 'Workspace entity was loaded by UUID.');
+    $this->assertEqual($machine_name, $entity->label(), 'Label method returns the workspace name.');
 
     $created = $entity->getStartTime();
     $this->assertNotNull($created, "The value for 'created' field is not null.");
