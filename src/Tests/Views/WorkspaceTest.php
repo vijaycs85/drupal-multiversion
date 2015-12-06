@@ -39,7 +39,7 @@ class WorkspaceTest extends MultiversionTestBase {
     $node2 = $this->drupalCreateNode(['uid' => $uid]);
 
     // Create a new workspace and switch to it.
-    $new_workspace = Workspace::create(['id' => 'new_workspace']);
+    $new_workspace = Workspace::create(['machine_name' => 'new_workspace', 'label' => 'New Workspace']);
     $new_workspace->save();
     \Drupal::service('workspace.manager')->setActiveWorkspace($new_workspace);
 
