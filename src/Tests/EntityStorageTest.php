@@ -144,8 +144,10 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $loaded = $storage->load($ids[0]);
       $this->assertEqual($ids[0], $loaded->id(), "Single $entity_type_id was loaded.");
 
-      // @todo: {@link https://www.drupal.org/node/2597508 Test
-      // loadEntityByUuid.}
+      // Load the entity with EntityRepository::loadEntityByUuid().
+      $loaded = \Drupal::service('entity.repository')->loadEntityByUuid($entity_type_id, $entity->uuid());
+      $this->assertEqual($ids[0], $loaded->id(), "Single $entity_type_id was loaded with loadEntityByUuid().");
+
       // Update and save a new revision.
       $entity->{$info['name']} = $this->randomMachineName();
       $entity->save();
