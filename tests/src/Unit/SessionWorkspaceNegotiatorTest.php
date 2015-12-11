@@ -108,21 +108,17 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
 
     $this->entityTypeId = 'workspace';
     $second_id = $this->randomMachineName();
-    $this->values = array(
-      array(
-        'id' => $this->defaultId,
-        'label' => $this->defaultId,
-        'created' => (int) microtime(TRUE) * 1000000,
-      ),
-      array(
-        'id' => $second_id,
-        'label' => $second_id,
-        'created' => (int) microtime(TRUE) * 1000000,
-      ),
-    );
+    $this->values = [['id' => $this->defaultId], ['id' => $second_id]];
 
     foreach ($this->values as $value) {
-      $this->entities[] = $this->getMock('Drupal\multiversion\Entity\Workspace', array(), array($value, $this->entityTypeId));
+      $entity = $this->getMockBuilder('Drupal\multiversion\Entity\Workspace')
+        ->disableOriginalConstructor()
+        ->getMock();
+      $entity->expects($this->any())
+        ->method('create')
+        ->with($value)
+        ->will($this->returnValue($this->entityType));
+      $this->entities[] = $entity;
     }
 
     $this->path = '<front>';

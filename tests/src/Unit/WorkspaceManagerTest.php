@@ -91,18 +91,7 @@ class WorkspaceManagerTest extends UnitTestCase {
     $this->entityTypeId = 'workspace';
     $first_id = $this->randomMachineName();
     $second_id = $this->randomMachineName();
-    $this->values = array(
-      array(
-        'id' => $first_id,
-        'label' => $first_id,
-        'created' => (int) microtime(TRUE) * 1000000,
-      ),
-      array(
-        'id' => $second_id,
-        'label' => $second_id,
-        'created' => (int) microtime(TRUE) * 1000000,
-      ),
-    );
+    $this->values = [['id' => $first_id], ['id' => $second_id]];
 
     $this->entityType = $this->getMock('Drupal\multiversion\Entity\WorkspaceInterface');
     $this->entityManager = $this->getMock('Drupal\Core\Entity\EntityManagerInterface');
@@ -120,7 +109,14 @@ class WorkspaceManagerTest extends UnitTestCase {
     \Drupal::setContainer($container);
 
     foreach ($this->values as $value) {
-      $this->entities[] = $this->getMock('Drupal\multiversion\Entity\Workspace', array(), array($value, $this->entityTypeId));
+      $entity = $this->getMockBuilder('Drupal\multiversion\Entity\Workspace')
+        ->disableOriginalConstructor()
+        ->getMock();
+      $entity->expects($this->any())
+        ->method('create')
+        ->with($value)
+        ->will($this->returnValue($this->entityType));
+      $this->entities[] = $entity;
     }
 
     $this->workspaceNegotiators[] = array($this->getMock('Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator'));
