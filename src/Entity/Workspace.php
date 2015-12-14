@@ -112,6 +112,13 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
   /**
    * {@inheritdoc}
    */
+  public function getMachineName() {
+    return $this->get('machine_name')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function save() {
     if (is_null($this->getStartTime())) {
       $this->setCreatedTime(microtime(TRUE) * 1000000);

@@ -37,4 +37,11 @@ interface WorkspaceInterface extends RevisionableInterface {
    */
   public function getStartTime();
 
+  /**
+   * Returns the workspace machine name.
+   *
+   * @return string
+   *   Machine name of the workspace.
+   */
+  public function getMachineName();
 }

@@ -7,7 +7,6 @@
 
 namespace Drupal\multiversion\Workspace;
 
-use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
@@ -69,6 +68,14 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    */
   public function loadMultiple(array $workspace_ids = NULL) {
     return $this->entityManager->getStorage('workspace')->loadMultiple($workspace_ids);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function loadByMachineName($machine_name) {
+    $workspaces = $this->entityManager->getStorage('workspace')->loadByProperties(['machine_name' => $machine_name]);
+    return current($workspaces);
   }
 
   /**
