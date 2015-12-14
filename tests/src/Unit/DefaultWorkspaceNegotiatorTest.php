@@ -39,7 +39,7 @@ class DefaultWorkspaceNegotiatorTest extends UnitTestCase {
     parent::setUp();
 
     $container = new ContainerBuilder();
-    $container->setParameter('workspace.default', 'default');
+    $container->setParameter('workspace.default', 1);
     \Drupal::setContainer($container);
     $this->workspaceNegotiator = new DefaultWorkspaceNegotiator();
     $this->workspaceNegotiator->setContainer($container);
@@ -57,7 +57,7 @@ class DefaultWorkspaceNegotiatorTest extends UnitTestCase {
    * Tests the getWorkspaceId() method.
    */
   public function testGetWorkspaceId() {
-    $this->assertSame('default', $this->workspaceNegotiator->getWorkspaceId($this->request));
+    $this->assertSame(1, $this->workspaceNegotiator->getWorkspaceId($this->request));
   }
 
 }

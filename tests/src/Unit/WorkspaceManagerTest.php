@@ -89,9 +89,9 @@ class WorkspaceManagerTest extends UnitTestCase {
     parent::setUp();
 
     $this->entityTypeId = 'workspace';
-    $first_id = $this->randomMachineName();
-    $second_id = $this->randomMachineName();
-    $this->values = [['id' => $first_id], ['id' => $second_id]];
+    $first_machine_name = $this->randomMachineName();
+    $second_machine_name = $this->randomMachineName();
+    $this->values = [['machine_name' => $first_machine_name], ['machine_name' => $second_machine_name]];
 
     $this->entityType = $this->getMock('Drupal\multiversion\Entity\WorkspaceInterface');
     $this->entityManager = $this->getMock('Drupal\Core\Entity\EntityManagerInterface');
@@ -141,11 +141,10 @@ class WorkspaceManagerTest extends UnitTestCase {
    * Tests the load() method.
    */
   public function testLoad() {
-    $workspace_id = $this->values[0]['id'];
     $storage = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
     $storage->expects($this->once())
       ->method('load')
-      ->with($workspace_id)
+      ->with(1)
       ->will($this->returnValue($this->entities[0]));
 
     $this->entityManager->expects($this->once())
@@ -154,7 +153,7 @@ class WorkspaceManagerTest extends UnitTestCase {
       ->will($this->returnValue($storage));
 
     $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
-    $entity = $workspace_manager->load($workspace_id);
+    $entity = $workspace_manager->load(1);
 
     $this->assertSame($this->entities[0], $entity);
   }
@@ -163,7 +162,7 @@ class WorkspaceManagerTest extends UnitTestCase {
    * Tests the loadMultiple() method.
    */
   public function testLoadMultiple() {
-    $ids = array($this->values[0]['id'], $this->values[1]['id']);
+    $ids = array(1,2);
     $storage = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
     $storage->expects($this->once())
       ->method('loadMultiple')
@@ -199,9 +198,9 @@ class WorkspaceManagerTest extends UnitTestCase {
     $query = array();
     $url = Url::fromRoute('<front>');
     $expected_links = array(
-      $this->values[0]['id'] => array(
+      1 => array(
         'href' => $url,
-        'title' => $this->values[0]['id'],
+        'title' => null,
         'query' => $query,
       ),
     );
