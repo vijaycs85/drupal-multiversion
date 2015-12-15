@@ -7,7 +7,6 @@
 
 namespace Drupal\multiversion\Tests;
 
-use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\multiversion\Entity\Query\QueryInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\simpletest\WebTestBase;
@@ -18,8 +17,6 @@ use Drupal\simpletest\WebTestBase;
  * @group multiversion
  */
 class MigrationTest extends WebTestBase {
-
-  use CommentTestTrait;
 
   protected $strictConfigSchema = FALSE;
 
