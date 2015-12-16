@@ -31,6 +31,13 @@ class MigrationTest extends WebTestBase {
   protected $moduleInstaller;
 
   /**
+   * The entity definition update manager.
+   *
+   * @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface
+   */
+  protected $entityDefinitionUpdateManager;
+
+  /**
    * @var array
    */
   protected $entityTypes = [
@@ -45,7 +52,13 @@ class MigrationTest extends WebTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['entity_test', 'node'];
+  public static $modules = [
+    'entity_test',
+    'node',
+    'comment',
+    'menu_link_content',
+    'block_content',
+  ];
 
   /**
    * {@inheritdoc}
@@ -59,7 +72,7 @@ class MigrationTest extends WebTestBase {
 
   public function testEnableWithExistingContent() {
     foreach ($this->entityTypes as $entity_type_id => $values) {
-      $storage = \Drupal::entityManager()->getStorage($entity_type_id);
+      $storage = \Drupal::entityTypeManager()->getStorage($entity_type_id);
 
       if ($entity_type_id == 'user') {
         $this->createUser(['administer nodes']);
@@ -81,12 +94,16 @@ class MigrationTest extends WebTestBase {
     $this->moduleInstaller->install(['multiversion']);
     $this->multiversionManager = \Drupal::service('multiversion.manager');
 
+    // Check if all updates have been applied.
+    $this->assertFalse(\Drupal::service('entity.definition_update_manager')->needsUpdates(), 'All compatible entity types have been updated.');
+
     $ids_after = [];
-    // Now check that the previosuly created entities still exist, have the
+    // Now check that the previously created entities still exist, have the
     // right IDs and are multiversion enabled. That means profit. Big profit.
     foreach ($this->entityTypes as $entity_type_id => $values) {
-      $entity_type = \Drupal::entityManager()->getDefinition($entity_type_id);
-      $storage = \Drupal::entityManager()->getStorage($entity_type_id);
+      $manager = \Drupal::entityTypeManager();
+      $entity_type = $manager->getDefinition($entity_type_id);
+      $storage = $manager->getStorage($entity_type_id);
       $id_key = $entity_type->getKey('id');
 
       $this->assertTrue($this->multiversionManager->isEnabledEntityType($entity_type), "$entity_type_id was enabled for Multiversion.");
@@ -125,8 +142,9 @@ class MigrationTest extends WebTestBase {
     // that is being returned as supported and enabled.
     $this->moduleInstaller->install(['taxonomy']);
 
-    $entity_type = \Drupal::entityManager()->getDefinition('taxonomy_term');
+    $entity_type = \Drupal::entityTypeManager()->getDefinition('taxonomy_term');
     $this->assertTrue($this->multiversionManager->isEnabledEntityType($entity_type), 'Newly installed entity types gets enabled as well.');
+    $this->assertFalse(\Drupal::service('entity.definition_update_manager')->needsUpdates(), 'There are not new updates to apply.');
   }
 
 }
