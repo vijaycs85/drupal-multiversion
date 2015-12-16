@@ -37,7 +37,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "id" = "id",
  *     "revision" = "revision_id",
  *     "uuid" = "uuid",
- *     "label" = "id",
+ *     "label" = "label",
+ *     "machine_name" = "machine_name",
  *     "created" = "created"
  *   },
  *   multiversion = FALSE,
@@ -50,9 +51,21 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
-    $fields['id'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Workaspace ID'))
+    $fields['id'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Workspace ID'))
       ->setDescription(t('The workspace ID.'))
+      ->setReadOnly(TRUE)
+      ->setSetting('unsigned', TRUE);
+
+    $fields['label'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Workaspace ID'))
+      ->setDescription(t('The workspace label.'))
+      ->setSetting('max_length', 128)
+      ->setRequired(TRUE);
+
+    $fields['machine_name'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Workaspace ID'))
+      ->setDescription(t('The workspace machine name.'))
       ->setSetting('max_length', 128)
       ->setRequired(TRUE);
 
@@ -94,6 +107,13 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
    */
   public function getStartTime() {
     return $this->get('created')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getMachineName() {
+    return $this->get('machine_name')->value;
   }
 
   /**

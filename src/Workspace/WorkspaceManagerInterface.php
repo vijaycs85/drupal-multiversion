@@ -29,6 +29,11 @@ interface WorkspaceManagerInterface {
   public function loadMultiple(array $workspace_ids = NULL);
 
   /**
+   * @param string $machine_name
+   */
+  public function loadByMachineName($machine_name);
+
+  /**
    * @return \Drupal\multiversion\Entity\WorkspaceInterface
    */
   public function getActiveWorkspace();

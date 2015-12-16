@@ -67,7 +67,7 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase implements Work
       $workspace_id = $workspace->id();
       $links[$workspace_id] = array(
         'url' => $url,
-        'title' => $workspace_id,
+        'title' => $workspace->label(),
         'query' => $query,
       );
       $links[$workspace_id]['query']['workspace'] = $workspace_id;

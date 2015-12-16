@@ -87,11 +87,11 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
   protected $values;
 
   /**
-   * The id of the default entity.
+   * The machine name of the default entity.
    *
    * @var string
    */
-  protected $defaultId = 'default';
+  protected $defaultMachineName = 'default';
 
   /**
    * The entity type used for testing.
@@ -108,7 +108,10 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
 
     $this->entityTypeId = 'workspace';
     $second_id = $this->randomMachineName();
-    $this->values = [['id' => $this->defaultId], ['id' => $second_id]];
+    $this->values = [
+      ['id' => 1, 'machine_name' => $this->defaultMachineName, 'label' => $this->defaultMachineName],
+      ['id' => 2, 'machine_name'=> $second_id, 'label' => $second_id]
+    ];
 
     foreach ($this->values as $value) {
       $entity = $this->getMockBuilder('Drupal\multiversion\Entity\Workspace')
@@ -135,7 +138,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
     $this->workspaceManager = $this->getMock('Drupal\multiversion\Workspace\WorkspaceManagerInterface');
 
     $container = new ContainerBuilder();
-    $container->setParameter('workspace.default', $this->defaultId);
+    $container->setParameter('workspace.default', 1);
     $container->set('entity.manager', $this->entityManager);
     $container->set('workspace.manager', $this->workspaceManager);
     $container->set('request_stack', $this->requestStack);
@@ -157,7 +160,7 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
    * Tests the getWorkspaceId() method.
    */
   public function testGetWorkspaceId() {
-    $this->assertSame($this->defaultId, $this->workspaceNegotiator->getWorkspaceId($this->request));
+    $this->assertSame(1, $this->workspaceNegotiator->getWorkspaceId($this->request));
   }
 
   /**
@@ -166,44 +169,47 @@ class SessionWorkspaceNegotiatorTest extends UnitTestCase {
   public function testPersist() {
     $this->entities[0]->expects($this->once())
       ->method('id')
-      ->will($this->returnValue($this->defaultId));
+      ->will($this->returnValue(1));
     $this->assertTrue($this->workspaceNegotiator->persist($this->entities[0]));
-    $this->assertSame($this->defaultId, $_SESSION['workspace']);
+    $this->assertSame(1, $_SESSION['workspace']);
   }
 
   /**
    * Tests the getWorkspaceSwitchLinks() method.
    */
   public function testGetWorkspaceSwitchLinks() {
-    $second_id = $this->values[1]['id'];
+    $second_machine_name = $this->values[1]['machine_name'];
     $url = Url::fromRoute($this->path);
-    $expected_links = array(
-      $this->defaultId => array(
+    $expected_links = [
+      1 => [
         'url' => $url,
-        'title' => $this->defaultId,
-        'query' => array('workspace' => $this->defaultId),
-        'attributes' => array(
-          'class' => array('session-active'),
-        ),
-      ),
-      $second_id => array(
+        'title' => $this->defaultMachineName,
+        'query' => ['workspace' => 1],
+        'attributes' => [
+          'class' => ['session-active'],
+        ],
+      ],
+      2 => [
         'url' => $url,
-        'title' => $second_id,
-        'query' => array('workspace' => $second_id),
-      ),
-    );
+        'title' => $second_machine_name,
+        'query' => ['workspace' => 2],
+      ],
+    ];
 
     foreach ($this->values as $key => $value) {
       $this->entities[$key]->expects($this->any())
         ->method('id')
         ->will($this->returnValue($value['id']));
+      $this->entities[$key]->expects($this->any())
+        ->method('label')
+        ->will($this->returnValue($value['label']));
     }
 
     $this->negotiator = $this->getMock('\Drupal\multiversion\Workspace\SessionWorkspaceNegotiator');
     $this->negotiator->expects($this->any())
       ->method('getActiveWorkspace')
       ->with($this->requestStack, $this->entityManager)
-      ->will($this->returnValue($this->defaultId));
+      ->will($this->returnValue($this->defaultMachineName));
 
     $storage = $this->getMock('\Drupal\Core\Entity\EntityStorageInterface');
     $storage->expects($this->any())

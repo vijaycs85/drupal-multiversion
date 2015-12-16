@@ -32,19 +32,26 @@ class WorkspaceForm extends ContentEntityForm {
     if ($this->operation == 'edit') {
       $form['#title'] = $this->t('Edit workspace %label', array('%label' => $workspace->label()));
     }
+    $form['label'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Label'),
+      '#maxlength' => 255,
+      '#default_value' => $workspace->label(),
+      '#description' => $this->t("Label for the Endpoint."),
+      '#required' => TRUE,
+    );
 
-    $form['id'] = array(
+    $form['machine_name'] = array(
       '#type' => 'machine_name',
       '#title' => $this->t('Workspace ID'),
-      '#default_value' => $workspace->id(),
-      '#maxlength' => 128,
+      '#maxlength' => 255,
+      '#default_value' => $workspace->get('machine_name')->value,
       '#machine_name' => array(
         'exists' => '\Drupal\multiversion\Entity\Workspace::load',
       ),
       '#element_validate' => array(
         array(get_class($this), 'validateMachineName'),
       ),
-      '#disabled' => !$workspace->isNew(),
     );
 
     return $form;

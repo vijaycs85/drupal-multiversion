@@ -60,9 +60,10 @@ class WorkspaceBlockTest extends WebTestBase {
     $this->assertText('Workspace switcher', t('Block successfully being displayed on the page.'));
     $front = Url::fromRoute('<front>')->toString(TRUE)->getGeneratedUrl();
     $this->assertRaw('href="'. $front .'"', 'The id of the default workspace was displayed in the Workspace switcher block as a link.');
-    $id = $this->randomMachineName();
-    $entity = Workspace::create(['id' => $id]);
+    $machine_name = $this->randomMachineName();
+    $entity = Workspace::create(['machine_name' => $machine_name, 'label' => $machine_name]);
     $entity->save();
+    $id = $entity->id();
     $node = Node::create(['type' => 'article', 'title' => 'Test article']);
     $node->save();
     $nid = $node->id();
@@ -86,7 +87,7 @@ class WorkspaceBlockTest extends WebTestBase {
     $entity->delete();
     drupal_flush_all_caches();
     $this->drupalGet('');
-    $this->assertNoText($id, 'The id of the deleted workspace was not displayed in the Workspace switcher block.');
+    $this->assertNoText($machine_name, 'The name of the deleted workspace was not displayed in the Workspace switcher block.');
   }
 
 }

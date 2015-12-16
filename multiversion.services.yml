@@ -1,5 +1,5 @@
 parameters:
-  workspace.default: default
+  workspace.default: 1
   required_cache_contexts: ['workspace']
 
 services:

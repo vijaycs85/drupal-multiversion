@@ -23,22 +23,22 @@ class WorkspaceTest extends MultiversionWebTestBase {
   public static $modules = ['multiversion', 'key_value'];
 
   public function testOperations() {
-    $default = Workspace::load('default');
+    $default = Workspace::load(1);
     $this->assertTrue(!empty($default), 'Default workspace was created when installing Multiversion module.');
-    $id = $this->randomMachineName();
-    $entity = Workspace::create(['id' => $id]);
+    $machine_name = $this->randomMachineName();
+    $entity = Workspace::create(['machine_name' => $machine_name, 'label' => $machine_name]);
 
     $this->assertTrue($entity instanceof WorkspaceInterface, 'Workspace entity was created.');
 
     $entity->save();
-    $this->assertEqual($id, $entity->id(), 'Workspace entity was saved.');
+    $this->assertEqual($machine_name, $entity->get('machine_name')->value, 'Workspace entity was saved.');
 
     $entity = Workspace::load($entity->id());
-    $this->assertEqual($id, $entity->id(), 'Workspace entity was loaded by ID.');
+    $this->assertEqual($machine_name, $entity->get('machine_name')->value, 'Workspace entity was loaded by ID.');
 
     $entity = $this->entityManager->loadEntityByUuid('workspace', $entity->uuid());
-    $this->assertEqual($id, $entity->id(), 'Workspace entity was loaded by UUID.');
-    $this->assertEqual($id, $entity->label(), 'Label method returns the workspace name.');
+    $this->assertEqual($machine_name, $entity->get('machine_name')->value, 'Workspace entity was loaded by UUID.');
+    $this->assertEqual($machine_name, $entity->label(), 'Label method returns the workspace name.');
 
     $created = $entity->getStartTime();
     $this->assertNotNull($created, "The value for 'created' field is not null.");
