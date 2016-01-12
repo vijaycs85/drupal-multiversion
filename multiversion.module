@@ -8,6 +8,7 @@ use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
+use Drupal\views\Views;
 
 /**
  * Implements hook_entity_type_alter().
@@ -220,6 +221,10 @@ function multiversion_views_post_execute(ViewExecutable $view) {
         if (empty($row->_entity) && !empty($row->{$base_field}) && isset($entities[$row->{$base_field}])) {
           $view->result[$index]->_entity = $entities[$row->{$base_field}];
         }
+        // In all other cases unset rows that don't have a value for _entity key.
+        elseif (empty($row->_entity)) {
+          unset($view->result[$index]);
+        }
       }
     }
   }
@@ -252,21 +257,6 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
       'value' => FALSE,
       'operator' => '='
     );
-    // We shouldn't filter user content type when creating a new node because
-    // we need the author info for this.
-    $current_url = Url::fromRoute('<current>')
-      ->toString(TRUE)
-      ->getGeneratedUrl();
-    if (
-      !strpos($current_url, 'node/add/') &&
-      $base_table != 'users_field_data'
-    ) {
-      $view->query->where[1]['conditions'][] = array(
-        'field' => $base_table . '.workspace',
-        'value' => multiversion_get_active_workspace_id(),
-        'operator' => '='
-      );
-    }
   }
 }
 

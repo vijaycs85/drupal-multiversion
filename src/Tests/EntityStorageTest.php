@@ -323,7 +323,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
     // Test workspace when switching the workspace.
 
     // Create a new workspace and switch to it.
-    $workspace = Workspace::create(['id' => $this->randomMachineName()]);
+    $workspace = Workspace::create(['id' => 2]);
     $this->workspaceManager->setActiveWorkspace($workspace);
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
