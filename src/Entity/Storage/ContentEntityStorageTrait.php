@@ -7,6 +7,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\multiversion\Entity\Exception\ConflictException;
+use Drupal\user\UserInterface;
 use Drupal\user\UserStorageInterface;
 
 trait ContentEntityStorageTrait {
@@ -15,6 +16,11 @@ trait ContentEntityStorageTrait {
    * @var boolean
    */
   protected $isDeleted = FALSE;
+
+  /**
+   * @var boolean
+   */
+  protected $currentWorkspace = TRUE;
 
   /**
    * {@inheritdoc}
@@ -55,7 +61,7 @@ trait ContentEntityStorageTrait {
     // Entities in other workspaces than the active one can only be queried with
     // the Entity Query API and not by the storage handler itself.
     // Just UserStorage can be queried in all workspaces by the storage handler.
-    if (!$this instanceof UserStorageInterface) {
+    if ($this->currentWorkspace && !($this instanceof UserStorageInterface)) {
       /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping */
       $table_mapping = $this->getTableMapping();
       /** @var \Drupal\Core\Entity\EntityFieldManager $field_manager */
@@ -97,6 +103,16 @@ trait ContentEntityStorageTrait {
    */
   public function loadMultiple(array $ids = NULL) {
     $this->isDeleted = FALSE;
+    $this->currentWorkspace = TRUE;
+    return parent::loadMultiple($ids);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function loadFromAllWorkspaces(array $ids = NULL) {
+    $this->isDeleted = FALSE;
+    $this->currentWorkspace = FALSE;
     return parent::loadMultiple($ids);
   }
 
@@ -113,76 +129,122 @@ trait ContentEntityStorageTrait {
    */
   public function loadMultipleDeleted(array $ids = NULL) {
     $this->isDeleted = TRUE;
+    $this->currentWorkspace = TRUE;
     return parent::loadMultiple($ids);
   }
 
   /**
    * {@inheritdoc}
    */
+  public function loadAllByProperties(array $values = array()) {
+    // Build a query to fetch the entity IDs.
+    $entity_query = $this->getQuery();
+    $entity_query->loadFromAllWorkspaces();
+    $this->buildPropertyQuery($entity_query, $values);
+    $result = $entity_query->execute();
+    return $result ? $this->loadFromAllWorkspaces($result) : array();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function save(EntityInterface $entity) {
-    // Every update is a new revision with this storage model.
-    $entity->setNewRevision();
-
-    // We are going to index the revision ahead of save in order to accurately
-    // determine if this is going to be the default revision or not. We also run
-    // this logic here outside of any transactions that the parent storage
-    // handler might perform. It's important that the revision index does not
-    // get rolled back during exceptions. All records are kept in order to more
-    // accurately build revision trees of all universally known revisions.
-    $branch = array();
-    $rev = $entity->_rev->value;
-    list($i) = explode('-', $rev);
-
-    // This is a regular local save operation and a new revision token should be
-    // generated. The new_edit property will be set to FALSE during replication
-    // to ensure the revision token is saved as-is.
-    if ($entity->_rev->new_edit || $entity->_rev->is_stub) {
-      // If this is the first revision it means that there's no parent.
-      // By definition the existing revision value is the parent revision.
-      $parent_rev = $i == 0 ? 0 : $rev;
-      // Only generate a new revision if this is not a stub entity. This will
-      // ensure that stub entities remain with the default value (0) to make it
-      // clear on a storage level that this is a stub and not a "real" revision.
-      if (!$entity->_rev->is_stub) {
-        $rev = \Drupal::service('multiversion.manager')->newRevisionId($entity, $i);
+    $entities = $this->loadAllByProperties([
+      'uuid' => $entity->uuid()
+    ]);
+    $loaded_entity = reset($entities);
+    $this->currentWorkspace = TRUE;
+    if ($loaded_entity instanceof ContentEntityInterface
+      && $entity->id() == NULL
+      && $loaded_entity->workspace->target_id != $entity->workspace->target_id) {
+      $id_key = $entity->getEntityType()->getKey('id');
+      $revision_key = $entity->getEntityType()->getKey('revision');
+      $id = $loaded_entity->id();
+      $entity->{$id_key}->value = $id;
+      $entity->setOriginalId($id);
+      $entity->{$revision_key}->value = $loaded_entity->getRevisionId();
+      $entity->setNewRevision(FALSE);
+      $workspaces = $loaded_entity->get('workspace')->getValue();
+      $values = array_column($workspaces, 'target_id');
+      foreach ($entity->get('workspace')->getValue() as $item) {
+        if (!in_array($item['target_id'], $values)) {
+          $workspaces[] = $item;
+        }
       }
-      list(, $hash) = explode('-', $rev);
-      $entity->_rev->value = $rev;
-      $entity->_rev->revisions = array($hash);
-      $branch[$rev] = $parent_rev;
+      $entity->workspace = $workspaces;
 
-      // Add the parent revision to list of known revisions. This will be useful
-      // if an exception is thrown during entity save and a new attempt is made.
-      if ($parent_rev != 0) {
-        list(, $parent_hash) = explode('-', $parent_rev);
-        $entity->_rev->revisions = array($hash, $parent_hash);
-      }
+      parent::saveToDedicatedTables($entity, TRUE, ['workspace']);
     }
-    // A list of all known revisions can be passed in to let the current host
-    // know about the revision history, for conflict handling etc. A list of
-    // revisions are always passed in during replication.
     else {
-      $revisions = $entity->_rev->revisions;
-      for ($c = 0; $c < count($revisions); ++$c) {
-        $p = $c + 1;
-        $rev = $i-- . '-' . $revisions[$c];
-        $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
+      $entity->workspace = ['target_id' => multiversion_get_active_workspace_id()];
+
+      // Every update is a new revision with this storage model.
+      $entity->setNewRevision();
+
+      // We are going to index the revision ahead of save in order to accurately
+      // determine if this is going to be the default revision or not. We also run
+      // this logic here outside of any transactions that the parent storage
+      // handler might perform. It's important that the revision index does not
+      // get rolled back during exceptions. All records are kept in order to more
+      // accurately build revision trees of all universally known revisions.
+      $branch = [];
+      $rev = $entity->_rev->value;
+      list($i) = explode('-', $rev);
+
+      // This is a regular local save operation and a new revision token should be
+      // generated. The new_edit property will be set to FALSE during replication
+      // to ensure the revision token is saved as-is.
+      if ($entity->_rev->new_edit || $entity->_rev->is_stub) {
+        // If this is the first revision it means that there's no parent.
+        // By definition the existing revision value is the parent revision.
+        $parent_rev = $i == 0 ? 0 : $rev;
+        // Only generate a new revision if this is not a stub entity. This will
+        // ensure that stub entities remain with the default value (0) to make it
+        // clear on a storage level that this is a stub and not a "real" revision.
+        if (!$entity->_rev->is_stub) {
+          $rev = \Drupal::service('multiversion.manager')->newRevisionId(
+            $entity, $i
+          );
+        }
+        list(, $hash) = explode('-', $rev);
+        $entity->_rev->value = $rev;
+        $entity->_rev->revisions = [$hash];
         $branch[$rev] = $parent_rev;
+
+        // Add the parent revision to list of known revisions. This will be useful
+        // if an exception is thrown during entity save and a new attempt is made.
+        if ($parent_rev != 0) {
+          list(, $parent_hash) = explode('-', $parent_rev);
+          $entity->_rev->revisions = [$hash, $parent_hash];
+        }
       }
-    }
+      // A list of all known revisions can be passed in to let the current host
+      // know about the revision history, for conflict handling etc. A list of
+      // revisions are always passed in during replication.
+      else {
+        $revisions = $entity->_rev->revisions;
+        for ($c = 0; $c < count($revisions); ++$c) {
+          $p = $c + 1;
+          $rev = $i-- . '-' . $revisions[$c];
+          $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
+          $branch[$rev] = $parent_rev;
+        }
+      }
 
-    // Index the revision info and tree.
-    \Drupal::service('entity.index.rev')->add($entity);
-    \Drupal::service('entity.index.rev.tree')->updateTree($entity->uuid(), $branch);
+      // Index the revision info and tree.
+      \Drupal::service('entity.index.rev')->add($entity);
+      \Drupal::service('entity.index.rev.tree')->updateTree(
+        $entity->uuid(), $branch
+      );
 
-    try {
-      return parent::save($entity);
-    }
-    catch (\Exception $e) {
-      // If a new attempt at saving the entity is made after an exception its
-      // important that a new rev token is not generated.
-      $entity->_rev->new_edit = FALSE;
-      throw new EntityStorageException($e->getMessage(), $e->getCode(), $e);
+      try {
+        return parent::save($entity);
+      } catch (\Exception $e) {
+        // If a new attempt at saving the entity is made after an exception its
+        // important that a new rev token is not generated.
+        $entity->_rev->new_edit = FALSE;
+        throw new EntityStorageException($e->getMessage(), $e->getCode(), $e);
+      }
     }
   }
 
@@ -202,13 +264,13 @@ trait ContentEntityStorageTrait {
       // Decide whether or not this is the default revision.
       if (!$entity->isNew()) {
         $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
-        if ($entity->_rev->value == $default_rev) {
+//        if ($entity->_rev->value == $default_rev) {
           $entity->isDefaultRevision(TRUE);
-        }
-        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
-        else {
-          $entity->isDefaultRevision(FALSE);
-        }
+//        }
+//        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
+//        else {
+//          $entity->isDefaultRevision(FALSE);
+//        }
       }
     }
 

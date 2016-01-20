@@ -17,6 +17,11 @@ trait QueryTrait {
   /**
    * @var boolean
    */
+  protected $currentWorkspace = TRUE;
+
+  /**
+   * @var boolean
+   */
   protected $isTransacting = FALSE;
 
   /**
@@ -40,6 +45,22 @@ trait QueryTrait {
    */
   public function isNotDeleted() {
     $this->isDeleted = FALSE;
+    return $this;
+  }
+
+  /**
+   * @see \Drupal\multiversion\Entity\Query\QueryInterface::loadFromCurrentWorkspace()
+   */
+  public function loadFromCurrentWorkspace() {
+    $this->currentWorkspace = TRUE;
+    return $this;
+  }
+
+  /**
+   * @see \Drupal\multiversion\Entity\Query\QueryInterface::loadFromAllWorkspaces()
+   */
+  public function loadFromAllWorkspaces() {
+    $this->currentWorkspace = FALSE;
     return $this;
   }
 
@@ -77,7 +98,7 @@ trait QueryTrait {
       $this->condition('_deleted', (int) $this->isDeleted);
     }
     // Don't add this condition user entity type.
-    if ($entity_type->id() !== 'user') {
+    if ($entity_type->id() !== 'user' && $this->currentWorkspace) {
       $this->condition('workspace.target_id', $this->workspaceId ?: $this->multiversionManager->getActiveWorkspaceId());
     }
     return $this;
