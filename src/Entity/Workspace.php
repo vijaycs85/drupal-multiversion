@@ -67,7 +67,8 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setLabel(t('Workaspace ID'))
       ->setDescription(t('The workspace machine name.'))
       ->setSetting('max_length', 128)
-      ->setRequired(TRUE);
+      ->setRequired(TRUE)
+      ->addPropertyConstraints('value', ['Regex' => ['pattern' => '/^[\da-z_$()+-\/]*$/']]);
 
     $fields['revision_id'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Revision ID'))

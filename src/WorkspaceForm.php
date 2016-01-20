@@ -8,6 +8,7 @@
 namespace Drupal\multiversion;
 
 use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\EntityConstraintViolationListInterface;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -49,12 +50,38 @@ class WorkspaceForm extends ContentEntityForm {
       '#machine_name' => array(
         'exists' => '\Drupal\multiversion\Entity\Workspace::load',
       ),
-      '#element_validate' => array(
-        array(get_class($this), 'validateMachineName'),
-      ),
+      '#element_validate' => array(),
     );
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getEditedFieldNames(FormStateInterface $form_state) {
+    return array_merge(array(
+      'label',
+      'machine_name',
+    ), parent::getEditedFieldNames($form_state));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function flagViolations(EntityConstraintViolationListInterface $violations, array $form, FormStateInterface $form_state) {
+    // Manually flag violations of fields not handled by the form display. This
+    // is necessary as entity form displays only flag violations for fields
+    // contained in the display.
+    $field_names = array(
+      'label',
+      'machine_name'
+    );
+    foreach ($violations->getByFields($field_names) as $violation) {
+      list($field_name) = explode('.', $violation->getPropertyPath(), 2);
+      $form_state->setErrorByName($field_name, $violation->getMessage());
+    }
+    parent::flagViolations($violations, $form, $form_state);
   }
 
   /**
@@ -85,52 +112,6 @@ class WorkspaceForm extends ContentEntityForm {
     else {
       drupal_set_message($this->t('The workspace could not be saved.'), 'error');
       $form_state->setRebuild();
-    }
-  }
-
-  /**
-   * Form element validation handler for machine_name elements.
-   *
-   * Note that #maxlength is validated by _form_validate() already.
-   *
-   * This checks that the submitted value:
-   * - Does not contain the replacement character only.
-   * - Does not contain disallowed characters.
-   * - Is unique; i.e., does not already exist.
-   * - Does not exceed the maximum length (via #maxlength).
-   * - Cannot be changed after creation (via #disabled).
-   */
-  public static function validateMachineName(&$element, FormStateInterface $form_state, &$complete_form) {
-    $workspace_id_form_title = $element['#title']->getUntranslatedString();
-    // Verify that the workspace ID not only consists of replacement tokens.
-    if (preg_match('@^' . $element['#machine_name']['replace'] . '+$@', $element['#value'])) {
-      $form_state->setError($element, t('The @title must contain unique characters.', ['@title' => $workspace_id_form_title]));
-    }
-
-    // Verify that the workspace ID contains no disallowed characters.
-    if (preg_match('@' . $element['#machine_name']['replace_pattern'] . '@', $element['#value'])) {
-      if (!isset($element['#machine_name']['error'])) {
-        // Since a hyphen is the most common alternative replacement character,
-        // a corresponding validation error message is supported here.
-        if ($element['#machine_name']['replace'] == '-') {
-          $form_state->setError($element, t('The @title must contain only lowercase letters, numbers, and hyphens.', ['@title' => $workspace_id_form_title]));
-        }
-        // Otherwise, we assume the default (underscore).
-        else {
-          $form_state->setError($element, t('The @title must contain only lowercase letters, numbers, and underscores.', ['@title' => $workspace_id_form_title]));
-        }
-      }
-      else {
-        $form_state->setError($element, $element['#machine_name']['error']);
-      }
-    }
-
-    // Verify that the workspace ID is unique.
-    if ($element['#default_value'] !== $element['#value']) {
-      $function = $element['#machine_name']['exists'];
-      if (call_user_func($function, $element['#value'], $element, $form_state)) {
-        $form_state->setError($element, t('The @title is already in use. It must be unique.', ['@title' => $workspace_id_form_title]));
-      }
     }
   }
 

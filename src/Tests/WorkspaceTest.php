@@ -48,4 +48,38 @@ class WorkspaceTest extends MultiversionWebTestBase {
     $this->assertEqual($new_created_time, $entity->getStartTime(), "Correct value for 'created' field.");
   }
 
+  public function testSpecialCharacters() {
+    //  Note that only lowercase characters (a-z), digits (0-9),
+    // or any of the characters _, $, (, ), +, -, and / are allowed.
+    $workspace1 = Workspace::create(['label' => 'Workspace 1', 'machine_name' => 'a0_$()+-/']);
+    $violations1 = $workspace1->validate();
+    $this->assertEqual($violations1->count(), 0, 'No violations');
+
+    $workspace2 = Workspace::create(['label' => 'Workspace 2', 'machine_name' => 'A!"£%^&*{}#~@?']);
+    $violations2 = $workspace2->validate();
+    $this->assertEqual($violations2->count(), 1, 'One violation');
+
+    $this->webUser = $this->drupalCreateUser([
+      'administer workspaces',
+    ]);
+    $this->drupalLogin($this->webUser);
+    $this->drupalGet('admin/structure/workspaces/add');
+    $workspace3 = [
+      'label' => 'Workspace 1',
+      'machine_name' => 'a0_$()+-/',
+    ];
+    $this->drupalPostForm('admin/structure/workspaces/add', $workspace3, t('Save'));
+
+    $this->drupalGet('admin/structure/workspaces');
+    $this->assertText($workspace3['label'], 'Workspace found in list of workspaces');
+
+    $workspace4 = [
+      'label' => 'Workspace 2',
+      'machine_name' => 'A!"£%^&*{}#~@?',
+    ];
+    $this->drupalPostForm('admin/structure/workspaces/add', $workspace4, t('Save'));
+
+    $this->drupalGet('admin/structure/workspaces');
+    $this->assertNoText($workspace4['label'], 'Workspace not found in list of workspaces');
+  }
 }
