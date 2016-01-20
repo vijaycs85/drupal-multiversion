@@ -58,30 +58,28 @@ class WorkspaceTest extends MultiversionWebTestBase {
     $workspace2 = Workspace::create(['label' => 'Workspace 2', 'machine_name' => 'A!"£%^&*{}#~@?']);
     $violations2 = $workspace2->validate();
     $this->assertEqual($violations2->count(), 1, 'One violation');
-  }
 
-  public function testWorkspaceForm() {
     $this->webUser = $this->drupalCreateUser([
       'administer workspaces',
     ]);
     $this->drupalLogin($this->webUser);
     $this->drupalGet('admin/structure/workspaces/add');
-    $workspace1 = [
+    $workspace3 = [
       'label' => 'Workspace 1',
       'machine_name' => 'a0_$()+-/',
     ];
-    $this->drupalPostForm('admin/structure/workspaces/add', $workspace1, t('Save'));
+    $this->drupalPostForm('admin/structure/workspaces/add', $workspace3, t('Save'));
 
     $this->drupalGet('admin/structure/workspaces');
-    $this->assertText($workspace1['label'], 'Workspace found in list of workspaces');
+    $this->assertText($workspace3['label'], 'Workspace found in list of workspaces');
 
-    $workspace2 = [
+    $workspace4 = [
       'label' => 'Workspace 2',
       'machine_name' => 'A!"£%^&*{}#~@?',
     ];
-    $this->drupalPostForm('admin/structure/workspaces/add', $workspace2, t('Save'));
+    $this->drupalPostForm('admin/structure/workspaces/add', $workspace4, t('Save'));
 
     $this->drupalGet('admin/structure/workspaces');
-    $this->assertNoText($workspace2['label'], 'Workspace not found in list of workspaces');
+    $this->assertNoText($workspace4['label'], 'Workspace not found in list of workspaces');
   }
 }
