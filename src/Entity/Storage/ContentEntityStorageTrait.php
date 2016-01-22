@@ -149,23 +149,38 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function save(EntityInterface $entity) {
-    $entities = $this->loadAllByProperties([
-      'uuid' => $entity->uuid()
-    ]);
+    $entities = $this->loadAllByProperties(['uuid' => $entity->uuid()]);
     $loaded_entity = reset($entities);
-    $this->currentWorkspace = TRUE;
+    $active_workspace_id = \Drupal::service('multiversion.manager')->getActiveWorkspaceId();
     if ($loaded_entity instanceof ContentEntityInterface
-      && $entity->id() == NULL
       && $loaded_entity->workspace->target_id != $entity->workspace->target_id) {
+
+      // Load entity by revision from entity index.
+      $workspaces = \Drupal::entityTypeManager()->getStorage('workspace')->loadMultiple();
+      $entity_index = \Drupal::service('entity.index.id');
+      $key = $entity->getEntityTypeId() . ':' . $loaded_entity->id();
+      $entity_revision = $loaded_entity;
+
+      // Load the entity revision we need.
+      foreach ($workspaces as $workspace) {
+        $entity_index->useWorkspace($workspace->id());
+        $index = $entity_index->get($key);
+        if (!empty($index['rev']) && $index['rev'] == $entity->_rev->value) {
+          $entity_revision = $this->loadRevision($index['revision_id']);
+        }
+      }
+
+      // Set the necessary values for entity object before saving the field.
       $id_key = $entity->getEntityType()->getKey('id');
       $revision_key = $entity->getEntityType()->getKey('revision');
-      $id = $loaded_entity->id();
+      $id = $entity_revision->id();
       $entity->{$id_key}->value = $id;
       $entity->setOriginalId($id);
-      $entity->{$revision_key}->value = $loaded_entity->getRevisionId();
+      $entity->{$revision_key}->value = $entity_revision->getRevisionId();
       $entity->setNewRevision(FALSE);
-      $workspaces = $loaded_entity->get('workspace')->getValue();
+      $workspaces = $entity_revision->get('workspace')->getValue();
       $values = array_column($workspaces, 'target_id');
+      // Create an array with values for 'workspace' field.
       foreach ($entity->get('workspace')->getValue() as $item) {
         if (!in_array($item['target_id'], $values)) {
           $workspaces[] = $item;
@@ -173,10 +188,38 @@ trait ContentEntityStorageTrait {
       }
       $entity->workspace = $workspaces;
 
+      // Set back the active workspace for entity index.
+      $entity_index->useWorkspace($active_workspace_id);
+
+      // Index the revision info.
+      $entity_index->add($entity);
+      \Drupal::service('entity.index.sequence')->add($entity);
+      \Drupal::service('entity.index.uuid')->add($entity);
+      \Drupal::service('entity.index.rev')->add($entity);
+
+      // Create the branch for the revision tree.
+      $branch = [];
+      $rev = $entity->_rev->value;
+      list($i) = explode('-', $rev);
+      $revisions = $entity->_rev->revisions;
+      for ($c = 0; $c < count($revisions); ++$c) {
+        $p = $c + 1;
+        $rev = $i-- . '-' . $revisions[$c];
+        $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
+        $branch[$rev] = $parent_rev;
+      }
+
+      // Index the revision tree.
+      \Drupal::service('entity.index.rev.tree')->updateTree(
+        $entity->uuid(), $branch
+      );
+
+      // Save just the 'workspace' field, not entire entity.
       parent::saveToDedicatedTables($entity, TRUE, ['workspace']);
     }
     else {
-      $entity->workspace = ['target_id' => multiversion_get_active_workspace_id()];
+      $this->currentWorkspace = TRUE;
+      $entity->workspace = ['target_id' => $active_workspace_id];
 
       // Every update is a new revision with this storage model.
       $entity->setNewRevision();
@@ -264,13 +307,13 @@ trait ContentEntityStorageTrait {
       // Decide whether or not this is the default revision.
       if (!$entity->isNew()) {
         $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
-//        if ($entity->_rev->value == $default_rev) {
+        if ($entity->_rev->value == $default_rev) {
           $entity->isDefaultRevision(TRUE);
-//        }
-//        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
-//        else {
-//          $entity->isDefaultRevision(FALSE);
-//        }
+        }
+        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
+        else {
+          $entity->isDefaultRevision(FALSE);
+        }
       }
     }
 
