@@ -1,0 +1,12 @@
+entity.workspace.edit_form:
+  route_name: entity.workspace.edit_form
+  base_route: entity.workspace.canonical
+  title: Edit
+entity.workspace_type.edit_form:
+  title: 'Edit'
+  route_name: entity.workspace_type.edit_form
+  base_route: entity.workspace_type.edit_form
+entity.workspace_type.collection:
+  title: List
+  route_name: entity.workspace_type.collection
+  base_route: entity.workspace_type.collection

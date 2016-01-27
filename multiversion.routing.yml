@@ -8,6 +8,16 @@ multiversion.form_add:
   requirements:
     _permission: 'administer workspaces'
 
+multiversion.form_add_type:
+  path: '/admin/structure/workspaces/add/{workspace_type}'
+  defaults:
+    _entity_form: 'workspace.add'
+    _title: 'Add workspace'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer workspaces'
+
 entity.workspace.edit_form:
   path: '/admin/structure/workspaces/{workspace}/edit'
   defaults:

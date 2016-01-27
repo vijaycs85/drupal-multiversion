@@ -35,6 +35,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   },
  *   admin_permission = "administer workspaces",
  *   base_table = "workspace",
+ *   revision_table = "workspace_revision",
  *   bundle_entity_type = "workspace_type",
  *   entity_keys = {
  *     "id" = "id",
