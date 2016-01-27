@@ -9,6 +9,7 @@ namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 
@@ -18,6 +19,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  * @ContentEntityType(
  *   id = "workspace",
  *   label = @Translation("Workspace"),
+ *   bundle_label = @Translation("Workspace type"),
  *   handlers = {
  *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage",
  *     "list_builder" = "Drupal\multiversion\WorkspaceListBuilder",
@@ -28,14 +30,16 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     },
  *   },
  *   links = {
- *     "edit-form" = "/workspace/{workspace}/edit",
+ *     "edit-form" = "/admin/structure/workspaces/{workspace}/edit",
  *     "collection" = "/admin/structure/workspaces"
  *   },
  *   admin_permission = "administer workspaces",
  *   base_table = "workspace",
+ *   bundle_entity_type = "workspace_type",
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "revision_id",
+ *     "bundle" = "type",
  *     "uuid" = "uuid",
  *     "label" = "label",
  *     "machine_name" = "machine_name",
@@ -56,6 +60,12 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setDescription(t('The workspace ID.'))
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
+
+    $fields['type'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Type'))
+      ->setDescription(t('The workspace type.'))
+      ->setSetting('target_type', 'workspace_type')
+      ->setReadOnly(TRUE);
 
     $fields['label'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Workaspace ID'))
@@ -86,6 +96,15 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setDescription(t('The UNIX timestamp of when the workspace has been created.'));
 
     return $fields;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function preCreate(EntityStorageInterface $storage, array &$values) {
+    if (empty($values['type'])) {
+      $values['type'] = 'default';
+    }
   }
 
   /**

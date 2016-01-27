@@ -34,3 +34,45 @@ entity.workspace.collection:
     _entity_list: 'workspace'
   requirements:
     _permission: 'administer workspaces'
+
+# WorkspaceType routing definition
+entity.workspace_type.collection:
+  path: '/admin/structure/workspace_type'
+  defaults:
+    _entity_list: 'workspace_type'
+    _title: 'Workspace type'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+entity.workspace_type.add_form:
+  path: '/admin/structure/workspace_type/add'
+  defaults:
+    _entity_form: 'workspace_type.add'
+    _title: 'Add Workspace type'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+entity.workspace_type.edit_form:
+  path: '/admin/structure/workspace_type/{workspace_type}'
+  defaults:
+    _entity_form: 'workspace_type.edit'
+    _title: 'Edit Workspace type'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
+entity.workspace_type.delete_form:
+  path: '/admin/structure/workspace_type/{workspace_type}/delete'
+  defaults:
+    _entity_form: 'workspace_type.delete'
+    _title: 'Delete Workspace type'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
+
