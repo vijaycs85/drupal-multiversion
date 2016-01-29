@@ -7,7 +7,8 @@
 
 namespace Drupal\multiversion;
 
-use Drupal\multiversion\Entity\WorkspaceInterface;
+
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 
 /**
@@ -29,7 +30,7 @@ class WorkspaceListBuilder extends EntityListBuilder {
   /**
    * {@inheritdoc}
    */
-  public function buildRow(WorkspaceInterface $entity) {
+  public function buildRow(EntityInterface $entity) {
     $row['label'] = $entity->label() . ' (' . $entity->getMachineName() . ')';
     $type = $entity->get('type')->first()->entity;
     $row['type'] = $type ? $type->label() : '';
@@ -39,7 +40,7 @@ class WorkspaceListBuilder extends EntityListBuilder {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultOperations(WorkspaceInterface $entity) {
+  public function getDefaultOperations(EntityInterface $entity) {
     $operations = parent::getDefaultOperations($entity);
     if (isset($operations['edit'])) {
       $operations['edit']['query']['destination'] = $entity->url('collection');
