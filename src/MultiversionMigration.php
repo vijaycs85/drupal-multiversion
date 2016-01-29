@@ -157,6 +157,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * Helper method to fetch the field map for an entity type.
    *
    * @param EntityTypeInterface $entity_type
+   * @return array
    */
   public function getFieldMap(EntityTypeInterface $entity_type) {
     $map = array();

@@ -37,6 +37,11 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   base_table = "workspace",
  *   revision_table = "workspace_revision",
  *   bundle_entity_type = "workspace_type",
+ *   links = {
+ *     "canonical" = "/admin/structure/workspaces/{workspace}",
+ *     "edit-form" = "/admin/structure/workspaces/{workspace}/edit",
+ *     "collection" = "/admin/structure/workspaces",
+ *   },
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "revision_id",
@@ -104,7 +109,12 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
    */
   public static function preCreate(EntityStorageInterface $storage, array &$values) {
     if (empty($values['type'])) {
-      $values['type'] = 'default';
+      $default = WorkspaceType::load('default');
+      if ($default === null) {
+        $default = WorkspaceType::create(['id' => 'default', 'label' => 'Default']);
+        $default->save();
+      }
+      $values['type'] = $default->id();
     }
   }
 
