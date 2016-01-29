@@ -61,7 +61,7 @@ class WorkspaceBlockTest extends WebTestBase {
     $front = Url::fromRoute('<front>')->toString(TRUE)->getGeneratedUrl();
     $this->assertRaw('href="'. $front .'"', 'The id of the default workspace was displayed in the Workspace switcher block as a link.');
     $machine_name = $this->randomMachineName();
-    $entity = Workspace::create(['machine_name' => $machine_name, 'label' => $machine_name]);
+    $entity = Workspace::create(['machine_name' => $machine_name, 'label' => $machine_name, 'type' => 'basic']);
     $entity->save();
     $id = $entity->id();
     $node = Node::create(['type' => 'article', 'title' => 'Test article']);

@@ -90,9 +90,9 @@ class UuidIndexTest extends MultiversionWebTestBase {
     $workspace_storage = $this->container->get('entity.manager')->getStorage('workspace');
     // Create new workspaces and query those.
     $ws1 = $this->randomMachineName();
-    $workspace_storage->create(['id' => $ws1]);
+    $workspace_storage->create(['machine_name' => $ws1, 'type' => 'basic']);
     $ws2 = $this->randomMachineName();
-    $workspace_storage->create(['id' => $ws2]);
+    $workspace_storage->create(['machine_name' => $ws2, 'type' => 'basic']);
 
     $entity = EntityTest::create();
     $uuid = $entity->uuid();
