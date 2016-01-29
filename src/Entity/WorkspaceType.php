@@ -17,6 +17,9 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   label = @Translation("Workspace type"),
  *   handlers = {
  *     "list_builder" = "Drupal\multiversion\WorkspaceTypeListBuilder",
+ *     "route_provider" = {
+ *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider"
+ *     },
  *     "form" = {
  *       "add" = "Drupal\multiversion\Form\WorkspaceTypeForm",
  *       "edit" = "Drupal\multiversion\Form\WorkspaceTypeForm",
@@ -32,10 +35,9 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" = "/admin/structure/workspace_type/{workspace_type}",
- *     "edit-form" = "/admin/structure/workspace_type/{workspace_type}/edit",
- *     "delete-form" = "/admin/structure/workspace_type/{workspace_type}/delete",
- *     "collection" = "/admin/structure/visibility_group"
+ *     "edit-form" = "/admin/structure/workspaces/types/{workspace_type}/edit",
+ *     "delete-form" = "/admin/structure/workspaces/types/{workspace_type}/delete",
+ *     "collection" = "/admin/structure/workspaces/types"
  *   }
  * )
  */

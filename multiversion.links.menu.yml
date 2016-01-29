@@ -3,10 +3,3 @@ entity.workspace.collection:
   parent: system.admin_structure
   description: 'Create and manage workspaces.'
   route_name: entity.workspace.collection
-# Workspace type menu items definition
-entity.workspace_type.collection:
-  title: 'Workspace type'
-  route_name: entity.workspace_type.collection
-  description: 'List Workspace type'
-  parent: system.admin_structure
-
