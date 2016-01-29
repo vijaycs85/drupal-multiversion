@@ -23,6 +23,9 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   handlers = {
  *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage",
  *     "list_builder" = "Drupal\multiversion\WorkspaceListBuilder",
+ *     "route_provider" = {
+ *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider"
+ *     },
  *     "form" = {
  *       "add" = "Drupal\multiversion\WorkspaceForm",
  *       "edit" = "Drupal\multiversion\WorkspaceForm",
@@ -37,11 +40,6 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   base_table = "workspace",
  *   revision_table = "workspace_revision",
  *   bundle_entity_type = "workspace_type",
- *   links = {
- *     "canonical" = "/admin/structure/workspaces/{workspace}",
- *     "edit-form" = "/admin/structure/workspaces/{workspace}/edit",
- *     "collection" = "/admin/structure/workspaces",
- *   },
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "revision_id",
