@@ -1,18 +1,18 @@
-multiversion.add_form:
+entity.workspace.add:
   path: '/admin/structure/workspaces/add'
   defaults:
-    _entity_form: 'workspace.add'
+    _controller: '\Drupal\multiversion\Controller\WorkspaceController::add'
     _title: 'Add workspace'
   options:
     _admin_route: TRUE
   requirements:
     _permission: 'administer workspaces'
 
-multiversion.form_add_type:
+entity.workspace.add_form:
   path: '/admin/structure/workspaces/add/{workspace_type}'
   defaults:
-    _entity_form: 'workspace.add'
-    _title: 'Add workspace'
+    _controller: '\Drupal\multiversion\Controller\WorkspaceController::addForm'
+    _title_callback: '\Drupal\multiversion\Controller\WorkspaceController::getAddFormTitle'
   options:
     _admin_route: TRUE
   requirements:

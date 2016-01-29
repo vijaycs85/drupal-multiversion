@@ -38,7 +38,7 @@ class WorkspaceForm extends ContentEntityForm {
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $workspace->label(),
-      '#description' => $this->t("Label for the Endpoint."),
+      '#description' => $this->t("Label for the Workspace."),
       '#required' => TRUE,
     );
 
