@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Entity\Storage;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -151,14 +152,14 @@ trait ContentEntityStorageTrait {
   public function save(EntityInterface $entity) {
     $entities = $this->loadAllByProperties(['uuid' => $entity->uuid()]);
     $loaded_entity = reset($entities);
-    $active_workspace_id = \Drupal::service('multiversion.manager')->getActiveWorkspaceId();
+    $active_workspace_id = $this->getActiveWorkspaceId();
     if ($loaded_entity instanceof ContentEntityInterface
       && $loaded_entity->workspace->target_id != $entity->workspace->target_id) {
 
       // Load entity by revision from entity index.
       $workspaces = \Drupal::entityTypeManager()->getStorage('workspace')->loadMultiple();
       $entity_index = \Drupal::service('entity.index.id');
-      $key = $entity->getEntityTypeId() . ':' . $loaded_entity->id();
+      $key = $this->entityTypeId . ':' . $loaded_entity->id();
       $entity_revision = $loaded_entity;
 
       // Load the entity revision we need.
@@ -171,12 +172,13 @@ trait ContentEntityStorageTrait {
       }
 
       // Set the necessary values for entity object before saving the field.
-      $id_key = $entity->getEntityType()->getKey('id');
-      $revision_key = $entity->getEntityType()->getKey('revision');
+      $id_key = $this->entityType->getKey('id');
+      $revision_key = $this->entityType->getKey('revision');
       $id = $entity_revision->id();
       $entity->{$id_key}->value = $id;
       $entity->setOriginalId($id);
-      $entity->{$revision_key}->value = $entity_revision->getRevisionId();
+      $revision = $entity_revision->getRevisionId();
+      $entity->{$revision_key}->value = $revision;
       $entity->setNewRevision(FALSE);
       $workspaces = $entity_revision->get('workspace')->getValue();
       $values = array_column($workspaces, 'target_id');
@@ -213,6 +215,14 @@ trait ContentEntityStorageTrait {
       \Drupal::service('entity.index.rev.tree')->updateTree(
         $entity->uuid(), $branch
       );
+
+      // Invalidate the cache tag.
+      Cache::invalidateTags(['workspace_' . $this->entityTypeId . '_' . $id]);
+
+      // Set the static cache.
+      $this->setStaticCache([$id => $entity]);
+      // Set the persistent cache.
+      $this->setPersistentCache([$id => $entity]);
 
       // Save just the 'workspace' field, not entire entity.
       parent::saveToDedicatedTables($entity, TRUE, ['workspace']);
@@ -317,6 +327,9 @@ trait ContentEntityStorageTrait {
       }
     }
 
+    // Invalidate the cache tag.
+    Cache::invalidateTags(['workspace_' . $this->entityTypeId . '_' . $id]);
+
     return parent::doSave($id, $entity);
   }
 
@@ -419,6 +432,7 @@ trait ContentEntityStorageTrait {
       'workspace_' . $ws,
     );
     foreach ($entities as $id => $entity) {
+      $cache_tags[] = 'workspace_' . $this->entityTypeId . '_' . $id;
       $this->cacheBackend->set($this->buildCacheId($id), $entity, CacheBackendInterface::CACHE_PERMANENT, $cache_tags);
     }
   }
