@@ -105,20 +105,6 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
   /**
    * {@inheritdoc}
    */
-  public static function preCreate(EntityStorageInterface $storage, array &$values) {
-    if (empty($values['type'])) {
-      $default = WorkspaceType::load('default');
-      if ($default === null) {
-        $default = WorkspaceType::create(['id' => 'default', 'label' => 'Default']);
-        $default->save();
-      }
-      $values['type'] = $default->id();
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getUpdateSeq() {
     return \Drupal::service('entity.index.sequence')->useWorkspace($this->id())->getLastSequenceId();
   }

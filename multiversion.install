@@ -8,9 +8,9 @@ use Drupal\multiversion\Entity\WorkspaceType;
  */
 function multiversion_install() {
   // Create default workspace.
-  $default = WorkspaceType::create(['id' => 'default', 'label' => 'Default']);
-  $default->save();
-  Workspace::create(['machine_name' => 'default', 'label' => 'Default', 'type' => $default->id()])->save();
+  $basic = WorkspaceType::create(['id' => 'basic', 'label' => 'Basic workspace']);
+  $basic->save();
+  Workspace::create(['machine_name' => 'default', 'label' => 'Default', 'type' => $basic->id()])->save();
 }
 
 /**
