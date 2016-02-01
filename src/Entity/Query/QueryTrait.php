@@ -59,7 +59,7 @@ trait QueryTrait {
   /**
    * @see \Drupal\multiversion\Entity\Query\QueryInterface::loadFromAllWorkspaces()
    */
-  public function loadFromAllWorkspaces() {
+  public function loadFromAnyWorkspace() {
     $this->currentWorkspace = FALSE;
     return $this;
   }
