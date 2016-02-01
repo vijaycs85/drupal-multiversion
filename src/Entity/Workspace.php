@@ -39,7 +39,10 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *   admin_permission = "administer workspaces",
  *   base_table = "workspace",
  *   revision_table = "workspace_revision",
+ *   data_table = "workspace_field_data",
+ *   revision_data_table = "workspace_field_revision",
  *   bundle_entity_type = "workspace_type",
+ *   field_ui_base_route = "entity.workspace_type.edit_form",
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "revision_id",

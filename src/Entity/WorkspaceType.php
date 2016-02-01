@@ -7,7 +7,7 @@
 
 namespace Drupal\multiversion\Entity;
 
-use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
 
 /**
  * Defines the Workspace type entity.
@@ -38,10 +38,14 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     "edit-form" = "/admin/structure/workspaces/types/{workspace_type}/edit",
  *     "delete-form" = "/admin/structure/workspaces/types/{workspace_type}/delete",
  *     "collection" = "/admin/structure/workspaces/types"
- *   }
+ *   },
+ *   config_export = {
+       "id",
+       "label",
+     }
  * )
  */
-class WorkspaceType extends ConfigEntityBase implements WorkspaceTypeInterface {
+class WorkspaceType extends ConfigEntityBundleBase implements WorkspaceTypeInterface {
   /**
    * The Workspace type ID.
    *

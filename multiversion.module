@@ -32,6 +32,9 @@ function multiversion_entity_type_alter(array &$entity_types) {
         if ($entity_type->getRevisionTable() === null) {
           $entity_type->set('revision_table', $entity_type->id() . '_revision');
         }
+        if ($entity_type->getRevisionDataTable() === null) {
+          $entity_type->set('revision_data_table', $entity_type->id() . '_field_revision');
+        }
       }
       $namespace = 'Drupal\multiversion\Entity\Storage\Sql';
       switch ($entity_type->id()) {

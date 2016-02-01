@@ -7,8 +7,7 @@
 
 namespace Drupal\multiversion\Form;
 
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityForm;
+use Drupal\Core\Entity\BundleEntityFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -16,7 +15,7 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @package Drupal\multiversion\Form
  */
-class WorkspaceTypeForm extends EntityForm {
+class WorkspaceTypeForm extends BundleEntityFormBase {
   /**
    * {@inheritdoc}
    */
@@ -42,9 +41,7 @@ class WorkspaceTypeForm extends EntityForm {
       '#disabled' => !$workspace_type->isNew(),
     );
 
-    /* You will need additional form elements for your custom properties. */
-
-    return $form;
+    return $this->protectBundleIdElement($form);
   }
 
   /**
