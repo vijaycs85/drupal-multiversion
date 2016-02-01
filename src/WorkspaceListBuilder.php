@@ -7,7 +7,6 @@
 
 namespace Drupal\multiversion;
 
-
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 
