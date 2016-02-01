@@ -299,41 +299,31 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $entity->save();
       $entity_id = $entity->id();
       $this->assertEqual($entity->workspace->target_id, 1, "The workspace reference was saved for $entity_type_id.");
-      $record = db_select($info['data_table'], 'e')
+      $record = db_select($entity_type_id . '_revision__workspace', 'e')
         ->fields('e')
-        ->condition('e.' . $info['id'], $entity->id())
-        ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
+        ->condition('e.entity_id', $entity->id())
+        ->condition('e.revision_id', $entity->getRevisionId())
         ->execute()
         ->fetchObject();
-      $this->assertEqual($record->workspace, 1, "The workspace reference was stored for saved $entity_type_id.");
-
-      $entity = $storage->load($entity_id);
-      $this->assertEqual($entity->workspace->target_id, 1, "The workspace reference is retained for loaded $entity_type_id.");
-      $record = db_select($info['data_table'], 'e')
-        ->fields('e')
-        ->condition('e.' . $info['id'], $entity->id())
-        ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
-        ->execute()
-        ->fetchObject();
-      $this->assertEqual($record->workspace, 1, "The workspace reference was stored for loaded $entity_type_id.");
+      $this->assertEqual($record->workspace_target_id, 1, "The workspace reference was stored for saved $entity_type_id.");
 
       $entities = $storage->loadMultiple([$entity_id]);
       $storage->delete($entities);
       $entity = $storage->loadDeleted($entity_id);
       $this->assertEqual($entity->workspace->target_id, 1, "The workspace reference is retained for deleted $entity_type_id.");
-      $record = db_select($info['data_table'], 'e')
+      $record = db_select($entity_type_id . '_revision__workspace', 'e')
         ->fields('e')
-        ->condition('e.' . $info['id'], $entity->id())
-        ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
+        ->condition('e.entity_id', $entity->id())
+        ->condition('e.revision_id', $entity->getRevisionId())
         ->execute()
         ->fetchObject();
-      $this->assertEqual($record->workspace, 1, "The workspace reference was stored for deleted $entity_type_id.");
+      $this->assertEqual($record->workspace_target_id, 1, "The workspace reference was stored for deleted $entity_type_id.");
     }
 
     // Test workspace when switching the workspace.
 
     // Create a new workspace and switch to it.
-    $workspace = Workspace::create(['id' => $this->randomMachineName()]);
+    $workspace = Workspace::create(['id' => 2]);
     $this->workspaceManager->setActiveWorkspace($workspace);
 
     foreach ($this->entityTypes as $entity_type_id => $info) {

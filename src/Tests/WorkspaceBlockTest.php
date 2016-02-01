@@ -67,7 +67,6 @@ class WorkspaceBlockTest extends WebTestBase {
     $node = Node::create(['type' => 'article', 'title' => 'Test article']);
     $node->save();
     $nid = $node->id();
-    drupal_flush_all_caches();
     $this->drupalGet('');
     $this->assertText('Test article', 'The title of the test article was displayed on the front page.');
     $this->drupalGet("node/$nid");
@@ -85,7 +84,6 @@ class WorkspaceBlockTest extends WebTestBase {
     $this->drupalGet('<front>', ['query' => ['workspace' => $id]]);
     $this->assertNoText('Test article', 'The title of the test article was not displayed on the front page after switching the workspace.');
     $entity->delete();
-    drupal_flush_all_caches();
     $this->drupalGet('');
     $this->assertNoText($machine_name, 'The name of the deleted workspace was not displayed in the Workspace switcher block.');
   }
