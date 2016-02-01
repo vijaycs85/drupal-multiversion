@@ -26,7 +26,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *       "delete" = "Drupal\multiversion\Form\WorkspaceTypeDeleteForm"
  *     }
  *   },
- *   config_prefix = "workspace_type",
+ *   config_prefix = "type",
  *   bundle_of = "workspace",
  *   admin_permission = "administer site configuration",
  *   entity_keys = {
@@ -40,9 +40,9 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *     "collection" = "/admin/structure/workspaces/types"
  *   },
  *   config_export = {
-       "id",
-       "label",
-     }
+ *      "id",
+ *      "label",
+ *    }
  * )
  */
 class WorkspaceType extends ConfigEntityBundleBase implements WorkspaceTypeInterface {
