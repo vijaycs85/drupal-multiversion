@@ -111,7 +111,7 @@ trait ContentEntityStorageTrait {
   /**
    * {@inheritdoc}
    */
-  public function loadFromAllWorkspaces(array $ids = NULL) {
+  public function loadFromAnyWorkspace(array $ids = NULL) {
     $this->isDeleted = FALSE;
     $this->currentWorkspace = FALSE;
     return parent::loadMultiple($ids);
@@ -137,20 +137,20 @@ trait ContentEntityStorageTrait {
   /**
    * {@inheritdoc}
    */
-  public function loadAllByProperties(array $values = array()) {
+  public function loadByPropertiesFromAnyWorkspace(array $values = array()) {
     // Build a query to fetch the entity IDs.
     $entity_query = $this->getQuery();
-    $entity_query->loadFromAllWorkspaces();
+    $entity_query->loadFromAnyWorkspace();
     $this->buildPropertyQuery($entity_query, $values);
     $result = $entity_query->execute();
-    return $result ? $this->loadFromAllWorkspaces($result) : array();
+    return $result ? $this->loadFromAnyWorkspace($result) : array();
   }
 
   /**
    * {@inheritdoc}
    */
   public function save(EntityInterface $entity) {
-    $entities = $this->loadAllByProperties(['uuid' => $entity->uuid()]);
+    $entities = $this->loadByPropertiesFromAnyWorkspace(['uuid' => $entity->uuid()]);
     $loaded_entity = reset($entities);
     $active_workspace_id = $this->getActiveWorkspaceId();
     if ($loaded_entity instanceof ContentEntityInterface

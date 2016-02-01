@@ -25,7 +25,7 @@ interface QueryInterface extends CoreQueryInterface {
   /**
    * @return \Drupal\multiversion\Entity\Query\QueryInterface
    */
-  public function loadFromAllWorkspaces();
+  public function loadFromAnyWorkspace();
 
   /**
    * @return \Drupal\multiversion\Entity\Query\QueryInterface
