@@ -19,7 +19,7 @@ class WorkspaceController extends ControllerBase {
     if (count($types) === 0) {
       return array(
         '#markup' => $this->t('You have not created any Workspace types yet. Go to the <a href=":url">Workspace type creation page</a> to add a new Workspace type.', [
-          ':url' => Url::fromRoute('entity.workspace_type.add_form')->toString(),
+          ':url' => Url::fromRoute('entity.workspace_type.add')->toString(),
         ]),
       );
     }
