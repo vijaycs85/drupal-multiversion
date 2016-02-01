@@ -65,7 +65,7 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $workspace_name = $this->randomMachineName();
     /** @var \Drupal\Core\Entity\EntityStorageInterface $workspace_storage */
     $workspace_storage = $this->container->get('entity.manager')->getStorage('workspace');
-    $workspace_storage->create(['name' => $workspace_name]);
+    $workspace_storage->create(['machine_name' => $workspace_name, 'type' => 'basic']);
     // Generate a new sequence ID.
     $this->sequenceIndex->useWorkspace($workspace_name)->add($entity);
 

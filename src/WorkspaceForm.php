@@ -28,7 +28,6 @@ class WorkspaceForm extends ContentEntityForm {
    */
   public function form(array $form, FormStateInterface $form_state) {
     $workspace = $this->entity;
-    $form = parent::form($form, $form_state, $workspace);
 
     if ($this->operation == 'edit') {
       $form['#title'] = $this->t('Edit workspace %label', array('%label' => $workspace->label()));
@@ -38,7 +37,7 @@ class WorkspaceForm extends ContentEntityForm {
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $workspace->label(),
-      '#description' => $this->t("Label for the Endpoint."),
+      '#description' => $this->t("Label for the Workspace."),
       '#required' => TRUE,
     );
 
@@ -53,7 +52,7 @@ class WorkspaceForm extends ContentEntityForm {
       '#element_validate' => array(),
     );
 
-    return $form;
+    return parent::form($form, $form_state, $workspace);;
   }
 
   /**

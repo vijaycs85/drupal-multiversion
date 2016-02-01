@@ -26,7 +26,7 @@ class WorkspaceTest extends MultiversionWebTestBase {
     $default = Workspace::load(1);
     $this->assertTrue(!empty($default), 'Default workspace was created when installing Multiversion module.');
     $machine_name = $this->randomMachineName();
-    $entity = Workspace::create(['machine_name' => $machine_name, 'label' => $machine_name]);
+    $entity = Workspace::create(['machine_name' => $machine_name, 'label' => $machine_name, 'type' => 'basic']);
 
     $this->assertTrue($entity instanceof WorkspaceInterface, 'Workspace entity was created.');
 
@@ -51,11 +51,11 @@ class WorkspaceTest extends MultiversionWebTestBase {
   public function testSpecialCharacters() {
     //  Note that only lowercase characters (a-z), digits (0-9),
     // or any of the characters _, $, (, ), +, -, and / are allowed.
-    $workspace1 = Workspace::create(['label' => 'Workspace 1', 'machine_name' => 'a0_$()+-/']);
+    $workspace1 = Workspace::create(['label' => 'Workspace 1', 'machine_name' => 'a0_$()+-/', 'type' => 'basic']);
     $violations1 = $workspace1->validate();
     $this->assertEqual($violations1->count(), 0, 'No violations');
 
-    $workspace2 = Workspace::create(['label' => 'Workspace 2', 'machine_name' => 'A!"£%^&*{}#~@?']);
+    $workspace2 = Workspace::create(['label' => 'Workspace 2', 'machine_name' => 'A!"£%^&*{}#~@?', 'type' => 'basic']);
     $violations2 = $workspace2->validate();
     $this->assertEqual($violations2->count(), 1, 'One violation');
 

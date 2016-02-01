@@ -9,8 +9,10 @@ namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\user\UserInterface;
 
 /**
  * The workspace entity class.
@@ -18,9 +20,13 @@ use Drupal\Core\Field\BaseFieldDefinition;
  * @ContentEntityType(
  *   id = "workspace",
  *   label = @Translation("Workspace"),
+ *   bundle_label = @Translation("Workspace type"),
  *   handlers = {
  *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage",
  *     "list_builder" = "Drupal\multiversion\WorkspaceListBuilder",
+ *     "route_provider" = {
+ *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider"
+ *     },
  *     "form" = {
  *       "add" = "Drupal\multiversion\WorkspaceForm",
  *       "edit" = "Drupal\multiversion\WorkspaceForm",
@@ -28,17 +34,24 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     },
  *   },
  *   links = {
- *     "edit-form" = "/workspace/{workspace}/edit",
+ *     "edit-form" = "/admin/structure/workspaces/{workspace}/edit",
  *     "collection" = "/admin/structure/workspaces"
  *   },
  *   admin_permission = "administer workspaces",
  *   base_table = "workspace",
+ *   revision_table = "workspace_revision",
+ *   data_table = "workspace_field_data",
+ *   revision_data_table = "workspace_field_revision",
+ *   bundle_entity_type = "workspace_type",
+ *   field_ui_base_route = "entity.workspace_type.edit_form",
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "revision_id",
+ *     "bundle" = "type",
  *     "uuid" = "uuid",
  *     "label" = "label",
  *     "machine_name" = "machine_name",
+ *     "uid" = "uid",
  *     "created" = "created"
  *   },
  *   multiversion = FALSE,
@@ -46,6 +59,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
  * )
  */
 class Workspace extends ContentEntityBase implements WorkspaceInterface {
+
+  use EntityChangedTrait;
 
   /**
    * {@inheritdoc}
@@ -57,18 +72,10 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
 
-    $fields['label'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Workaspace ID'))
-      ->setDescription(t('The workspace label.'))
-      ->setSetting('max_length', 128)
-      ->setRequired(TRUE);
-
-    $fields['machine_name'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Workaspace ID'))
-      ->setDescription(t('The workspace machine name.'))
-      ->setSetting('max_length', 128)
-      ->setRequired(TRUE)
-      ->addPropertyConstraints('value', ['Regex' => ['pattern' => '/^[\da-z_$()+-\/]*$/']]);
+    $fields['uuid'] = BaseFieldDefinition::create('uuid')
+      ->setLabel(t('UUID'))
+      ->setDescription(t('The workspace UUID.'))
+      ->setReadOnly(TRUE);
 
     $fields['revision_id'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Revision ID'))
@@ -76,12 +83,40 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
 
-    $fields['uuid'] = BaseFieldDefinition::create('uuid')
-      ->setLabel(t('UUID'))
-      ->setDescription(t('The workspace UUID.'))
+    $fields['label'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Workaspace name'))
+      ->setDescription(t('The workspace name.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('max_length', 128)
+      ->setRequired(TRUE);
+
+    $fields['machine_name'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Workaspace ID'))
+      ->setDescription(t('The workspace machine name.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('max_length', 128)
+      ->setRequired(TRUE)
+      ->addPropertyConstraints('value', ['Regex' => ['pattern' => '/^[\da-z_$()+-\/]*$/']]);
+
+    $fields['uid'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Owner'))
+      ->setDescription(t('The workspace owner.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'user')
+      ->setDefaultValue(\Drupal::currentUser()->id());
+
+    $fields['type'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Type'))
+      ->setDescription(t('The workspace type.'))
+      ->setSetting('target_type', 'workspace_type')
       ->setReadOnly(TRUE);
 
-    $fields['created'] = BaseFieldDefinition::create('string')
+    $fields['changed'] = BaseFieldDefinition::create('changed')
+      ->setLabel(t('Changed'))
+      ->setDescription(t('The time that the workspace was last edited.'))
+      ->setRevisionable(TRUE);
+
+    $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
       ->setDescription(t('The UNIX timestamp of when the workspace has been created.'));
 
@@ -120,11 +155,31 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
   /**
    * {@inheritdoc}
    */
-  public function save() {
-    if (is_null($this->getStartTime())) {
-      $this->setCreatedTime(microtime(TRUE) * 1000000);
-    }
-    parent::save();
+  public function getOwner() {
+    return $this->get('uid')->entity;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setOwner(UserInterface $account) {
+    $this->set('uid', $account->id());
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOwnerId() {
+    return $this->get('uid')->target_id;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setOwnerId($uid) {
+    $this->set('uid', $uid);
+    return $this;
   }
 
 }

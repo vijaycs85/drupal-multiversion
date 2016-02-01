@@ -7,9 +7,11 @@
 
 namespace Drupal\multiversion\Entity;
 
-use Drupal\Core\Entity\RevisionableInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityChangedInterface;
+use Drupal\user\EntityOwnerInterface;
 
-interface WorkspaceInterface extends RevisionableInterface {
+interface WorkspaceInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
 
   /**
    * Returns the last sequence ID in the workspace's sequence index.
@@ -44,4 +46,5 @@ interface WorkspaceInterface extends RevisionableInterface {
    *   Machine name of the workspace.
    */
   public function getMachineName();
+
 }
