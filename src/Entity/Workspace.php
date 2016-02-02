@@ -103,7 +103,7 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setDescription(t('The workspace owner.'))
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'user')
-      ->setDefaultValue(\Drupal::currentUser()->id());
+      ->setDefaultValueCallback('Drupal\multiversion\Entity\Workspace::getCurrentUserId');
 
     $fields['type'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Type'))
@@ -180,6 +180,18 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
   public function setOwnerId($uid) {
     $this->set('uid', $uid);
     return $this;
+  }
+
+  /**
+   * Default value callback for 'uid' base field definition.
+   *
+   * @see ::baseFieldDefinitions()
+   *
+   * @return array
+   *   An array of default values.
+   */
+  public static function getCurrentUserId() {
+    return array(\Drupal::currentUser()->id());
   }
 
 }
