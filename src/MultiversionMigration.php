@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
@@ -134,7 +135,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       $values = [
         'id' => $id,
         'label' => '',
-        'process' => $this->getFieldMap($entity_type),
+        'process' => $this->getFieldMap($entity_type, TRUE),
         'source' => ['plugin' => 'tempstore'],
         'destination' => ['plugin' => 'multiversion'],
       ];
@@ -156,19 +157,32 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * Helper method to fetch the field map for an entity type.
    *
    * @param EntityTypeInterface $entity_type
+   * @param bool $migration_from_tmp
+   *
    * @return array
    */
-  public function getFieldMap(EntityTypeInterface $entity_type) {
+  public function getFieldMap(EntityTypeInterface $entity_type, $migration_from_tmp = FALSE) {
     $map = array();
     $bundle_info = $this->entityManager->getBundleInfo($entity_type->id());
     foreach ($bundle_info as $bundle_id => $bundle_label) {
       $definitions = $this->entityManager->getFieldDefinitions($entity_type->id(), $bundle_id);
       foreach ($definitions as $definition) {
         $name = $definition->getName();
-        // We don't want our own fields to be part of the migration mapping or
-        // they would get assigned NULL instead of default values.
-        if (!in_array($name, ['workspace', '_deleted', '_rev'])) {
-          $map[$name] = $name;
+        $type = $definition->getType();
+        $text_types = ['text', 'text_long', 'text_with_summary'];
+        if ($migration_from_tmp && in_array($type, $text_types)) {
+          // Add a custom process plugin for text fields.
+          $map[$name] = [
+            'plugin' => 'text_field_process',
+            'source' => $name,
+          ];
+        }
+        else {
+          // We don't want our own fields to be part of the migration mapping or
+          // they would get assigned NULL instead of default values.
+          if (!in_array($name, ['workspace', '_deleted', '_rev'])) {
+            $map[$name] = $name;
+          }
         }
       }
     }
