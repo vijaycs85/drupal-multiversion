@@ -1,4 +1,4 @@
-multiversion.workspace_type.*:
+multiversion.type.*:
   type: config_entity
   label: 'Workspace type config'
   mapping:
