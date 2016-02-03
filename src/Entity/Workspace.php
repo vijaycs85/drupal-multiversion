@@ -98,6 +98,16 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setRequired(TRUE)
       ->addPropertyConstraints('value', ['Regex' => ['pattern' => '/^[\da-z_$()+-\/]*$/']]);
 
+    $fields['upstream'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Upstream workspace'))
+      ->setDescription(t('The workspace to push to and pull from.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'workspace')
+      ->setDisplayOptions('form', array(
+        'type' => 'autocomplete',
+      ))
+      ->setDisplayConfigurable('form', TRUE);
+
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Owner'))
       ->setDescription(t('The workspace owner.'))
