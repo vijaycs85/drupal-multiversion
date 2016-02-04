@@ -98,6 +98,19 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setRequired(TRUE)
       ->addPropertyConstraints('value', ['Regex' => ['pattern' => '/^[\da-z_$()+-\/]*$/']]);
 
+    $fields['upstream'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Assign default target workspace'))
+      ->setDescription(t('The workspace to push to and pull from.'))
+      ->setRevisionable(TRUE)
+      ->setRequired(TRUE)
+      ->setSetting('target_type', 'workspace')
+      ->setDefaultValueCallback('Drupal\multiversion\Entity\Workspace::getActiveWorkspaceId')
+      ->setDisplayOptions('form', array(
+        'type' => 'options_buttons',
+        'weight' => 0
+      ))
+      ->setDisplayConfigurable('form', TRUE);
+
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Owner'))
       ->setDescription(t('The workspace owner.'))
@@ -191,7 +204,21 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
    *   An array of default values.
    */
   public static function getCurrentUserId() {
-    return array(\Drupal::currentUser()->id());
+    return [\Drupal::currentUser()->id()];
+  }
+
+  /**
+   * Default value callback for 'upstream' base field definition.
+   *
+   * @see ::baseFieldDefinitions()
+   *
+   * @return array
+   */
+  public static function getActiveWorkspaceId() {
+    $active_workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
+    if ($active_workspace) {
+      return [$active_workspace->id()];
+    }
   }
 
 }
