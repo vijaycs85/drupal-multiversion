@@ -104,7 +104,7 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setRevisionable(TRUE)
       ->setRequired(TRUE)
       ->setSetting('target_type', 'workspace')
-      ->setDefaultValueCallback('Drupal\multiversion\Entity\Workspace::getCurrentWorkspaceId')
+      ->setDefaultValueCallback('Drupal\multiversion\Entity\Workspace::getActiveWorkspaceId')
       ->setDisplayOptions('form', array(
         'type' => 'options_buttons',
         'weight' => 0
@@ -207,7 +207,7 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
     return [\Drupal::currentUser()->id()];
   }
 
-  public static function getCurrentWorkspaceId() {
+  public static function getActiveWorkspaceId() {
     $active_workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
     if ($active_workspace) {
       return [$active_workspace->id()];
