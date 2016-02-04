@@ -207,6 +207,13 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
     return [\Drupal::currentUser()->id()];
   }
 
+  /**
+   * Default value callback for 'upstream' base field definition.
+   *
+   * @see ::baseFieldDefinitions()
+   *
+   * @return array
+   */
   public static function getActiveWorkspaceId() {
     $active_workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
     if ($active_workspace) {
