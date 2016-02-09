@@ -2,7 +2,6 @@
 
 namespace Drupal\multiversion;
 
-use Drupal\Component\Utility\Html;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
@@ -108,6 +107,17 @@ class MultiversionMigration implements MultiversionMigrationInterface {
     $entities = $storage->loadMultiple();
     if ($entities) {
       $storage->delete($entities);
+    }
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function emptyMultiversionStorage(EntityTypeInterface $entity_type, EntityStorageInterface $storage) {
+    $entities = $storage->loadMultiple();
+    if ($entities) {
+      $storage->purge($entities);
     }
     return $this;
   }

@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -60,6 +61,13 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * @var int
    */
   protected $lastSequenceId;
+
+  /**
+   * Entity types that Multiversion support but are disabled.
+   *
+   * @var array
+   */
+  protected $disabledEntityTypes = [];
 
   /**
    * Entity types that Multiversion won't support.
@@ -199,7 +207,8 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function isEnabledEntityType(EntityTypeInterface $entity_type) {
-    if ($this->isSupportedEntityType($entity_type)) {
+    if ($this->isSupportedEntityType($entity_type)
+      && !in_array($entity_type->id(), $this->disabledEntityTypes)) {
       // Check if the whole migration is done.
       if ($this->state->get('multiversion.migration_done', FALSE)) {
         return TRUE;
@@ -286,6 +295,110 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
     self::migrationIsActive(TRUE);
     $migration->applyNewStorage();
+
+    // Definitions will now be updated. So fetch the new ones.
+    $entity_types = $this->getSupportedEntityTypes();
+
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      // Drop unique key from uuid on each entity type.
+      $base_table = $entity_type->getBaseTable();
+      $uuid_key = $entity_type->getKey('uuid');
+      $this->connection->schema()->dropUniqueKey($base_table, $entity_type_id . '_field__' . $uuid_key . '__value');
+
+      // Migrate from the temporary storage to the new shiny home.
+      if ($has_data[$entity_type_id]) {
+        $migration->migrateContentFromTemp($entity_type);
+      }
+      // Mark the migration for this particular entity type as done even if no
+      // actual content was migrated.
+      $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
+    }
+
+    // Clean up after us.
+    $migration->uninstallDependencies();
+    self::migrationIsActive(FALSE);
+
+    // Mark the whole migration as done. Any entity types installed after this
+    // will not need a migration since they will be created directly on top of
+    // the Multiversion storage.
+    $this->state->set('multiversion.migration_done', TRUE);
+
+    // Another nasty workaround because the cache is getting skewed somewhere.
+    // And resetting the cache on the injected state service does not work.
+    // Very strange.
+    \Drupal::state()->resetCache();
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function disableEntityTypes() {
+    $entity_types = $this->getSupportedEntityTypes();
+    $migration = $this->createMigration();
+
+    $migration->installDependencies();
+
+    // For data integrity and consistency reasons we need to finish each
+    // migration step for all entity types before moving on to the next step.
+
+    $has_data = [];
+    // Walk through and verify that the original storage is in good order.
+    // Flakey contrib modules or mocked tests where some schemas aren't properly
+    // installed should be ignored.
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      $storage = $this->entityManager->getStorage($entity_type_id);
+
+      $has_data[$entity_type_id] = FALSE;
+      try {
+        if ($storage->hasData()) {
+          $has_data[$entity_type_id] = TRUE;
+        }
+      }
+      catch (\Exception $e) {
+        // Don't bother with this entity type any more.
+        unset($entity_types[$entity_type_id]);
+      }
+    }
+    // Migrate content to temporary storage.
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      if ($has_data[$entity_type_id]) {
+        $migration->migrateContentToTemp($entity_type);
+      }
+    }
+
+    // Because of the way the Entity API treats entity definition updates we
+    // need to ensure each storage is empty before we can apply the new
+    // definition.
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      if ($has_data[$entity_type_id]) {
+        $storage = $this->entityManager->getStorage($entity_type_id);
+        $migration->emptyMultiversionStorage($entity_type, $storage);
+      }
+    }
+
+    // Disable all enabled entity types.
+    $enabled_entity_types = array_keys($this->getEnabledEntityTypes());
+    foreach ($enabled_entity_types as $entity_type_id) {
+      $this->disabledEntityTypes[] = $entity_type_id;
+    }
+
+    // Nasty workaround until {@link https://www.drupal.org/node/2549143 there
+    // is a better way to invalidate caches in services}.
+    // For some reason we have to clear cache on the "global" service as opposed
+    // to the injected one. Services in the dark corners of Entity API won't see
+    // the same result otherwise. Very strange.
+    \Drupal::entityManager()->clearCachedDefinitions();
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      $cid = "entity_base_field_definitions:$entity_type_id:" . $this->languageManager->getCurrentLanguage()->getId();
+      $this->cache->invalidate($cid);
+    }
+
+    self::migrationIsActive(TRUE);
+    $migration->applyNewStorage();
+
+    $this->disabledEntityTypes = [];
 
     // Definitions will now be updated. So fetch the new ones.
     $entity_types = $this->getSupportedEntityTypes();

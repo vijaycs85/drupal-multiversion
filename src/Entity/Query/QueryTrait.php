@@ -83,23 +83,27 @@ trait QueryTrait {
   public function prepare() {
     parent::prepare();
     $entity_type = $this->entityManager->getDefinition($this->entityTypeId);
-    $revision_key = $entity_type->getKey('revision');
-
-    $revision_query = FALSE;
-    foreach ($this->condition->conditions() as $condition) {
-      if ($condition['field'] == $revision_key) {
-        $revision_query = TRUE;
+    $storage_class = $entity_type->getStorageClass();
+    // Add necessary conditions just when the storage class is defined by the
+    // Multiversion module. This is needed when uninstalling Multiversion.
+    if (strpos($storage_class, 'Drupal\multiversion\Entity\Storage') !== FALSE) {
+      $revision_key = $entity_type->getKey('revision');
+      $revision_query = FALSE;
+      foreach ($this->condition->conditions() as $condition) {
+        if ($condition['field'] == $revision_key) {
+          $revision_query = TRUE;
+        }
       }
-    }
 
-    // Loading a revision is explicit. So when we try to load one we should do
-    // so without a condition on the deleted flag.
-    if (!$revision_query) {
-      $this->condition('_deleted', (int) $this->isDeleted);
-    }
-    // Don't add this condition user entity type.
-    if ($entity_type->id() !== 'user' && $this->currentWorkspace) {
-      $this->condition('workspace.target_id', $this->workspaceId ?: $this->multiversionManager->getActiveWorkspaceId());
+      // Loading a revision is explicit. So when we try to load one we should do
+      // so without a condition on the deleted flag.
+      if (!$revision_query) {
+        $this->condition('_deleted', (int) $this->isDeleted);
+      }
+      // Don't add this condition user entity type.
+      if ($entity_type->id() !== 'user' && $this->currentWorkspace) {
+        $this->condition('workspace.target_id', $this->workspaceId ?: $this->multiversionManager->getActiveWorkspaceId());
+      }
     }
     return $this;
   }
