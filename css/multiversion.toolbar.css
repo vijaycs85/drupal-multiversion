@@ -1,0 +1,12 @@
+/**
+ * @file
+ * Styling for Multiversion toolbar.
+ */
+
+.toolbar-bar .toolbar-icon-multiversion:before {
+    background-image: url("../icons/bebebe/multiversion.svg");
+}
+
+.toolbar .toolbar-bar .multiversion-toolbar-tab.toolbar-tab {
+    float: right;
+}

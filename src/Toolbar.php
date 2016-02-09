@@ -54,6 +54,14 @@ class Toolbar {
       // Exclude the theme wrapper if custom styling is desired.
       '#type' => 'toolbar_item',
       '#weight' => 125,
+      '#wrapper_attributes' => [
+        'class' => ['multiversion-toolbar-tab'],
+      ],
+      '#attached' => [
+        'library' => [
+          'multiversion/drupal.multiversion.toolbar',
+        ],
+      ],
     ];
 
     $items['workspace_switcher']['tab'] = [
@@ -61,10 +69,9 @@ class Toolbar {
       '#title' => $this->t('Workspaces (@active)', ['@active' => $active->label()]),
       // @todo This should likely be something else, but not sure what.
       '#url' => Url::fromRoute('<front>'),
-      '#options' => [
-        'attributes' => [
-          'title' => $this->t('Switch workspaces'),
-        ],
+      '#attributes' => [
+        'title' => $this->t('Switch workspaces'),
+        'class' => ['toolbar-icon', 'toolbar-icon-multiversion'],
       ],
     ];
 

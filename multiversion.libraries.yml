@@ -1,0 +1,5 @@
+drupal.multiversion.toolbar:
+  version: VERSION
+  css:
+    theme:
+      css/multiversion.toolbar.css: {}
