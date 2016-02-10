@@ -27,3 +27,12 @@ function multiversion_modules_installed($modules) {
 function multiversion_uninstall() {
   \Drupal::state()->delete('multiversion_enabled');
 }
+
+/**
+ * Implements hook_modules_uninstalled().
+ */
+function multiversion_modules_uninstalled($modules) {
+  if (in_array('multiversion', $modules)) {
+    \Drupal::state()->delete('multiversion.migration_done');
+  }
+}

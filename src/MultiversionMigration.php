@@ -164,6 +164,15 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function cleanupMigration($id) {
+    if ($migration = Migration::load($id)) {
+      $migration->getIdMap()->destroy();
+    }
+  }
+
+  /**
    * Helper method to fetch the field map for an entity type.
    *
    * @param EntityTypeInterface $entity_type
@@ -221,4 +230,5 @@ class MultiversionMigration implements MultiversionMigrationInterface {
     $executable->import();
     return $executable;
   }
+
 }

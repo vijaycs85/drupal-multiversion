@@ -68,7 +68,10 @@ class MultiversionUninstallForm extends FormBase {
    *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    drupal_set_message('Click the button below before uninstalling Multiversion.', 'warning');
+    $form['message'] = [
+      '#markup' => '<div id="uninstall-messages">' .
+        t('Click the button below before uninstalling Multiversion.') . '</div>'
+    ];
 
     $form['push'] = [
       '#type' => 'submit',
@@ -121,6 +124,7 @@ class MultiversionUninstallForm extends FormBase {
       /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
       $manager = \Drupal::getContainer()->get('multiversion.manager');
       $manager->disableEntityTypes();
+      \Drupal::service('module_installer')->uninstall(['multiversion']);
       drupal_set_message('Successfully uninstalled Multiversion.');
       $form_state->setRedirect('system.modules_list');
     }

@@ -308,6 +308,8 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       // Migrate from the temporary storage to the new shiny home.
       if ($has_data[$entity_type_id]) {
         $migration->migrateContentFromTemp($entity_type);
+        $migration->cleanupMigration($entity_type_id . '__to_tmp');
+        $migration->cleanupMigration($entity_type_id . '__from_tmp');
       }
       // Mark the migration for this particular entity type as done even if no
       // actual content was migrated.
@@ -339,9 +341,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $migration = $this->createMigration();
 
     $migration->installDependencies();
-
-    // For data integrity and consistency reasons we need to finish each
-    // migration step for all entity types before moving on to the next step.
 
     $has_data = [];
     // Walk through and verify that the original storage is in good order.
@@ -378,6 +377,11 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       }
     }
 
+    // Delete all content of workspace type.
+    $storage = $this->entityManager->getStorage('workspace');
+    $entity_type = $storage->getEntityType();
+    $migration->emptyOldStorage($entity_type, $storage);
+
     // Disable all enabled entity types.
     $enabled_entity_types = array_keys($this->getEnabledEntityTypes());
     foreach ($enabled_entity_types as $entity_type_id) {
@@ -398,8 +402,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     self::migrationIsActive(TRUE);
     $migration->applyNewStorage();
 
-    $this->disabledEntityTypes = [];
-
     // Definitions will now be updated. So fetch the new ones.
     $entity_types = $this->getSupportedEntityTypes();
 
@@ -412,20 +414,14 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       // Migrate from the temporary storage to the new shiny home.
       if ($has_data[$entity_type_id]) {
         $migration->migrateContentFromTemp($entity_type);
+        $migration->cleanupMigration($entity_type_id . '__to_tmp');
+        $migration->cleanupMigration($entity_type_id . '__from_tmp');
       }
-      // Mark the migration for this particular entity type as done even if no
-      // actual content was migrated.
-      $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
     }
 
     // Clean up after us.
     $migration->uninstallDependencies();
     self::migrationIsActive(FALSE);
-
-    // Mark the whole migration as done. Any entity types installed after this
-    // will not need a migration since they will be created directly on top of
-    // the Multiversion storage.
-    $this->state->set('multiversion.migration_done', TRUE);
 
     // Another nasty workaround because the cache is getting skewed somewhere.
     // And resetting the cache on the injected state service does not work.
