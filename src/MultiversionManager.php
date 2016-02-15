@@ -2,11 +2,11 @@
 
 namespace Drupal\multiversion;
 
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
@@ -382,21 +382,29 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $entity_type = $storage->getEntityType();
     $migration->emptyOldStorage($entity_type, $storage);
 
+    // Uninstall field storage definitions provided by multiversion.
+    $entity_manager = \Drupal::entityManager();
+    $entity_manager->clearCachedDefinitions();
+    $update_manager = \Drupal::entityDefinitionUpdateManager();
+    foreach ($entity_manager->getDefinitions() as $entity_type) {
+      if ($entity_type->isSubclassOf(FieldableEntityInterface::CLASS)) {
+        $entity_type_id = $entity_type->id();
+        /** @var \Drupal\Core\Entity\FieldableEntityStorageInterface $storage */
+        $storage = $entity_manager->getStorage($entity_type_id);
+        foreach ($entity_manager->getFieldStorageDefinitions($entity_type_id) as $storage_definition) {
+          // @todo We need to trigger field purging here.
+          //   See https://www.drupal.org/node/2282119.
+          if ($storage_definition->getProvider() == 'multiversion' && !$storage->countFieldData($storage_definition, TRUE) && $storage_definition->getName() != 'revision_id') {
+            $update_manager->uninstallFieldStorageDefinition($storage_definition);
+          }
+        }
+      }
+    }
+
     // Disable all enabled entity types.
     $enabled_entity_types = array_keys($this->getEnabledEntityTypes());
     foreach ($enabled_entity_types as $entity_type_id) {
       $this->disabledEntityTypes[] = $entity_type_id;
-    }
-
-    // Nasty workaround until {@link https://www.drupal.org/node/2549143 there
-    // is a better way to invalidate caches in services}.
-    // For some reason we have to clear cache on the "global" service as opposed
-    // to the injected one. Services in the dark corners of Entity API won't see
-    // the same result otherwise. Very strange.
-    \Drupal::entityManager()->clearCachedDefinitions();
-    foreach ($entity_types as $entity_type_id => $entity_type) {
-      $cid = "entity_base_field_definitions:$entity_type_id:" . $this->languageManager->getCurrentLanguage()->getId();
-      $this->cache->invalidate($cid);
     }
 
     self::migrationIsActive(TRUE);
@@ -404,7 +412,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
     // Definitions will now be updated. So fetch the new ones.
     $entity_types = $this->getSupportedEntityTypes();
-
     foreach ($entity_types as $entity_type_id => $entity_type) {
       // Drop unique key from uuid on each entity type.
       $base_table = $entity_type->getBaseTable();
@@ -422,11 +429,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // Clean up after us.
     $migration->uninstallDependencies();
     self::migrationIsActive(FALSE);
-
-    // Another nasty workaround because the cache is getting skewed somewhere.
-    // And resetting the cache on the injected state service does not work.
-    // Very strange.
-    \Drupal::state()->resetCache();
 
     return $this;
   }
@@ -471,4 +473,5 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   protected function createMigration() {
     return MultiversionMigration::create($this->container, $this->entityManager);
   }
+
 }
