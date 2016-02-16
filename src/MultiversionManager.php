@@ -389,12 +389,13 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     foreach ($entity_manager->getDefinitions() as $entity_type) {
       if ($entity_type->isSubclassOf(FieldableEntityInterface::CLASS)) {
         $entity_type_id = $entity_type->id();
+        $revision_key = $entity_type->getKey('revision');
         /** @var \Drupal\Core\Entity\FieldableEntityStorageInterface $storage */
         $storage = $entity_manager->getStorage($entity_type_id);
         foreach ($entity_manager->getFieldStorageDefinitions($entity_type_id) as $storage_definition) {
           // @todo We need to trigger field purging here.
           //   See https://www.drupal.org/node/2282119.
-          if ($storage_definition->getProvider() == 'multiversion' && !$storage->countFieldData($storage_definition, TRUE) && $storage_definition->getName() != 'revision_id') {
+          if ($storage_definition->getProvider() == 'multiversion' && !$storage->countFieldData($storage_definition, TRUE) && $storage_definition->getName() != $revision_key) {
             $update_manager->uninstallFieldStorageDefinition($storage_definition);
           }
         }
