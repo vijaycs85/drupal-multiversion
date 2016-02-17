@@ -73,7 +73,7 @@ class MultiversionUninstallForm extends FormBase {
         t('Click the button below before uninstalling Multiversion.') . '</div>'
     ];
 
-    $form['push'] = [
+    $form['uninstall'] = [
       '#type' => 'submit',
       '#value' => t('Uninstall'),
       '#ajax' => [
