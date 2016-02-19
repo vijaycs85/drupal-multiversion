@@ -264,20 +264,15 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
         // Don't bother with this entity type any more.
         unset($entity_types[$entity_type_id]);
       }
-    }
-    // Migrate content to temporary storage.
-    foreach ($entity_types as $entity_type_id => $entity_type) {
+
+      // Migrate content to temporary storage. And empty the old storage.
       if ($has_data[$entity_type_id]) {
         $migration->migrateContentToTemp($entity_type);
-      }
-    }
 
-    // Because of the way the Entity API treats entity definition updates we
-    // need to ensure each storage is empty before we can apply the new
-    // definition.
-    foreach ($entity_types as $entity_type_id => $entity_type) {
-      if ($has_data[$entity_type_id]) {
-        $storage = $this->entityManager->getStorage($entity_type_id);
+        // Because of the way the Entity API treats entity definition updates we
+        // need to ensure each storage is empty before we can apply the new
+        // definition.
+        $entity_type->isRevisionable();
         $migration->emptyOldStorage($entity_type, $storage);
       }
     }
@@ -359,18 +354,15 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
         // Don't bother with this entity type any more.
         unset($entity_types[$entity_type_id]);
       }
-    }
-    // Migrate content to temporary storage.
-    foreach ($entity_types as $entity_type_id => $entity_type) {
+
+      // Migrate content to temporary storage.
       if ($has_data[$entity_type_id]) {
         $migration->migrateContentToTemp($entity_type);
       }
-    }
 
-    // Because of the way the Entity API treats entity definition updates we
-    // need to ensure each storage is empty before we can apply the new
-    // definition.
-    foreach ($entity_types as $entity_type_id => $entity_type) {
+      // Because of the way the Entity API treats entity definition updates we
+      // need to ensure each storage is empty before we can apply the new
+      // definition.
       if ($has_data[$entity_type_id]) {
         $storage = $this->entityManager->getStorage($entity_type_id);
         $migration->emptyMultiversionStorage($entity_type, $storage);
@@ -419,17 +411,21 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       $uuid_key = $entity_type->getKey('uuid');
       $this->connection->schema()->dropUniqueKey($base_table, $entity_type_id . '_field__' . $uuid_key . '__value');
 
-      // Migrate from the temporary storage to the new shiny home.
+      // Migrate from the temporary storage to the drupal default storage.
       if ($has_data[$entity_type_id]) {
         $migration->migrateContentFromTemp($entity_type);
         $migration->cleanupMigration($entity_type_id . '__to_tmp');
         $migration->cleanupMigration($entity_type_id . '__from_tmp');
       }
+
+      $this->state->delete("multiversion.migration_done.$entity_type_id");
     }
 
     // Clean up after us.
     $migration->uninstallDependencies();
     self::migrationIsActive(FALSE);
+
+    $this->state->delete('multiversion.migration_done');
 
     return $this;
   }
