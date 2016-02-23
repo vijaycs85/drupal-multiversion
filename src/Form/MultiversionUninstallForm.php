@@ -68,10 +68,7 @@ class MultiversionUninstallForm extends FormBase {
    *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['message'] = [
-      '#markup' => '<div id="uninstall-messages">' .
-        t('Click the button below before uninstalling Multiversion.') . '</div>'
-    ];
+    drupal_set_message('Click the button below before uninstalling Multiversion.', 'warning');
 
     $form['uninstall'] = [
       '#type' => 'submit',
@@ -106,8 +103,6 @@ class MultiversionUninstallForm extends FormBase {
       drupal_set_message('An error occurred while uninstalling Multiversion: ' . $e->getMessage(), 'error');
     }
 
-    $status_messages = ['#type' => 'status_messages'];
-    $response->addCommand(new HtmlCommand('#uninstall-messages', $this->renderer->renderRoot($status_messages)));
     return $response;
   }
 

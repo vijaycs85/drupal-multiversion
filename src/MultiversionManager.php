@@ -294,6 +294,10 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // Definitions will now be updated. So fetch the new ones.
     $entity_types = $this->getSupportedEntityTypes();
 
+    // Temporarily disable the maintenance of the {comment_entity_statistics} table.
+    $this->state->set('comment.maintain_entity_statistics', FALSE);
+    \Drupal::state()->resetCache();
+
     foreach ($entity_types as $entity_type_id => $entity_type) {
       // Drop unique key from uuid on each entity type.
       $base_table = $entity_type->getBaseTable();
@@ -306,10 +310,14 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
         $migration->cleanupMigration($entity_type_id . '__to_tmp');
         $migration->cleanupMigration($entity_type_id . '__from_tmp');
       }
+
       // Mark the migration for this particular entity type as done even if no
       // actual content was migrated.
       $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
     }
+
+    // Enable the the maintenance of entity statistics for comments.
+    $this->state->set('comment.maintain_entity_statistics', TRUE);
 
     // Clean up after us.
     $migration->uninstallDependencies();
@@ -403,6 +411,10 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     self::migrationIsActive(TRUE);
     $migration->applyNewStorage();
 
+    // Temporarily disable the maintenance of the {comment_entity_statistics} table.
+    $this->state->set('comment.maintain_entity_statistics', FALSE);
+    \Drupal::state()->resetCache();
+
     // Definitions will now be updated. So fetch the new ones.
     $entity_types = $this->getSupportedEntityTypes();
     foreach ($entity_types as $entity_type_id => $entity_type) {
@@ -420,6 +432,9 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
       $this->state->delete("multiversion.migration_done.$entity_type_id");
     }
+
+    // Enable the the maintenance of entity statistics for comments.
+    $this->state->set('comment.maintain_entity_statistics', TRUE);
 
     // Clean up after us.
     $migration->uninstallDependencies();
