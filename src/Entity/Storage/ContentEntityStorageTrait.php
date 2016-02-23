@@ -114,7 +114,11 @@ trait ContentEntityStorageTrait {
   public function loadFromAnyWorkspace(array $ids = NULL) {
     $this->isDeleted = FALSE;
     $this->currentWorkspace = FALSE;
-    return parent::loadMultiple($ids);
+    $entities = parent::doLoadMultiple($ids);
+    if (!empty($entities)) {
+      $this->postLoad($entities);
+    }
+    return $entities;
   }
 
   /**
