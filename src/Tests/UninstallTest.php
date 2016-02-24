@@ -7,9 +7,13 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\comment\CommentStorage;
 use Drupal\Core\Entity\ContentEntityStorageInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
+use Drupal\node\NodeStorage;
 use Drupal\simpletest\WebTestBase;
+use Drupal\taxonomy\TermStorage;
+use Drupal\user\UserStorage;
 
 /**
  * Test the UninstallTest class.
@@ -36,20 +40,30 @@ class UninstallTest extends WebTestBase {
    * @var array
    */
   protected $entityTypes = [
-//    'entity_test' => [],
-//    'entity_test_rev' => [],
-//    'entity_test_mul' => [],
-//    'entity_test_mulrev' => [],
     'user' => [],
     'node' => ['type' => 'article', 'title' => 'foo'],
-    'taxonomy_term' => ['name' => 'A term', 'vid' => 123],
+//    'taxonomy_term' => ['name' => 'A term', 'vid' => 123],
+//    'comment' => [
+//      'entity_type' => 'node',
+//      'field_name' => 'comment',
+//      'subject' => 'How much wood would a woodchuck chuck',
+//      'comment_type' => 'comment',
+//    ],
+//    'block_content' => [
+//      'info' => 'New block',
+//      'type' => 'basic',
+//    ],
+    'menu_link_content' => [
+      'menu_name' => 'menu_test',
+      'bundle' => 'menu_link_content',
+      'link' => [['uri' => 'user-path:/']],
+    ],
   ];
 
   /**
    * {@inheritdoc}
    */
   public static $modules = [
-    //'entity_test',
     'node',
     'comment',
     'menu_link_content',
@@ -97,22 +111,23 @@ class UninstallTest extends WebTestBase {
 
     drupal_flush_all_caches();
 
-    // Now uninstall Multiversion.
-    $this->drupalPostAjaxForm('/admin/config/multiversion-uninstall', [], ['op' => t('Uninstall')]);
+    // Disable entity types.
+    /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
+    $manager = \Drupal::getContainer()->get('multiversion.manager');
+    $manager->disableEntityTypes();
+    // Uninstall Multiversion.
+    $this->moduleInstaller->uninstall(['multiversion']);
     $this->assertFalse(\Drupal::service('entity.definition_update_manager')->needsUpdates(), 'There are not new updates to apply.');
 
-    $manager = \Drupal::entityTypeManager();
-    $manager->clearCachedDefinitions();
-
     $ids_after = [];
+    $manager = \Drupal::entityTypeManager();
     // Now check that the previously created entities still exist, have the
-    // right IDs and are multiversion enabled. That means profit. Big profit.
+    // right IDs and are multiversion enabled.
     foreach ($this->entityTypes as $entity_type_id => $values) {
       $storage = $manager->getStorage($entity_type_id);
-
-      $this->assertTrue($storage instanceof ContentEntityStorageInterface, "$entity_type_id got the correct storage handler assigned.");
+      $storage_class = $storage->getEntityType($entity_type_id)->getStorageClass();
+      $this->assertFalse(strpos($storage_class, 'Drupal\multiversion\Entity\Storage'), "$entity_type_id got the correct storage handler assigned.");
       $this->assertTrue($storage->getQuery() instanceof QueryInterface, "$entity_type_id got the correct query handler assigned.");
-
       $ids_after[$entity_type_id] = $storage->getQuery()->execute();
       $this->assertEqual($count_before[$entity_type_id], count($ids_after[$entity_type_id]), "All ${entity_type_id}s were migrated.");
     }
