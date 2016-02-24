@@ -68,7 +68,7 @@ class MultiversionUninstallForm extends FormBase {
    *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    drupal_set_message('Click the button below before uninstalling Multiversion.', 'warning');
+    drupal_set_message('Click the button below to uninstall Multiversion.', 'warning');
 
     $form['uninstall'] = [
       '#type' => 'submit',
