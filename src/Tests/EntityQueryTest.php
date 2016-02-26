@@ -20,29 +20,29 @@ class EntityQueryTest extends MultiversionWebTestBase {
    * @var array
    */
   protected $entityTypes = [
-//    'entity_test' => [],
-//    'entity_test_rev' => [],
-//    'entity_test_mul' => [],
-//    'entity_test_mulrev' => [],
-//    'node' => [
-//      'type' => 'article',
-//      'title' => 'New article',
-//    ],
-//    'taxonomy_term' => [
-//      'name' => 'A term',
-//      'vid' => 123,
-//    ],
-//    'comment' => [
-//      'entity_type' => 'node',
-//      'field_name' => 'comment',
-//      'subject' => 'How much wood would a woodchuck chuck',
-//      'mail' => 'someone@example.com',
-//    ],
-//    'user' => [
-//      'name' => 'User',
-//      'mail' => 'user@example.com',
-//      'status' => 1,
-//    ],
+    'entity_test' => [],
+    'entity_test_rev' => [],
+    'entity_test_mul' => [],
+    'entity_test_mulrev' => [],
+    'node' => [
+      'type' => 'article',
+      'title' => 'New article',
+    ],
+    'taxonomy_term' => [
+      'name' => 'A term',
+      'vid' => 123,
+    ],
+    'comment' => [
+      'entity_type' => 'node',
+      'field_name' => 'comment',
+      'subject' => 'How much wood would a woodchuck chuck',
+      'mail' => 'someone@example.com',
+    ],
+    'user' => [
+      'name' => 'User',
+      'mail' => 'user@example.com',
+      'status' => 1,
+    ],
     'file' => [
       'uid' => 1,
       'filename' => 'multiversion.txt',

@@ -22,88 +22,88 @@ class EntityStorageTest extends MultiversionWebTestBase {
    * @var array
    */
   protected $entityTypes = [
-//    'entity_test' => [
-//      'info' => [],
-//      'data_table' => 'entity_test',
-//      'revision_table' => 'entity_test_revision',
-//      'id' => 'id',
-//    ],
-//    'entity_test_rev' => [
-//      'info' => [],
-//      'data_table' => 'entity_test_rev',
-//      'revision_table' => 'entity_test_rev_revision',
-//      'id' => 'id',
-//    ],
-//    'entity_test_mul' =>[
-//      'info' => [],
-//      'data_table' => 'entity_test_mul_property_data',
-//      'revision_table' => 'entity_test_mul_field_revision',
-//      'id' => 'id',
-//    ],
-//    'entity_test_mulrev' => [
-//      'info' => [],
-//      'data_table' => 'entity_test_mulrev_property_data',
-//      'revision_table' => 'entity_test_mulrev_property_revision',
-//      'id' => 'id',
-//    ],
-//    'node' => [
-//      'info' => [
-//        'type' => 'article',
-//        'title' => 'New article',
-//      ],
-//      'data_table' => 'node_field_data',
-//      'revision_table' => 'node_field_revision',
-//      'id' => 'nid',
-//    ],
-//    'taxonomy_term' => [
-//      'info' => [
-//        'name' => 'A term',
-//        'vid' => 123,
-//      ],
-//      'data_table' => 'taxonomy_term_field_data',
-//      'revision_table' => 'taxonomy_term_field_revision',
-//      'id' => 'tid',
-//    ],
-//    'comment' => [
-//      'info' => [
-//        'entity_type' => 'node',
-//        'field_name' => 'comment',
-//        'subject' => 'How much wood would a woodchuck chuck',
-//        'mail' => 'someone@example.com',
-//      ],
-//      'data_table' => 'comment_field_data',
-//      'revision_table' => 'comment_field_revision',
-//      'id' => 'cid',
-//    ],
-//    'block_content' =>  [
-//      'info' => [
-//        'info' => 'New block',
-//        'type' => 'basic',
-//      ],
-//      'data_table' => 'block_content_field_data',
-//      'revision_table' => 'block_content_field_revision',
-//      'id' => 'id',
-//    ],
-//    'menu_link_content' => [
-//      'info' => [
-//        'menu_name' => 'menu_test',
-//        'bundle' => 'menu_link_content',
-//        'link' => [['uri' => 'user-path:/']],
-//      ],
-//      'data_table' => 'menu_link_content_data',
-//      'revision_table' => 'menu_link_content_field_revision',
-//      'id' => 'id',
-//    ],
-//    'user' => [
-//      'info' => [
-//        'name' => 'User',
-//        'mail' => 'user@example.com',
-//        'status' => 1,
-//      ],
-//      'data_table' => 'users_field_data',
-//      'revision_table' => 'user_field_revision',
-//      'id' => 'uid',
-//    ],
+    'entity_test' => [
+      'info' => [],
+      'data_table' => 'entity_test',
+      'revision_table' => 'entity_test_revision',
+      'id' => 'id',
+    ],
+    'entity_test_rev' => [
+      'info' => [],
+      'data_table' => 'entity_test_rev',
+      'revision_table' => 'entity_test_rev_revision',
+      'id' => 'id',
+    ],
+    'entity_test_mul' =>[
+      'info' => [],
+      'data_table' => 'entity_test_mul_property_data',
+      'revision_table' => 'entity_test_mul_field_revision',
+      'id' => 'id',
+    ],
+    'entity_test_mulrev' => [
+      'info' => [],
+      'data_table' => 'entity_test_mulrev_property_data',
+      'revision_table' => 'entity_test_mulrev_property_revision',
+      'id' => 'id',
+    ],
+    'node' => [
+      'info' => [
+        'type' => 'article',
+        'title' => 'New article',
+      ],
+      'data_table' => 'node_field_data',
+      'revision_table' => 'node_field_revision',
+      'id' => 'nid',
+    ],
+    'taxonomy_term' => [
+      'info' => [
+        'name' => 'A term',
+        'vid' => 123,
+      ],
+      'data_table' => 'taxonomy_term_field_data',
+      'revision_table' => 'taxonomy_term_field_revision',
+      'id' => 'tid',
+    ],
+    'comment' => [
+      'info' => [
+        'entity_type' => 'node',
+        'field_name' => 'comment',
+        'subject' => 'How much wood would a woodchuck chuck',
+        'mail' => 'someone@example.com',
+      ],
+      'data_table' => 'comment_field_data',
+      'revision_table' => 'comment_field_revision',
+      'id' => 'cid',
+    ],
+    'block_content' =>  [
+      'info' => [
+        'info' => 'New block',
+        'type' => 'basic',
+      ],
+      'data_table' => 'block_content_field_data',
+      'revision_table' => 'block_content_field_revision',
+      'id' => 'id',
+    ],
+    'menu_link_content' => [
+      'info' => [
+        'menu_name' => 'menu_test',
+        'bundle' => 'menu_link_content',
+        'link' => [['uri' => 'user-path:/']],
+      ],
+      'data_table' => 'menu_link_content_data',
+      'revision_table' => 'menu_link_content_field_revision',
+      'id' => 'id',
+    ],
+    'user' => [
+      'info' => [
+        'name' => 'User',
+        'mail' => 'user@example.com',
+        'status' => 1,
+      ],
+      'data_table' => 'users_field_data',
+      'revision_table' => 'user_field_revision',
+      'id' => 'uid',
+    ],
     'file' => [
       'info' => [
         'uid' => 1,
