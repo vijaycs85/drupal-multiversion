@@ -15,37 +15,44 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
    * @var array
    */
   protected $entityTypes = [
-    'entity_test' => [],
-    'entity_test_rev' => [],
-    'entity_test_mul' => [],
-    'entity_test_mulrev' => [],
-    'node' =>[
-      'type' => 'article',
-      'title' => 'New article',
-    ],
-    'taxonomy_term' => [
-      'name' => 'A term',
-      'vid' => 123,
-    ],
-    'comment' => [
-      'entity_type' => 'node',
-      'field_name' => 'comment',
-      'subject' => 'How much wood would a woodchuck chuck',
-      'mail' => 'someone@example.com',
-    ],
-    'block_content' => [
-      'info' => 'New block',
-      'type' => 'basic',
-    ],
-    'menu_link_content' => [
-      'menu_name' => 'menu_test',
-      'bundle' => 'menu_link_content',
-      'link' => [['uri' => 'user-path:/']],
-    ],
-    'user' => [
-      'name' => 'User',
-      'mail' => 'user@example.com',
-      'status' => 1,
+//    'entity_test' => [],
+//    'entity_test_rev' => [],
+//    'entity_test_mul' => [],
+//    'entity_test_mulrev' => [],
+//    'node' =>[
+//      'type' => 'article',
+//      'title' => 'New article',
+//    ],
+//    'taxonomy_term' => [
+//      'name' => 'A term',
+//      'vid' => 123,
+//    ],
+//    'comment' => [
+//      'entity_type' => 'node',
+//      'field_name' => 'comment',
+//      'subject' => 'How much wood would a woodchuck chuck',
+//      'mail' => 'someone@example.com',
+//    ],
+//    'block_content' => [
+//      'info' => 'New block',
+//      'type' => 'basic',
+//    ],
+//    'menu_link_content' => [
+//      'menu_name' => 'menu_test',
+//      'bundle' => 'menu_link_content',
+//      'link' => [['uri' => 'user-path:/']],
+//    ],
+//    'user' => [
+//      'name' => 'User',
+//      'mail' => 'user@example.com',
+//      'status' => 1,
+//    ],
+    'file' => [
+      'uid' => 1,
+      'filename' => 'druplicon.txt',
+      'uri' => 'public://druplicon.txt',
+      'filemime' => 'text/plain',
+      'status' => FILE_STATUS_PERMANENT,
     ],
   ];
 
@@ -73,6 +80,16 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
    * @var string
    */
   protected $itemClass;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    file_put_contents($this->entityTypes['file']['uri'], 'Hello world!');
+    $this->assertTrue($this->entityTypes['file']['uri'], t('The test file has been created.'));
+  }
 
   public function testFieldBasics() {
     foreach ($this->entityTypes as $entity_type_id => $info) {

@@ -20,28 +20,35 @@ class EntityQueryTest extends MultiversionWebTestBase {
    * @var array
    */
   protected $entityTypes = [
-    'entity_test' => [],
-    'entity_test_rev' => [],
-    'entity_test_mul' => [],
-    'entity_test_mulrev' => [],
-    'node' => [
-      'type' => 'article',
-      'title' => 'New article',
-    ],
-    'taxonomy_term' => [
-      'name' => 'A term',
-      'vid' => 123,
-    ],
-    'comment' => [
-      'entity_type' => 'node',
-      'field_name' => 'comment',
-      'subject' => 'How much wood would a woodchuck chuck',
-      'mail' => 'someone@example.com',
-    ],
-    'user' => [
-      'name' => 'User',
-      'mail' => 'user@example.com',
-      'status' => 1,
+//    'entity_test' => [],
+//    'entity_test_rev' => [],
+//    'entity_test_mul' => [],
+//    'entity_test_mulrev' => [],
+//    'node' => [
+//      'type' => 'article',
+//      'title' => 'New article',
+//    ],
+//    'taxonomy_term' => [
+//      'name' => 'A term',
+//      'vid' => 123,
+//    ],
+//    'comment' => [
+//      'entity_type' => 'node',
+//      'field_name' => 'comment',
+//      'subject' => 'How much wood would a woodchuck chuck',
+//      'mail' => 'someone@example.com',
+//    ],
+//    'user' => [
+//      'name' => 'User',
+//      'mail' => 'user@example.com',
+//      'status' => 1,
+//    ],
+    'file' => [
+      'uid' => 1,
+      'filename' => 'multiversion.txt',
+      'uri' => 'public://multiversion.txt',
+      'filemime' => 'text/plain',
+      'status' => FILE_STATUS_PERMANENT,
     ],
   ];
 
@@ -61,6 +68,10 @@ class EntityQueryTest extends MultiversionWebTestBase {
   public function testQuery() {
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
+      if ($entity_type_id == 'file') {
+        file_put_contents($info['uri'], 'Hello world!');
+        $this->assertTrue($info['uri'], t('The test file has been created.'));
+      }
       $entity_type = $this->entityManager->getDefinition($entity_type_id);
       $entity = $this->entityManager->getStorage($entity_type_id)->create($info);
       $entity->save();

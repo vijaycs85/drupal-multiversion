@@ -21,90 +21,102 @@ class EntityStorageTest extends MultiversionWebTestBase {
    *
    * @var array
    */
-  protected $entityTypes = array(
-    'entity_test' => array(
-      'info' => array(),
-      'data_table' => 'entity_test',
-      'revision_table' => 'entity_test_revision',
-      'id' => 'id',
-    ),
-    'entity_test_rev' => array(
-      'info' => array(),
-      'data_table' => 'entity_test_rev',
-      'revision_table' => 'entity_test_rev_revision',
-      'id' => 'id',
-    ),
-    'entity_test_mul' => array(
-      'info' => array(),
-      'data_table' => 'entity_test_mul_property_data',
-      'revision_table' => 'entity_test_mul_field_revision',
-      'id' => 'id',
-    ),
-    'entity_test_mulrev' => array(
-      'info' => array(),
-      'data_table' => 'entity_test_mulrev_property_data',
-      'revision_table' => 'entity_test_mulrev_property_revision',
-      'id' => 'id',
-    ),
-    'node' => array(
-      'info' => array(
-        'type' => 'article',
-        'title' => 'New article',
-      ),
-      'data_table' => 'node_field_data',
-      'revision_table' => 'node_field_revision',
-      'id' => 'nid',
-    ),
-    'taxonomy_term' => array(
-      'info' => array(
-        'name' => 'A term',
-        'vid' => 123,
-      ),
-      'data_table' => 'taxonomy_term_field_data',
-      'revision_table' => 'taxonomy_term_field_revision',
-      'id' => 'tid',
-    ),
-    'comment' => array(
-      'info' => array(
-        'entity_type' => 'node',
-        'field_name' => 'comment',
-        'subject' => 'How much wood would a woodchuck chuck',
-        'mail' => 'someone@example.com',
-      ),
-      'data_table' => 'comment_field_data',
-      'revision_table' => 'comment_field_revision',
-      'id' => 'cid',
-    ),
-    'block_content' =>  array(
-      'info' => array(
-        'info' => 'New block',
-        'type' => 'basic',
-      ),
-      'data_table' => 'block_content_field_data',
-      'revision_table' => 'block_content_field_revision',
-      'id' => 'id',
-    ),
-    'menu_link_content' => array(
-      'info' => array(
-        'menu_name' => 'menu_test',
-        'bundle' => 'menu_link_content',
-        'link' => [['uri' => 'user-path:/']],
-      ),
-      'data_table' => 'menu_link_content_data',
-      'revision_table' => 'menu_link_content_field_revision',
-      'id' => 'id',
-    ),
-    'user' => array(
-      'info' => array(
-        'name' => 'User',
-        'mail' => 'user@example.com',
-        'status' => 1,
-      ),
-      'data_table' => 'users_field_data',
-      'revision_table' => 'user_field_revision',
-      'id' => 'uid',
-    ),
-  );
+  protected $entityTypes = [
+//    'entity_test' => [
+//      'info' => [],
+//      'data_table' => 'entity_test',
+//      'revision_table' => 'entity_test_revision',
+//      'id' => 'id',
+//    ],
+//    'entity_test_rev' => [
+//      'info' => [],
+//      'data_table' => 'entity_test_rev',
+//      'revision_table' => 'entity_test_rev_revision',
+//      'id' => 'id',
+//    ],
+//    'entity_test_mul' =>[
+//      'info' => [],
+//      'data_table' => 'entity_test_mul_property_data',
+//      'revision_table' => 'entity_test_mul_field_revision',
+//      'id' => 'id',
+//    ],
+//    'entity_test_mulrev' => [
+//      'info' => [],
+//      'data_table' => 'entity_test_mulrev_property_data',
+//      'revision_table' => 'entity_test_mulrev_property_revision',
+//      'id' => 'id',
+//    ],
+//    'node' => [
+//      'info' => [
+//        'type' => 'article',
+//        'title' => 'New article',
+//      ],
+//      'data_table' => 'node_field_data',
+//      'revision_table' => 'node_field_revision',
+//      'id' => 'nid',
+//    ],
+//    'taxonomy_term' => [
+//      'info' => [
+//        'name' => 'A term',
+//        'vid' => 123,
+//      ],
+//      'data_table' => 'taxonomy_term_field_data',
+//      'revision_table' => 'taxonomy_term_field_revision',
+//      'id' => 'tid',
+//    ],
+//    'comment' => [
+//      'info' => [
+//        'entity_type' => 'node',
+//        'field_name' => 'comment',
+//        'subject' => 'How much wood would a woodchuck chuck',
+//        'mail' => 'someone@example.com',
+//      ],
+//      'data_table' => 'comment_field_data',
+//      'revision_table' => 'comment_field_revision',
+//      'id' => 'cid',
+//    ],
+//    'block_content' =>  [
+//      'info' => [
+//        'info' => 'New block',
+//        'type' => 'basic',
+//      ],
+//      'data_table' => 'block_content_field_data',
+//      'revision_table' => 'block_content_field_revision',
+//      'id' => 'id',
+//    ],
+//    'menu_link_content' => [
+//      'info' => [
+//        'menu_name' => 'menu_test',
+//        'bundle' => 'menu_link_content',
+//        'link' => [['uri' => 'user-path:/']],
+//      ],
+//      'data_table' => 'menu_link_content_data',
+//      'revision_table' => 'menu_link_content_field_revision',
+//      'id' => 'id',
+//    ],
+//    'user' => [
+//      'info' => [
+//        'name' => 'User',
+//        'mail' => 'user@example.com',
+//        'status' => 1,
+//      ],
+//      'data_table' => 'users_field_data',
+//      'revision_table' => 'user_field_revision',
+//      'id' => 'uid',
+//    ],
+    'file' => [
+      'info' => [
+        'uid' => 1,
+        'filename' => 'drupal.txt',
+        'uri' => 'public://drupal.txt',
+        'filemime' => 'text/plain',
+        'status' => FILE_STATUS_PERMANENT,
+      ],
+      'data_table' => 'file_managed',
+      'revision_table' => 'file_revision',
+      'id' => 'fid',
+    ],
+  ];
 
   /**
    * {@inheritdoc}
@@ -122,6 +134,11 @@ class EntityStorageTest extends MultiversionWebTestBase {
       }
       else {
         $this->entityTypes[$entity_type_id]['name'] = 'name';
+      }
+
+      if ($entity_type_id == 'file') {
+        file_put_contents($info['info']['uri'], 'Hello world!');
+        $this->assertTrue($info['info']['uri'], t('The test file has been created.'));
       }
     }
   }
@@ -338,8 +355,8 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertEqual($entity->workspace->target_id, $workspace->id(), "$entity_type_id was saved in new workspace.");
     }
 
-    $uuids = array();
-    $ids = array();
+    $uuids = [];
+    $ids = [];
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $storage = $this->entityManager->getStorage($entity_type_id);
       if ($entity_type_id == 'user') {
