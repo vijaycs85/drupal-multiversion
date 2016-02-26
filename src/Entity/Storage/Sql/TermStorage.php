@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\multiversion\Entity\Storage\Sql\MultiversionTermStorage.
+ * Contains \Drupal\multiversion\Entity\Storage\Sql\TermStorage.
  */
 
 namespace Drupal\multiversion\Entity\Storage\Sql;

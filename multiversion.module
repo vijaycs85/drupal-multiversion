@@ -51,6 +51,9 @@ function multiversion_entity_type_alter(array &$entity_types) {
         case 'user':
           $entity_type->setStorageClass($namespace . '\UserStorage');
           break;
+        case 'file':
+          $entity_type->setStorageClass($namespace . '\FileStorage');
+          break;
         default:
           $entity_type->setStorageClass($namespace . '\ContentEntityStorage');
       }

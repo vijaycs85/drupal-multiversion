@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Contains \Drupal\multiversion\Entity\Storage\Sql\FileStorage.
+ */
+
+namespace Drupal\multiversion\Entity\Storage\Sql;
+
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
+use Drupal\file\FileStorage as CoreFileStorage;
+
+/**
+ * File storage for files.
+ */
+class FileStorage extends CoreFileStorage implements ContentEntityStorageInterface {
+
+  use ContentEntityStorageTrait;
+
+}

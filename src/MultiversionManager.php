@@ -91,9 +91,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    *
    * @var array
    */
-  protected $entityTypeToDo = array(
-    'file',
-  );
+  protected $entityTypeToDo = [];
 
   /**
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
