@@ -64,8 +64,8 @@ class SequenceIndex implements SequenceIndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRange($start, $stop = NULL) {
-    return $this->sortedSetStore()->getRange($start, $stop);
+  public function getRange($start, $stop = NULL, $inclusive = TRUE) {
+    return $this->sortedSetStore()->getRange($start, $stop, $inclusive);
   }
 
   /**
