@@ -230,7 +230,9 @@ trait ContentEntityStorageTrait {
 
       // Save just the 'workspace' field, not entire entity.
       parent::saveToDedicatedTables($entity, TRUE, ['workspace']);
-      $this->resetCache([$entity->id()]);
+      $this->resetCache(array($entity->id()));
+      $is_new = $entity->isNew();
+      $entity->postSave($this, !$is_new);
     }
     else {
       $this->currentWorkspace = TRUE;
