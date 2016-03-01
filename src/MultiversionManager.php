@@ -253,6 +253,10 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
       // Migrate content to temporary storage. And empty the old storage.
       if ($has_data[$entity_type_id]) {
+        if ($entity_type_id == 'file') {
+          $storage = $this->entityManager->getStorage($entity_type_id);
+          $migration->copyFilesToMigrateDirectory($storage);
+        }
         $migration->migrateContentToTemp($entity_type);
 
         // Because of the way the Entity API treats entity definition updates we

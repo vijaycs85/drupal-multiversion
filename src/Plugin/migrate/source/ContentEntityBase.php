@@ -46,6 +46,11 @@ class ContentEntityBase extends SourcePluginBase {
             $value[] = $item->get($item->mainPropertyName())->getValue();
           }
         }
+        // Set the 'migrate://' scheme for files.
+        if ($this->entityTypeId == 'file' && $field_name == 'uri') {
+          $target = file_uri_target($value);
+          $value = 'migrate://' . $target;
+        }
         $result[$entity_id][$field_name] = $value;
       }
     }

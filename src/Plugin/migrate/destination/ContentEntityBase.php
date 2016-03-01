@@ -12,7 +12,10 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\Password\PasswordInterface;
 use Drupal\migrate\Entity\MigrationInterface;
+use Drupal\migrate\MigrateException;
 use Drupal\migrate\Plugin\migrate\destination\EntityContentBase;
+use Drupal\migrate\Plugin\MigrateIdMapInterface;
+use Drupal\migrate\Row;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -80,6 +83,41 @@ class ContentEntityBase extends EntityContentBase {
     $this->password = $password;
     $this->password->disablePasswordHashing();
     $this->storage->resetCache();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function import(Row $row, array $old_destination_id_values = array()) {
+    $this->rollbackAction = MigrateIdMapInterface::ROLLBACK_DELETE;
+    $entity = $this->getEntity($row, $old_destination_id_values);
+    if (!$entity) {
+      throw new MigrateException('Unable to get entity');
+    }
+    if ($entity->getEntityTypeId() == 'file') {
+      $destinations = $row->getDestination();
+      if (isset($destinations['uri'])) {
+        $target = file_uri_target($destinations['uri']);
+        $destination = 'public://' . $target;
+        $dirname = \Drupal::service('file_system')->dirname($destination);
+        $logger = \Drupal::logger('Multiversion');
+        if (!is_dir($dirname) && !\Drupal::service('file_system')->mkdir($dirname, NULL, TRUE)) {
+          // If the directory does not exists and cannot be created.
+          $logger->error('The directory %directory does not exist and could not be created.', array('%directory' => $dirname));
+        }
+
+        if (is_dir($dirname) && !is_writable($dirname) && !\Drupal::service('file_system')->chmod($dirname, NULL)) {
+          // If the directory is not writable and cannot be made so.
+          $logger->error('The directory %directory exists but is not writable and could not be made writable.', array('%directory' => $dirname));
+        }
+        elseif (is_dir($dirname) && is_writable($dirname)) {
+          // Move the file to a folder from 'public://' directory.
+          file_unmanaged_move($destinations['uri'], $destination, FILE_EXISTS_REPLACE);
+        }
+        $entity->uri->setValue($destination);
+      }
+    }
+    return $this->save($entity, $old_destination_id_values);
   }
 
 }

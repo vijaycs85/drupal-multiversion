@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
+use Drupal\file\FileStorageInterface;
 use Drupal\migrate\Entity\Migration;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateExecutable;
@@ -98,6 +99,37 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       $migration->save();
     }
     $this->executeMigration($migration);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function copyFilesToMigrateDirectory(FileStorageInterface $storage) {
+    $scheme = 'migrate://';
+    $logger = \Drupal::logger('Multiversion');
+    $entities = $storage->loadMultiple();
+    if ($entities) {
+      foreach ($entities as $entity) {
+        $uri = $entity->getFileUri();
+        $destination = $scheme . file_uri_target($uri);
+        $dirname = \Drupal::service('file_system')->dirname($destination);
+        if (!is_dir($dirname) && !\Drupal::service('file_system')->mkdir($dirname, NULL, TRUE)) {
+          // If the directory does not exists and cannot be created.
+          $logger->error('The directory %directory does not exist and could not be created.', array('%directory' => $dirname));
+        }
+
+        if (is_dir($dirname) && !is_writable($dirname) && !\Drupal::service('file_system')->chmod($dirname, NULL)) {
+          // If the directory is not writable and cannot be made so.
+          $logger->error('The directory %directory exists but is not writable and could not be made writable.', array('%directory' => $dirname));
+        }
+        elseif (is_dir($dirname) && is_writable($dirname)) {
+          // Copy the file to a folder from 'migrate://' directory.
+          file_unmanaged_copy($entity->getFileUri(), $destination, FILE_EXISTS_REPLACE);
+        }
+      }
+    }
+
     return $this;
   }
 
