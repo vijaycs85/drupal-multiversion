@@ -46,7 +46,12 @@ class MigrationTest extends WebTestBase {
     'entity_test_mul' => [],
     'entity_test_mulrev' => [],
     'user' => [],
-    'node' => ['type' => 'article', 'title' => 'foo']
+    'node' => ['type' => 'article', 'title' => 'foo'],
+    'file' => [
+      'uid' => 1,
+      'filemime' => 'text/plain',
+      'status' => FILE_STATUS_PERMANENT,
+    ],
   ];
 
   /**
@@ -58,6 +63,7 @@ class MigrationTest extends WebTestBase {
     'comment',
     'menu_link_content',
     'block_content',
+    'file',
   ];
 
   /**
@@ -84,6 +90,15 @@ class MigrationTest extends WebTestBase {
       else {
         $count = 2;
         for ($i = 0; $i < $count; $i++) {
+          if ($entity_type_id == 'file') {
+            $values['filename'] = "test$i.txt";
+            $values['uri'] = "public://test$i.txt";
+            $this->assertTrue($values['uri'], t('The test file has been created.'));
+            $file = $storage->create($values);
+            file_put_contents($file->getFileUri(), 'Hello world!');
+            $file->save();
+            continue;
+          }
           $storage->create($values)->save();
         }
       }
