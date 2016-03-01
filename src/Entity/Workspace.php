@@ -22,21 +22,7 @@ use Drupal\user\UserInterface;
  *   label = @Translation("Workspace"),
  *   bundle_label = @Translation("Workspace type"),
  *   handlers = {
- *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage",
- *     "list_builder" = "Drupal\multiversion\WorkspaceListBuilder",
- *     "route_provider" = {
- *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider"
- *     },
- *     "form" = {
- *       "add" = "Drupal\multiversion\WorkspaceForm",
- *       "edit" = "Drupal\multiversion\WorkspaceForm",
- *       "default" = "Drupal\multiversion\WorkspaceForm"
- *     },
- *   },
- *   links = {
- *     "edit-form" = "/admin/structure/workspaces/{workspace}/edit",
- *     "activate-form" = "/admin/structure/workspaces/{workspace}/activate",
- *     "collection" = "/admin/structure/workspaces"
+ *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage"
  *   },
  *   admin_permission = "administer workspaces",
  *   base_table = "workspace",
@@ -44,7 +30,6 @@ use Drupal\user\UserInterface;
  *   data_table = "workspace_field_data",
  *   revision_data_table = "workspace_field_revision",
  *   bundle_entity_type = "workspace_type",
- *   field_ui_base_route = "entity.workspace_type.edit_form",
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "revision_id",
