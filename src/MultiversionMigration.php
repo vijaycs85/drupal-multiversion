@@ -112,9 +112,12 @@ class MultiversionMigration implements MultiversionMigrationInterface {
     if ($entities) {
       foreach ($entities as $entity) {
         $uri = $entity->getFileUri();
-        $destination = $scheme . file_uri_target($uri);
+        $destination = $scheme;
+        if ($target = file_uri_target($uri)) {
+          $destination = $destination . $target;
+        }
         $dirname = \Drupal::service('file_system')->dirname($destination);
-        if (!is_dir($dirname) && !\Drupal::service('file_system')->mkdir($dirname, NULL, TRUE)) {
+        if (!is_dir($dirname) && !\Drupal::service('stream_wrapper.migrate')->mkdir($dirname, NULL, TRUE)) {
           // If the directory does not exists and cannot be created.
           $logger->error('The directory %directory does not exist and could not be created.', array('%directory' => $dirname));
         }

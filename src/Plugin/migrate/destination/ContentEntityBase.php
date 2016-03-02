@@ -97,11 +97,13 @@ class ContentEntityBase extends EntityContentBase {
     if ($entity->getEntityTypeId() == 'file') {
       $destinations = $row->getDestination();
       if (isset($destinations['uri'])) {
-        $target = file_uri_target($destinations['uri']);
-        $destination = 'public://' . $target;
+        $destination = 'public://';
+        if ($target = file_uri_target($destinations['uri'])) {
+          $destination = $destination . $target;
+        }
         $dirname = \Drupal::service('file_system')->dirname($destination);
         $logger = \Drupal::logger('Multiversion');
-        if (!is_dir($dirname) && !\Drupal::service('file_system')->mkdir($dirname, NULL, TRUE)) {
+        if (!is_dir($dirname) && !\Drupal::service('stream_wrapper.public')->mkdir($dirname, NULL, TRUE)) {
           // If the directory does not exists and cannot be created.
           $logger->error('The directory %directory does not exist and could not be created.', array('%directory' => $dirname));
         }
