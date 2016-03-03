@@ -13,6 +13,7 @@ use Drupal\migrate\Entity\Migration;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\MigrateMessage;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class MultiversionMigration implements MultiversionMigrationInterface {
@@ -106,18 +107,15 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   public function emptyOldStorage(EntityTypeInterface $entity_type, EntityStorageInterface $storage) {
     $entities = $storage->loadMultiple();
     if ($entities) {
-      $storage->delete($entities);
-    }
-    return $this;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function emptyMultiversionStorage(EntityTypeInterface $entity_type, EntityStorageInterface $storage) {
-    $entities = $storage->loadMultiple();
-    if ($entities) {
-      $storage->purge($entities);
+      // Purge entities if the storage class is an instance of
+      // \Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface,
+      // delete entities otherwise.
+      if ($storage instanceof ContentEntityStorageInterface) {
+        $storage->purge($entities);
+      }
+      else {
+        $storage->delete($entities);
+      }
     }
     return $this;
   }

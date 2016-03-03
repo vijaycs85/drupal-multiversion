@@ -37,13 +37,6 @@ interface MultiversionMigrationInterface {
   public function emptyOldStorage(EntityTypeInterface $entity_type, EntityStorageInterface $storage);
 
   /**
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   * @param \Drupal\Core\Entity\EntityStorageInterface $storage
-   * @return \Drupal\multiversion\MultiversionMigrationInterface
-   */
-  public function emptyMultiversionStorage(EntityTypeInterface $entity_type, EntityStorageInterface $storage);
-
-  /**
    * @return \Drupal\multiversion\MultiversionMigrationInterface
    */
   public function applyNewStorage();

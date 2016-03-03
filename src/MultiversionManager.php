@@ -373,7 +373,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       // definition.
       if ($has_data[$entity_type_id]) {
         $storage = $this->entityManager->getStorage($entity_type_id);
-        $migration->emptyMultiversionStorage($entity_type, $storage);
+        $migration->emptyOldStorage($entity_type, $storage);
       }
     }
 
