@@ -328,7 +328,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   public function newRevisionId(ContentEntityInterface $entity, $index = 0) {
     $deleted = $entity->_deleted->value;
     $old_rev = $entity->_rev->value;
-    $normalized_entity = $this->serializer->normalize($entity);
+    $normalized_entity = $this->serializer->normalize($entity, NULL, ['new_revision' => TRUE]);
     // Remove fields internal to the multiversion system.
     foreach ($normalized_entity as $key => $value) {
       if ($key{0} == '_') {
