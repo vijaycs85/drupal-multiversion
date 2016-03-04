@@ -52,9 +52,6 @@ class WorkspaceSwitcherForm extends WorkspaceActivateFormBase {
       '#value' => $workspace->label(),
     ];
 
-    // @todo This does not appear to have any effect. I am not sure yet why.
-    $form['#attached']['library'][] = 'multiversion/switcherform';
-
     return $form;
   }
 
