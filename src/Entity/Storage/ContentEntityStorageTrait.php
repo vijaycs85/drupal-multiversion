@@ -297,7 +297,12 @@ trait ContentEntityStorageTrait {
       );
 
       if ($entity instanceof FileInterface) {
-        multiversion_prepare_file_destination($entity->getFileUri());
+        $uri = $entity->getFileUri();
+        $destination = file_uri_scheme($uri);
+        if ($target = file_uri_target($uri)) {
+          $destination = $destination . $target;
+        }
+        multiversion_prepare_file_destination($destination, \Drupal::service('stream_wrapper.public'));
       }
 
       try {

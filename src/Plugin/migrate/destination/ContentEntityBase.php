@@ -101,7 +101,7 @@ class ContentEntityBase extends EntityContentBase {
         if ($target = file_uri_target($destinations['uri'])) {
           $destination = $destination . $target;
         }
-        if (multiversion_prepare_file_destination($destination)) {
+        if (multiversion_prepare_file_destination($destination, \Drupal::service('stream_wrapper.public'))) {
           // Move the file to a folder from 'public://' directory.
           file_unmanaged_move($destinations['uri'], $destination, FILE_EXISTS_REPLACE);
         }

@@ -115,7 +115,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
         if ($target = file_uri_target($uri)) {
           $destination = $destination . $target;
         }
-        if (multiversion_prepare_file_destination($destination)) {
+        if (multiversion_prepare_file_destination($destination, \Drupal::service('stream_wrapper.migrate'))) {
           // Copy the file to a folder from 'migrate://' directory.
           file_unmanaged_copy($entity->getFileUri(), $destination, FILE_EXISTS_REPLACE);
         }
