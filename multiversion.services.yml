@@ -38,7 +38,7 @@ services:
       - { name: cache.context }
   multiversion.toolbar:
     class: Drupal\multiversion\Toolbar
-    arguments: ['@entity_type.manager', '@workspace.manager']
+    arguments: ['@entity_type.manager', '@workspace.manager', '@form_builder']
 
 
   # @todo: {@link https://www.drupal.org/node/2597414 Simplify the container

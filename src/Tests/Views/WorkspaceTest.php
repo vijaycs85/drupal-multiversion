@@ -8,6 +8,7 @@
 namespace Drupal\multiversion\Tests\Views;
 
 use Drupal\multiversion\Entity\Workspace;
+use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
 /**
  * Tests the workspace and current_workspace field handlers.
@@ -20,45 +21,61 @@ class WorkspaceTest extends MultiversionTestBase {
   protected $strictConfigSchema = FALSE;
 
   /**
-   * Views used by this test.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $testViews = ['test_current_workspace'];
+  protected function setUp() {
+    parent::setUp();
+
+    // Create Article node type.
+    if ($this->profile != 'standard') {
+      $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
+    }
+  }
 
   /**
-   * Tests the workspace filter.
+   * Test being able to switch between active workspaces.
    */
   public function testWorkspace() {
-    $admin_user = $this->drupalCreateUser(['bypass node access']);
+    $admin_user = $this->drupalCreateUser(['bypass node access', 'administer workspaces']);
     $uid = $admin_user->id();
     $this->drupalLogin($admin_user);
 
-    // Create two nodes on 'default' workspace.
-    $node1 = $this->drupalCreateNode(['uid' => $uid]);
-    $node2 = $this->drupalCreateNode(['uid' => $uid]);
+    /** @var WorkspaceManagerInterface $workspace_manager */
+    $workspace_manager = $this->container->get('workspace.manager');
+
+    $initial_workspace = $workspace_manager->getActiveWorkspace();
+
+    // Create a node on 'default' workspace.
+    $this->drupalPostForm('node/add/article', [
+      'title[0][value]' => 'Initial workspace article',
+    ], 'Save');
+    $node1_url = $this->drupalGetHeader('location', true);
 
     // Create a new workspace and switch to it.
     $new_workspace = Workspace::create(['machine_name' => 'new_workspace', 'label' => 'New Workspace', 'type' => 'basic']);
     $new_workspace->save();
-    \Drupal::service('workspace.manager')->setActiveWorkspace($new_workspace);
+    $this->drupalPostForm($new_workspace->url('activate-form'), [], 'Activate');
 
-    // Create two nodes on 'new_workspace' workspace.
-    $node3 = $this->drupalCreateNode(['uid' => $uid]);
-    $node4 = $this->drupalCreateNode(['uid' => $uid]);
+    // Create a node on 'new_workspace' workspace.
+    $this->drupalPostForm('node/add/article', [
+      'title[0][value]' => 'New workspace article',
+    ], 'Save');
+    $node2_url = $this->drupalGetHeader('location', true);
 
-    // Test current_workspace filter.
-    $this->drupalGet('test_current_workspace', ['query' => ['workspace' => $new_workspace->id()]]);
-    $this->assertNoText($node1->label());
-    $this->assertNoText($node2->label());
-    $this->assertText($node3->label());
-    $this->assertText($node4->label());
+    // Ensure you have access to only active workspace.
+    $this->drupalGet($node1_url);
+    $this->assertResponse(404, 'User cannot access content in an inactive workspace.');
+    $out = $this->drupalGet($node2_url);
+    $this->assertResponse(200, 'User can access content in the active workspace.');
 
-    $this->drupalGet('test_current_workspace', ['query' => ['workspace' => 1]]);
-    $this->assertText($node1->label());
-    $this->assertText($node2->label());
-    $this->assertNoText($node3->label());
-    $this->assertNoText($node4->label());
+    // Switch back to the initial workspace.
+    $this->drupalPostForm($initial_workspace->url('activate-form'), [], 'Activate');
+
+    // Ensure you have access to only active workspace.
+    $this->drupalGet($node1_url);
+    $this->assertResponse(200, 'User can access content in the active workspace.');
+    $out = $this->drupalGet($node2_url);
+    $this->assertResponse(404, 'User cannot access content in an inactive workspace.');
   }
 
 }

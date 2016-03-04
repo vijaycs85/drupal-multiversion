@@ -14,6 +14,8 @@ use Drupal\multiversion\Entity\WorkspaceInterface;
 /**
  * Test the workspace entity.
  *
+ * @todo refactor to test the form at /admin/structure/workspaces/{id}/activate
+ *
  * @group multiversion
  */
 class WorkspaceTest extends MultiversionWebTestBase {

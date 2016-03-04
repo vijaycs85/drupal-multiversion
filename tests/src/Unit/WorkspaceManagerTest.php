@@ -11,6 +11,7 @@ use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Url;
 use Drupal\Tests\UnitTestCase;
 use Drupal\multiversion\Workspace\WorkspaceManager;
+use Prophecy\Argument;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -181,48 +182,72 @@ class WorkspaceManagerTest extends UnitTestCase {
   }
 
   /**
-   * Tests the setActiveWorkspace() and getActiveWorkspace() methods.
+   * Tests that setActiveWorkspace() sets the workspace on the negotiator.
    */
   public function testSetActiveWorkspace() {
+    // Create the request we will use.
+    $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
+    $this->requestStack->method('getCurrentRequest')->willReturn($request);
+
+    // Create the workspace that we will set.
+    $workspace = $this->getMockBuilder('Drupal\multiversion\Entity\Workspace')
+      ->disableOriginalConstructor()
+      ->getMock();
+
+    // Spy on the negotiator and stub the applies and persist methods.
+    $negotiator = $this->prophesize('Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator');
+    $negotiator->applies(Argument::any())->willReturn(TRUE);
+    $negotiator->persist(Argument::any())->will(function(){ return $this; });
+
+    // Create the workspace manager.
     $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
-    $workspace_manager->setActiveWorkspace($this->entities[0]);
-    $this->assertSame($this->entities[0], $workspace_manager->getActiveWorkspace());
+    $workspace_manager->addNegotiator($negotiator->reveal(), 1);
+
+    // Execute the code under test.
+    $workspace_manager->setActiveWorkspace($workspace);
+
+    // Ensure persist with the workspace was called on the negotiator.
+    $negotiator->persist($workspace)->shouldHaveBeenCalled();
   }
 
   /**
-   * Tests the getWorkspaceSwitchLinks() method.
+   * Tests that getActiveWorkspace() gets from the negotiator.
    */
-  public function testGetWorkspaceSwitchLinks() {
-    $path = '<front>';
-    $request = Request::create($path);
-    $query = array();
-    $url = Url::fromRoute('<front>');
-    $expected_links = array(
-      1 => array(
-        'href' => $url,
-        'title' => null,
-        'query' => $query,
-      ),
-    );
+  public function testGetActiveWorkspace() {
+    $workspace_id = '123';
 
-    $this->requestStack->expects($this->once())
-      ->method('getCurrentRequest')
-      ->will($this->returnValue($request));
+    // Create the request we will use.
+    $request = $this->getMock('Symfony\Component\HttpFoundation\Request');
+    $this->requestStack->method('getCurrentRequest')->willReturn($request);
 
+    // Create the workspace that we will get.
+    $workspace = $this->getMockBuilder('Drupal\multiversion\Entity\Workspace')
+      ->disableOriginalConstructor()
+      ->getMock();
+
+    // Create the negotiator and stub the applies and getWorkspaceId methods.
+    $negotiator = $this->getMock('Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator');
+    $negotiator->method('applies')->willReturn(TRUE);
+    $negotiator->method('getWorkspaceId')->willReturn($workspace_id);
+
+    // Create the storage and stub the load method.
+    $storage = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
+    $storage->method('load')->with($workspace_id)->willReturn($workspace);
+
+    // Stub the entity manager to return $storage.
+    $this->entityManager->method('getStorage')
+      ->with($this->entityTypeId)
+      ->willReturn($storage);
+
+    // Create the workspace manager with the negotiator.
     $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->cacheRender);
-    $workspace_manager->addNegotiator($this->workspaceNegotiators[1][0], 1);
+    $workspace_manager->addNegotiator($negotiator, 1);
 
-    $this->workspaceNegotiators[1][0]->expects($this->any())
-      ->method('applies')
-      ->with($request)
-      ->will($this->returnValue(TRUE));
-    $this->workspaceNegotiators[1][0]->expects($this->once())
-      ->method('getWorkspaceSwitchLinks')
-      ->with($request, $url)
-      ->will($this->returnValue($expected_links));
+    // Execute the code under test.
+    $active_workspace = $workspace_manager->getActiveWorkspace();
 
-    $result_links = $workspace_manager->getWorkspaceSwitchLinks($url);
-    $this->assertSame($expected_links, $result_links);
+    // Ensure value is the workspace we stubbed.
+    $this->assertSame($workspace, $active_workspace);
   }
 
   /**

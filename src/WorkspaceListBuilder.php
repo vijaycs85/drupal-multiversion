@@ -24,6 +24,7 @@ class WorkspaceListBuilder extends EntityListBuilder {
     $header['label'] = t('Workspace');
     $header['uid'] = t('Owner');
     $header['type'] = t('Type');
+    $header['status'] = t('Status');
     return $header + parent::buildHeader();
   }
 
@@ -35,6 +36,8 @@ class WorkspaceListBuilder extends EntityListBuilder {
     $row['owner'] = $entity->getOwner()->getDisplayname();
     $type = $entity->get('type')->first()->entity;
     $row['type'] = $type ? $type->label() : '';
+    $active_workspace = $entity->getActiveWorkspaceId();
+    $row['status'] = $active_workspace && $active_workspace[0] == $entity->id() ? 'Active' : 'Inactive';
     return $row + parent::buildRow($entity);
   }
 
@@ -46,6 +49,16 @@ class WorkspaceListBuilder extends EntityListBuilder {
     if (isset($operations['edit'])) {
       $operations['edit']['query']['destination'] = $entity->url('collection');
     }
+
+    $active_workspace = $entity->getActiveWorkspaceId();
+    if (!$active_workspace || $entity->id() != $active_workspace[0]) {
+      $operations['activate'] = array(
+        'title' => $this->t('Set Active'),
+        'weight' => 20,
+        'url' => $entity->urlInfo('activate-form', ['query' => ['destination' => $entity->url('collection')]]),
+      );
+    }
+
     return $operations;
   }
 

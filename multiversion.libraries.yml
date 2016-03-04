@@ -3,3 +3,8 @@ drupal.multiversion.toolbar:
   css:
     theme:
       css/multiversion.toolbar.css: {}
+drupal.multiversion.switcher:
+  version: VERSION
+  css:
+    theme:
+      css/multiversion.switcher.css: {}

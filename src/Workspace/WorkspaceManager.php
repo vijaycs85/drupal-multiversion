@@ -35,7 +35,8 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   protected $sortedNegotiators;
 
   /**
-   * @var \Drupal\multiversion\Entity\WorkspaceInterface
+   * @var \Drupal\multiversion\Entity\WorkspaceInterface $activeWorkspace
+   *   Track the active workspace for performance gain.
    */
   protected $activeWorkspace;
 
@@ -84,21 +85,24 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @todo {@link https://www.drupal.org/node/2600382 Access check.}
    */
   public function getActiveWorkspace() {
-    if (!isset($this->activeWorkspace)) {
-      $request = $this->requestStack->getCurrentRequest();
-      foreach ($this->getSortedNegotiators() as $negotiator) {
-        if ($negotiator->applies($request)) {
-          if ($workspace_id = $negotiator->getWorkspaceId($request)) {
-            /** @var \Drupal\multiversion\Entity\WorkspaceInterface $workspace */
-            if ($workspace = $this->entityManager->getStorage('workspace')->load($workspace_id)) {
-              $negotiator->persist($workspace);
-              $this->activeWorkspace = $workspace;
-              break;
-            }
+    // Return the cached value if it is set.
+    if (isset($this->activeWorkspace)) {
+      return $this->activeWorkspace;
+    }
+
+    $this->activeWorkspace = NULL;
+    $request = $this->requestStack->getCurrentRequest();
+    foreach ($this->getSortedNegotiators() as $negotiator) {
+      if ($negotiator->applies($request)) {
+        if ($workspace_id = $negotiator->getWorkspaceId($request)) {
+          if ($active_workspace = $this->load($workspace_id)) {
+            $this->activeWorkspace = $active_workspace;
+            break;
           }
         }
       }
     }
+
     return $this->activeWorkspace;
   }
 
@@ -106,22 +110,19 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * {@inheritdoc}
    */
   public function setActiveWorkspace(WorkspaceInterface $workspace) {
-    $this->activeWorkspace = $workspace;
-    return $this;
-  }
+    // Unset the cached variable so it can re-populate on get.
+    unset($this->activeWorkspace);
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getWorkspaceSwitchLinks(Url $url) {
+    // Set the workspace on the proper negotiator.
     $request = $this->requestStack->getCurrentRequest();
     foreach ($this->getSortedNegotiators() as $negotiator) {
-      if ($negotiator instanceof WorkspaceSwitcherInterface && $negotiator->applies($request)) {
-        if ($links = $negotiator->getWorkspaceSwitchLinks($request, $url)) {
-          return $links;
-        }
+      if ($negotiator->applies($request)) {
+        $negotiator->persist($workspace);
+        break;
       }
     }
+
+    return $this;
   }
 
   /**

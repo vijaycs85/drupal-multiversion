@@ -8,6 +8,16 @@ entity.workspace.add:
   requirements:
     _permission: 'administer workspaces'
 
+entity.workspace.activate_form:
+  path: '/admin/structure/workspaces/{workspace}/activate'
+  defaults:
+    _title: 'Activate Workspace'
+    _form: '\Drupal\multiversion\Form\WorkspaceActivateForm'
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: 'administer workspaces'
+
 entity.workspace.add_form:
   path: '/admin/structure/workspaces/add/{workspace_type}'
   defaults:

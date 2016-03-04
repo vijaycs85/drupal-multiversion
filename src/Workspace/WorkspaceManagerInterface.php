@@ -44,10 +44,4 @@ interface WorkspaceManagerInterface {
    */
   public function setActiveWorkspace(WorkspaceInterface $workspace);
 
-  /**
-   * @param \Drupal\Core\Url $url
-   * @return array
-   */
-  public function getWorkspaceSwitchLinks(Url $url);
-
 }

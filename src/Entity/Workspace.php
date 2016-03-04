@@ -35,6 +35,7 @@ use Drupal\user\UserInterface;
  *   },
  *   links = {
  *     "edit-form" = "/admin/structure/workspaces/{workspace}/edit",
+ *     "activate-form" = "/admin/structure/workspaces/{workspace}/activate",
  *     "collection" = "/admin/structure/workspaces"
  *   },
  *   admin_permission = "administer workspaces",

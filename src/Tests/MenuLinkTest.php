@@ -28,7 +28,12 @@ class MenuLinkTest extends WebTestBase {
   /**
    * @var \Drupal\multiversion\Entity\WorkspaceInterface
    */
-  protected $new_workspace;
+  protected $initialWorkspace;
+
+  /**
+   * @var \Drupal\multiversion\Entity\WorkspaceInterface
+   */
+  protected $newWorkspace;
 
   /**
    * Modules to enable.
@@ -38,7 +43,7 @@ class MenuLinkTest extends WebTestBase {
   public static $modules = array(
     'multiversion',
     'menu_link_content',
-    'block'
+    'block',
   );
 
   /**
@@ -47,12 +52,13 @@ class MenuLinkTest extends WebTestBase {
   protected function setUp() {
     parent::setUp();
     $this->workspaceManager = \Drupal::service('workspace.manager');
-    $web_user = $this->drupalCreateUser(array('administer menu'));
+    $web_user = $this->drupalCreateUser(array('administer menu', 'administer workspaces'));
     $this->drupalLogin($web_user);
     $this->drupalPlaceBlock('system_menu_block:main');
 
-    $this->new_workspace = Workspace::create(['machine_name' => 'foo', 'label' => 'Foo', 'type' => 'basic']);
-    $this->new_workspace->save();
+    $this->initialWorkspace = $this->workspaceManager->getActiveWorkspace();
+    $this->newWorkspace = Workspace::create(['machine_name' => 'foo', 'label' => 'Foo', 'type' => 'basic']);
+    $this->newWorkspace->save();
   }
 
   public function testMenuLinksInDifferentWorkspaces() {
@@ -65,12 +71,13 @@ class MenuLinkTest extends WebTestBase {
     $this->drupalGet('user/2');
     $this->assertLink('Pineapple');
 
-    $this->drupalGet('user/2', ['query' => ['workspace' => $this->new_workspace->id()]]);
+    $this->drupalPostForm($this->newWorkspace->url('activate-form'), [], 'Activate');
+    $this->drupalGet('user/2');
     $this->assertNoLink('Pineapple');
 
     // The previous page request only changed workspace for the session of the
     // request. We have to switch workspace in the test context as well.
-    $this->workspaceManager->setActiveWorkspace($this->new_workspace);
+    $this->workspaceManager->setActiveWorkspace($this->newWorkspace);
     // Save another menu link.
     MenuLinkContent::create([
       'menu_name' => 'main',
@@ -84,7 +91,8 @@ class MenuLinkTest extends WebTestBase {
 
     // Switch back to the default workspace and ensure the menu links render
     // as expected.
-    $this->drupalGet('user/2', ['query' => ['workspace' => 1]]);
+    $this->drupalPostForm($this->initialWorkspace->url('activate-form'), [], 'Activate');
+    $this->drupalGet('user/2');
     $this->assertLink('Pineapple');
     $this->assertNoLink('Pear');
   }
