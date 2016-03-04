@@ -8,6 +8,7 @@
 namespace Drupal\multiversion\Tests;
 
 use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\menu_link_content\MenuLinkContentInterface;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\simpletest\WebTestBase;
 
@@ -62,39 +63,48 @@ class MenuLinkTest extends WebTestBase {
   }
 
   public function testMenuLinksInDifferentWorkspaces() {
-    MenuLinkContent::create([
+    /** @var MenuLinkContentInterface $pineapple */
+    $pineapple = MenuLinkContent::create([
       'menu_name' => 'main',
       'link' => 'route:user.page',
       'title' => 'Pineapple'
-    ])->save();
+    ]);
+    $pineapple->save();
 
-    $this->drupalGet('user/2');
-    $this->assertLink('Pineapple');
+    $this->assertEqual(
+      $pineapple->get('workspace')->target_id,
+      $this->initialWorkspace->id(),
+      'Pineapple in initial workspace'
+    );
 
-    $this->drupalPostForm($this->newWorkspace->url('activate-form'), [], 'Activate');
-    $this->drupalGet('user/2');
-    $this->assertNoLink('Pineapple');
+    $this->assertNotEqual(
+      $pineapple->get('workspace')->target_id,
+      $this->newWorkspace->id(),
+      'Pineapple not in new workspace'
+    );
 
-    // The previous page request only changed workspace for the session of the
-    // request. We have to switch workspace in the test context as well.
     $this->workspaceManager->setActiveWorkspace($this->newWorkspace);
+
     // Save another menu link.
-    MenuLinkContent::create([
+    /** @var MenuLinkContentInterface $pear */
+    $pear = MenuLinkContent::create([
       'menu_name' => 'main',
       'link' => 'route:user.page',
       'title' => 'Pear',
-    ])->save();
+    ]);
+    $pear->save();
 
-    $this->drupalGet('user/2');
-    $this->assertNoLink('Pineapple');
-    $this->assertLink('Pear');
+    $this->assertEqual(
+      $pear->get('workspace')->target_id,
+      $this->newWorkspace->id(),
+      'Pear in new workspace'
+    );
 
-    // Switch back to the default workspace and ensure the menu links render
-    // as expected.
-    $this->drupalPostForm($this->initialWorkspace->url('activate-form'), [], 'Activate');
-    $this->drupalGet('user/2');
-    $this->assertLink('Pineapple');
-    $this->assertNoLink('Pear');
+    $this->assertNotEqual(
+      $pear->get('workspace')->target_id,
+      $this->initialWorkspace->id(),
+      'Pear not in initial workspace'
+    );
   }
 
 }

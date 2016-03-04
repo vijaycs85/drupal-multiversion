@@ -109,9 +109,6 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * {@inheritdoc}
    */
   public function setActiveWorkspace(WorkspaceInterface $workspace) {
-    // Unset the cached variable so it can re-populate on get.
-    unset($this->activeWorkspace);
-
     // Set the workspace on the proper negotiator.
     $request = $this->requestStack->getCurrentRequest();
     foreach ($this->getSortedNegotiators() as $negotiator) {
@@ -121,6 +118,7 @@ class WorkspaceManager implements WorkspaceManagerInterface {
       }
     }
 
+    $this->activeWorkspace = $workspace;
     return $this;
   }
 
