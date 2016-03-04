@@ -346,3 +346,62 @@ function multiversion_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $f
     $form['revision']['#disabled'] = TRUE;
   }
 }
+
+/**
+ * Implements hook_theme().
+ */
+function multiversion_theme($existing, $type, $theme, $path) {
+  return [
+    'workspace_add_list' => [
+      'variables' => ['content' => NULL],
+    ],
+  ];
+}
+
+function template_preprocess_workspace_add_list(&$variables) {
+  if (!empty($variables['content'])) {
+    foreach ($variables['content'] as $type) {
+      $variables['types'][$type->id()]['label'] = $type->label();
+      $options = array('query' => \Drupal::request()->query->all());
+      $variables['types'][$type->id()]['url'] = \Drupal::url('entity.workspace.add_form', array('workspace_type' => $type->id()), $options);
+    }
+  }
+}
+
+/**
+ * Implements hook_toolbar().
+ */
+function multiversion_toolbar() {
+  return \Drupal::service('multiversion.toolbar')->toolbar();
+}
+
+/**
+ * Prepares a file destination directory.
+ *
+ * If the directory doesn't exist it tries to create it, if the directory is not
+ * writable it tries to make it writable. In case it can't create the directory
+ * or make it writable, logs the error message and returns FALSE.
+ * When the directory exists and it is writable returns TRUE.
+ *
+ * @param string $destination
+ *
+ *@return bool
+ */
+function multiversion_prepare_file_destination($destination) {
+  $dirname = \Drupal::service('file_system')->dirname($destination);
+  $logger = \Drupal::logger('multiversion');
+  if (!is_dir($dirname) && !\Drupal::service('stream_wrapper.migrate')->mkdir($dirname, NULL, TRUE)) {
+    // If the directory does not exists and cannot be created.
+    $logger->error('The directory %directory does not exist and could not be created.', array('%directory' => $dirname));
+  }
+
+  if (is_dir($dirname) && !is_writable($dirname) && !\Drupal::service('file_system')->chmod($dirname, NULL)) {
+    // If the directory is not writable and cannot be made so.
+    $logger->error('The directory %directory exists but is not writable and could not be made writable.', array('%directory' => $dirname));
+  }
+  elseif (is_dir($dirname) && is_writable($dirname)) {
+    return TRUE;
+  }
+
+  return FALSE;
+}

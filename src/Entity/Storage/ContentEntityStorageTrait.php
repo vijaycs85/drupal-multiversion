@@ -7,6 +7,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
+use Drupal\file\FileInterface;
 use Drupal\user\UserStorageInterface;
 
 trait ContentEntityStorageTrait {
@@ -294,6 +295,10 @@ trait ContentEntityStorageTrait {
       \Drupal::service('entity.index.rev.tree')->updateTree(
         $entity->uuid(), $branch
       );
+
+      if ($entity instanceof FileInterface) {
+        multiversion_prepare_file_destination($entity->getFileUri());
+      }
 
       try {
         return parent::save($entity);

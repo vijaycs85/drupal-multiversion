@@ -107,7 +107,6 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    */
   public function copyFilesToMigrateDirectory(FileStorageInterface $storage) {
     $scheme = 'migrate://';
-    $logger = \Drupal::logger('Multiversion');
     $entities = $storage->loadMultiple();
     if ($entities) {
       foreach ($entities as $entity) {
@@ -116,17 +115,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
         if ($target = file_uri_target($uri)) {
           $destination = $destination . $target;
         }
-        $dirname = \Drupal::service('file_system')->dirname($destination);
-        if (!is_dir($dirname) && !\Drupal::service('stream_wrapper.migrate')->mkdir($dirname, NULL, TRUE)) {
-          // If the directory does not exists and cannot be created.
-          $logger->error('The directory %directory does not exist and could not be created.', array('%directory' => $dirname));
-        }
-
-        if (is_dir($dirname) && !is_writable($dirname) && !\Drupal::service('file_system')->chmod($dirname, NULL)) {
-          // If the directory is not writable and cannot be made so.
-          $logger->error('The directory %directory exists but is not writable and could not be made writable.', array('%directory' => $dirname));
-        }
-        elseif (is_dir($dirname) && is_writable($dirname)) {
+        if (multiversion_prepare_file_destination($destination)) {
           // Copy the file to a folder from 'migrate://' directory.
           file_unmanaged_copy($entity->getFileUri(), $destination, FILE_EXISTS_REPLACE);
         }
