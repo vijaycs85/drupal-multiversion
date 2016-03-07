@@ -8,7 +8,6 @@
 namespace Drupal\multiversion\Workspace;
 
 use Drupal\Core\Entity\EntityManagerInterface;
-use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 

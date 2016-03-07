@@ -7,7 +7,6 @@
 
 namespace Drupal\multiversion\Workspace;
 
-use Drupal\Core\Url;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 
 interface WorkspaceManagerInterface {

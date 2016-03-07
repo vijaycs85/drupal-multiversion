@@ -8,11 +8,9 @@
 namespace Drupal\Tests\multiversion\Unit;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
-use Drupal\Core\Url;
 use Drupal\Tests\UnitTestCase;
 use Drupal\multiversion\Workspace\WorkspaceManager;
 use Prophecy\Argument;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @coversDefaultClass \Drupal\multiversion\Workspace\WorkspaceManager

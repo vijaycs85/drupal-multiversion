@@ -7,8 +7,6 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
-use Drupal\multiversion\Entity\Exception\ConflictException;
-use Drupal\user\UserInterface;
 use Drupal\user\UserStorageInterface;
 
 trait ContentEntityStorageTrait {

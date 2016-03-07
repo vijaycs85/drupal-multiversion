@@ -8,9 +8,7 @@
 namespace Drupal\Tests\multiversion\Unit;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
-use Drupal\Core\Url;
 use Drupal\multiversion\Workspace\SessionWorkspaceNegotiator;
-use Drupal\multiversion\Workspace\WorkspaceManager;
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\HttpFoundation\Request;
 

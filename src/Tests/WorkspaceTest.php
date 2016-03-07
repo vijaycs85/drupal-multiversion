@@ -7,7 +7,6 @@
 
 namespace Drupal\multiversion\Tests;
 
-use Drupal\KernelTests\KernelTestBase;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 
