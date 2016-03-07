@@ -68,7 +68,12 @@ class MultiversionUninstallForm extends FormBase {
    *   The form structure.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    drupal_set_message('Click the button below to uninstall Multiversion.', 'warning');
+
+    $form['description'] = [
+      '#prefix' => '<p>',
+      '#markup' => $this->t('Are you sure you want to uninstall Multiversion?'),
+      '#suffix' => '</p>',
+    ];
 
     $form['uninstall'] = [
       '#type' => 'submit',
@@ -84,6 +89,20 @@ class MultiversionUninstallForm extends FormBase {
       ],
       '#button_type' => 'primary',
     ];
+
+    $url = Url::fromRoute('system.admin_config');
+    $form['cancel'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Cancel'),
+      '#attributes' => ['class' => ['button']],
+      '#url' => $url,
+      '#cache' => [
+        'contexts' => [
+          'url.query_args:destination',
+        ],
+      ],
+  ];
+
     return $form;
   }
 
