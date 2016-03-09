@@ -90,19 +90,6 @@ class MultiversionUninstallForm extends FormBase {
       '#button_type' => 'primary',
     ];
 
-    $url = Url::fromRoute('system.admin_config');
-    $form['cancel'] = [
-      '#type' => 'link',
-      '#title' => $this->t('Cancel'),
-      '#attributes' => ['class' => ['button']],
-      '#url' => $url,
-      '#cache' => [
-        'contexts' => [
-          'url.query_args:destination',
-        ],
-      ],
-  ];
-
     return $form;
   }
 
