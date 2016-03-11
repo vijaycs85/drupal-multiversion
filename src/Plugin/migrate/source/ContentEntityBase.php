@@ -26,10 +26,11 @@ class ContentEntityBase extends SourcePluginBase {
     // to initialize the previously installed storage handler and use that to
     // load the entities.
     $last_definition = $this->entityManager->getLastInstalledDefinition($this->entityTypeId);
-    $last_storage = $this->entityManager->createHandlerInstance($last_definition->getStorageClass(), $last_definition);
+    $storage_class = $last_definition->getStorageClass();
+    $last_storage = $this->entityManager->createHandlerInstance($storage_class, $last_definition);
     $entities = $last_storage->loadMultiple();
 
-    $result = array();
+    $result = [];
     foreach ($entities as $entity_id => $entity) {
       foreach ($entity as $field_name => $field) {
         $value = NULL;
@@ -46,6 +47,15 @@ class ContentEntityBase extends SourcePluginBase {
           }
         }
         $result[$entity_id][$field_name] = $value;
+      }
+    }
+
+    // Make sure we don't migrate deleted entities.
+    if (strpos($storage_class, 'Drupal\multiversion\Entity\Storage') !== FALSE) {
+      foreach ($result as $entity_id => $entity) {
+        if (isset($entity['_deleted']) && $entity['_deleted'] == 1) {
+          unset($result[$entity_id]);
+        }
       }
     }
 

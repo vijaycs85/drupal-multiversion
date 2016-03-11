@@ -13,6 +13,7 @@ use Drupal\migrate\Entity\Migration;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\MigrateMessage;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class MultiversionMigration implements MultiversionMigrationInterface {
@@ -106,7 +107,15 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   public function emptyOldStorage(EntityTypeInterface $entity_type, EntityStorageInterface $storage) {
     $entities = $storage->loadMultiple();
     if ($entities) {
-      $storage->delete($entities);
+      // Purge entities if the storage class is an instance of
+      // \Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface,
+      // delete entities otherwise.
+      if ($storage instanceof ContentEntityStorageInterface) {
+        $storage->purge($entities);
+      }
+      else {
+        $storage->delete($entities);
+      }
     }
     return $this;
   }
@@ -134,7 +143,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       $values = [
         'id' => $id,
         'label' => '',
-        'process' => $this->getFieldMap($entity_type),
+        'process' => $this->getFieldMap($entity_type, TRUE),
         'source' => ['plugin' => 'tempstore'],
         'destination' => ['plugin' => 'multiversion'],
       ];
@@ -153,22 +162,44 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function cleanupMigration($id) {
+    if ($migration = Migration::load($id)) {
+      $migration->getIdMap()->destroy();
+    }
+  }
+
+  /**
    * Helper method to fetch the field map for an entity type.
    *
    * @param EntityTypeInterface $entity_type
+   * @param bool $migration_from_tmp
+   *
    * @return array
    */
-  public function getFieldMap(EntityTypeInterface $entity_type) {
+  public function getFieldMap(EntityTypeInterface $entity_type, $migration_from_tmp = FALSE) {
     $map = array();
     $bundle_info = $this->entityManager->getBundleInfo($entity_type->id());
     foreach ($bundle_info as $bundle_id => $bundle_label) {
       $definitions = $this->entityManager->getFieldDefinitions($entity_type->id(), $bundle_id);
       foreach ($definitions as $definition) {
         $name = $definition->getName();
-        // We don't want our own fields to be part of the migration mapping or
-        // they would get assigned NULL instead of default values.
-        if (!in_array($name, ['workspace', '_deleted', '_rev'])) {
-          $map[$name] = $name;
+        $type = $definition->getType();
+        $text_types = ['text', 'text_long', 'text_with_summary'];
+        if ($migration_from_tmp && in_array($type, $text_types)) {
+          // Add a custom process plugin for text fields.
+          $map[$name] = [
+            'plugin' => 'text_field_process',
+            'source' => $name,
+          ];
+        }
+        else {
+          // We don't want our own fields to be part of the migration mapping or
+          // they would get assigned NULL instead of default values.
+          if (!in_array($name, ['workspace', '_deleted', '_rev'])) {
+            $map[$name] = $name;
+          }
         }
       }
     }
@@ -197,4 +228,5 @@ class MultiversionMigration implements MultiversionMigrationInterface {
     $executable->import();
     return $executable;
   }
+
 }

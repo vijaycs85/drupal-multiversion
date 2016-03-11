@@ -49,6 +49,11 @@ interface MultiversionManagerInterface {
   public function enableEntityTypes();
 
   /**
+   * @return \Drupal\multiversion\MultiversionManagerInterface
+   */
+  public function disableEntityTypes();
+
+  /**
    * @return integer
    */
   public function newSequenceId();

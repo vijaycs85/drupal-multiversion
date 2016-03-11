@@ -52,4 +52,12 @@ interface MultiversionMigrationInterface {
    */
   public function uninstallDependencies();
 
+  /**
+   * Removes the map and message tables for a migration.
+   *
+   * @param int $id
+   *   The migration ID.
+   */
+  public function cleanupMigration($id);
+
 }
