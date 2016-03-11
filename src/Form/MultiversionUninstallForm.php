@@ -11,6 +11,7 @@ use Behat\Mink\Exception\Exception;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\RedirectCommand;
+use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\RendererInterface;
@@ -36,12 +37,19 @@ class MultiversionUninstallForm extends FormBase {
   protected $multiversionManager;
 
   /**
+   * @var \Drupal\Core\Extension\ModuleInstallerInterface
+   */
+  protected $moduleInstaller;
+
+  /**
    * @param \Drupal\Core\Render\RendererInterface $renderer
    * @param \Drupal\multiversion\MultiversionManagerInterface $multiversion_manager
+   * @param \Drupal\Core\Extension\ModuleInstallerInterface $module_installer
    */
-  function __construct(RendererInterface $renderer, MultiversionManagerInterface $multiversion_manager) {
+  function __construct(RendererInterface $renderer, MultiversionManagerInterface $multiversion_manager, ModuleInstallerInterface $module_installer) {
     $this->renderer = $renderer;
     $this->multiversionManager = $multiversion_manager;
+    $this->moduleInstaller = $module_installer;
   }
 
   /**
@@ -50,7 +58,8 @@ class MultiversionUninstallForm extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('renderer'),
-      $container->get('multiversion.manager')
+      $container->get('multiversion.manager'),
+      $container->get('module_installer')
     );
   }
 
@@ -77,11 +86,15 @@ class MultiversionUninstallForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $form['description'] = [
-      '#prefix' => '<p>',
-      '#markup' => $this->t('Are you sure you want to uninstall Multiversion?'),
-      '#suffix' => '</p>',
+    $supported_entity_types = $this->multiversionManager->getSupportedEntityTypes();
+    $form['warning_list'] = [
+      '#theme' => 'item_list',
+      '#title' => $this->t('Uninstalling Multiversion will cause loss of revisions in the following entity types:'),
+      '#items' => [],
     ];
+    foreach ($supported_entity_types as $entity_type) {
+      $form['warning_list']['#items'][$entity_type->id()] = $entity_type->getLabel();
+    }
 
     $form['uninstall'] = [
       '#type' => 'submit',
@@ -112,11 +125,12 @@ class MultiversionUninstallForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     try {
       $this->multiversionManager->disableEntityTypes();
-      \Drupal::service('module_installer')->uninstall(['multiversion']);
+      $this->moduleInstaller->uninstall(['multiversion']);
       drupal_set_message('Successfully uninstalled Multiversion.');
       $form_state->setRedirect('system.modules_list');
     }
     catch (Exception $e) {
+      watchdog_exception('multiversion', $e);
       drupal_set_message('An error occurred while uninstalling Multiversion: ' . $e->getMessage(), 'error');
     }
   }
