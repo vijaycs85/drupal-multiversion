@@ -10,12 +10,12 @@ namespace Drupal\multiversion\Form;
 use Behat\Mink\Exception\Exception;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
-use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\RedirectCommand;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Url;
+use Drupal\multiversion\MultiversionManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -26,15 +26,22 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MultiversionUninstallForm extends FormBase {
 
   /**
-   * @var RendererInterface
+   * @var \Drupal\Core\Render\RendererInterface
    */
   protected $renderer;
 
   /**
-   * @param RendererInterface $renderer
+   * @var \Drupal\multiversion\MultiversionManagerInterface
    */
-  function __construct(RendererInterface $renderer) {
+  protected $multiversionManager;
+
+  /**
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   * @param \Drupal\multiversion\MultiversionManagerInterface $multiversion_manager
+   */
+  function __construct(RendererInterface $renderer, MultiversionManagerInterface $multiversion_manager) {
     $this->renderer = $renderer;
+    $this->multiversionManager = $multiversion_manager;
   }
 
   /**
@@ -42,7 +49,8 @@ class MultiversionUninstallForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('renderer')
+      $container->get('renderer'),
+      $container->get('multiversion.manager')
     );
   }
 
@@ -79,7 +87,7 @@ class MultiversionUninstallForm extends FormBase {
       '#type' => 'submit',
       '#value' => t('Uninstall'),
       '#ajax' => [
-        'callback' => [$this, 'submitFormAjax'],
+        'callback' => [$this, 'uninstallAjax'],
         'event' => 'mousedown',
         'prevent' => 'click',
         'progress' => [
@@ -94,25 +102,6 @@ class MultiversionUninstallForm extends FormBase {
   }
 
   /**
-   * @param array $form
-   * @param FormStateInterface $form_state
-   * @return AjaxResponse
-   */
-  public function submitFormAjax(array &$form, FormStateInterface $form_state) {
-    $response = new AjaxResponse();
-    try {
-      $response->addCommand(new CloseModalDialogCommand());
-      drupal_set_message('Successfully uninstalled Multiversion.');
-      $response->addCommand(new RedirectCommand(Url::fromRoute('system.modules_list')->toString()));
-    }
-    catch (Exception $e) {
-      drupal_set_message('An error occurred while uninstalling Multiversion: ' . $e->getMessage(), 'error');
-    }
-
-    return $response;
-  }
-
-  /**
    * Form submission handler.
    *
    * @param array $form
@@ -122,9 +111,7 @@ class MultiversionUninstallForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     try {
-      /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
-      $manager = \Drupal::getContainer()->get('multiversion.manager');
-      $manager->disableEntityTypes();
+      $this->multiversionManager->disableEntityTypes();
       \Drupal::service('module_installer')->uninstall(['multiversion']);
       drupal_set_message('Successfully uninstalled Multiversion.');
       $form_state->setRedirect('system.modules_list');
@@ -133,4 +120,17 @@ class MultiversionUninstallForm extends FormBase {
       drupal_set_message('An error occurred while uninstalling Multiversion: ' . $e->getMessage(), 'error');
     }
   }
+
+  /**
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return AjaxResponse
+   */
+  public function uninstallAjax(array &$form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+    $response->addCommand(new CloseModalDialogCommand());
+    $response->addCommand(new RedirectCommand(Url::fromRoute('system.modules_list')->toString()));
+    return $response;
+  }
+
 }
