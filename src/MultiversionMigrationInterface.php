@@ -5,6 +5,8 @@ namespace Drupal\multiversion;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\file\FileStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 interface MultiversionMigrationInterface {
@@ -28,6 +30,12 @@ interface MultiversionMigrationInterface {
    * @return \Drupal\multiversion\MultiversionMigrationInterface
    */
   public function migrateContentToTemp(EntityTypeInterface $entity_type);
+
+  /**
+   * @param \Drupal\file\FileStorageInterface $storage
+   * @return \Drupal\multiversion\MultiversionMigrationInterface
+   */
+  public function copyFilesToMigrateDirectory(FileStorageInterface $storage);
 
   /**
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type

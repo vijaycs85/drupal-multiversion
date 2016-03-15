@@ -12,7 +12,10 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\Password\PasswordInterface;
 use Drupal\migrate\Entity\MigrationInterface;
+use Drupal\migrate\MigrateException;
 use Drupal\migrate\Plugin\migrate\destination\EntityContentBase;
+use Drupal\migrate\Plugin\MigrateIdMapInterface;
+use Drupal\migrate\Row;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -80,6 +83,32 @@ class ContentEntityBase extends EntityContentBase {
     $this->password = $password;
     $this->password->disablePasswordHashing();
     $this->storage->resetCache();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function import(Row $row, array $old_destination_id_values = array()) {
+    $this->rollbackAction = MigrateIdMapInterface::ROLLBACK_DELETE;
+    $entity = $this->getEntity($row, $old_destination_id_values);
+    if (!$entity) {
+      throw new MigrateException('Unable to get entity');
+    }
+    if ($entity->getEntityTypeId() == 'file') {
+      $destinations = $row->getDestination();
+      if (isset($destinations['uri'])) {
+        $destination = 'public://';
+        if ($target = file_uri_target($destinations['uri'])) {
+          $destination = $destination . $target;
+        }
+        if (multiversion_prepare_file_destination($destination, \Drupal::service('stream_wrapper.public'))) {
+          // Move the file to a folder from 'public://' directory.
+          file_unmanaged_move($destinations['uri'], $destination, FILE_EXISTS_REPLACE);
+        }
+        $entity->uri->setValue($destination);
+      }
+    }
+    return $this->save($entity, $old_destination_id_values);
   }
 
 }

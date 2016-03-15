@@ -43,6 +43,13 @@ class EntityQueryTest extends MultiversionWebTestBase {
       'mail' => 'user@example.com',
       'status' => 1,
     ],
+    'file' => [
+      'uid' => 1,
+      'filename' => 'multiversion.txt',
+      'uri' => 'public://multiversion.txt',
+      'filemime' => 'text/plain',
+      'status' => FILE_STATUS_PERMANENT,
+    ],
   ];
 
   /**
@@ -61,6 +68,10 @@ class EntityQueryTest extends MultiversionWebTestBase {
   public function testQuery() {
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
+      if ($entity_type_id == 'file') {
+        file_put_contents($info['uri'], 'Hello world!');
+        $this->assertTrue($info['uri'], t('The test file has been created.'));
+      }
       $entity_type = $this->entityManager->getDefinition($entity_type_id);
       $entity = $this->entityManager->getStorage($entity_type_id)->create($info);
       $entity->save();

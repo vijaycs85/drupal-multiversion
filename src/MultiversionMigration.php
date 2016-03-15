@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
+use Drupal\file\FileStorageInterface;
 use Drupal\migrate\Entity\Migration;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateExecutable;
@@ -98,6 +99,29 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       $migration->save();
     }
     $this->executeMigration($migration);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function copyFilesToMigrateDirectory(FileStorageInterface $storage) {
+    $scheme = 'migrate://';
+    $entities = $storage->loadMultiple();
+    if ($entities) {
+      foreach ($entities as $entity) {
+        $uri = $entity->getFileUri();
+        $destination = $scheme;
+        if ($target = file_uri_target($uri)) {
+          $destination = $destination . $target;
+        }
+        if (multiversion_prepare_file_destination($destination, \Drupal::service('stream_wrapper.migrate'))) {
+          // Copy the file to a folder from 'migrate://' directory.
+          file_unmanaged_copy($entity->getFileUri(), $destination, FILE_EXISTS_REPLACE);
+        }
+      }
+    }
+
     return $this;
   }
 

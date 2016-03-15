@@ -47,6 +47,13 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
       'mail' => 'user@example.com',
       'status' => 1,
     ],
+    'file' => [
+      'uid' => 1,
+      'filename' => 'druplicon.txt',
+      'uri' => 'public://druplicon.txt',
+      'filemime' => 'text/plain',
+      'status' => FILE_STATUS_PERMANENT,
+    ],
   ];
 
   /**
@@ -73,6 +80,16 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
    * @var string
    */
   protected $itemClass;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    file_put_contents($this->entityTypes['file']['uri'], 'Hello world!');
+    $this->assertTrue($this->entityTypes['file']['uri'], t('The test file has been created.'));
+  }
 
   public function testFieldBasics() {
     foreach ($this->entityTypes as $entity_type_id => $info) {

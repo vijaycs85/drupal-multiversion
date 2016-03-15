@@ -36,6 +36,10 @@ services:
     arguments: ['@workspace.manager']
     tags:
       - { name: cache.context }
+  stream_wrapper.migrate:
+    class: Drupal\multiversion\StreamWrapper\MigrateStream
+    tags:
+      - { name: stream_wrapper, scheme: migrate }
 
   # @todo: {@link https://www.drupal.org/node/2597414 Simplify the container
   # definition for negotiators.}
