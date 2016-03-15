@@ -348,33 +348,6 @@ function multiversion_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $f
   }
 }
 
-/**
- * Implements hook_theme().
- */
-function multiversion_theme($existing, $type, $theme, $path) {
-  return [
-    'workspace_add_list' => [
-      'variables' => ['content' => NULL],
-    ],
-  ];
-}
-
-function template_preprocess_workspace_add_list(&$variables) {
-  if (!empty($variables['content'])) {
-    foreach ($variables['content'] as $type) {
-      $variables['types'][$type->id()]['label'] = $type->label();
-      $options = array('query' => \Drupal::request()->query->all());
-      $variables['types'][$type->id()]['url'] = \Drupal::url('entity.workspace.add_form', array('workspace_type' => $type->id()), $options);
-    }
-  }
-}
-
-/**
- * Implements hook_toolbar().
- */
-function multiversion_toolbar() {
-  return \Drupal::service('multiversion.toolbar')->toolbar();
-}
 
 /**
  * Prepares a file destination directory.
