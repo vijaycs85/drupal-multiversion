@@ -96,8 +96,8 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
     // @todo: {@link https://www.drupal.org/node/2362433 Make this not
     // revisionable, currently it's not possible.}
     $fields['workspace'] = BaseFieldDefinition::create('workspace_reference')
-      ->setLabel('Workspace reference')
-      ->setDescription('The workspace this entity belongs to.')
+      ->setLabel(t('Workspace reference'))
+      ->setDescription(t('The workspace this entity belongs to.'))
       ->setSetting('target_type', 'workspace')
       ->setRevisionable(TRUE)
       ->setTranslatable(FALSE)
@@ -105,16 +105,16 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setReadOnly(TRUE);
 
     $fields['_deleted'] = BaseFieldDefinition::create('boolean')
-      ->setLabel('Deleted flag')
-      ->setDescription('Indicates if the entity is flagged as deleted or not.')
+      ->setLabel(t('Deleted flag'))
+      ->setDescription(t('Indicates if the entity is flagged as deleted or not.'))
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
       ->setDefaultValue(FALSE)
       ->setCardinality(1);
 
     $fields['_rev'] = BaseFieldDefinition::create('revision_token')
-      ->setLabel('Revision token')
-      ->setDescription('The token for this entity revision.')
+      ->setLabel(t('Revision token'))
+      ->setDescription(t('The token for this entity revision.'))
       ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
       ->setCardinality(1)
