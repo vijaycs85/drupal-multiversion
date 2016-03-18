@@ -232,6 +232,7 @@ trait ContentEntityStorageTrait {
       $this->resetCache(array($entity->id()));
       $is_new = $entity->isNew();
       $entity->postSave($this, !$is_new);
+      return TRUE;
     }
     else {
       $this->currentWorkspace = TRUE;
