@@ -26,7 +26,7 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function getQueryServiceName() {
-    return 'entity.query.sql.multiversion';
+    return 'multiversion.entity.query.sql';
   }
 
   /**
