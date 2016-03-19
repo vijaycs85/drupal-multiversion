@@ -36,7 +36,7 @@ services:
     arguments: ['@workspace.manager']
     tags:
       - { name: cache.context }
-  stream_wrapper.migrate:
+  multiversion.stream_wrapper.migrate:
     class: Drupal\multiversion\StreamWrapper\MigrateStream
     tags:
       - { name: stream_wrapper, scheme: migrate }
