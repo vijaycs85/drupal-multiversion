@@ -3,21 +3,21 @@ parameters:
   required_cache_contexts: ['workspace']
 
 services:
-  entity.index.sequence:
+  multiversion.entity_index.sequence:
     class: Drupal\multiversion\Entity\Index\SequenceIndex
     arguments: ['@keyvalue.sorted_set', '@workspace.manager', '@multiversion.manager']
-  entity.index.id:
+  multiversion.entity_index.id:
     class: Drupal\multiversion\Entity\Index\EntityIndex
     arguments: ['@keyvalue', '@workspace.manager']
-  entity.index.uuid:
+  multiversion.entity_index.uuid:
     class: Drupal\multiversion\Entity\Index\UuidIndex
     arguments: ['@keyvalue', '@workspace.manager']
-  entity.index.rev:
+  multiversion.entity_index.rev:
     class: Drupal\multiversion\Entity\Index\RevisionIndex
     arguments: ['@keyvalue', '@workspace.manager']
-  entity.index.rev.tree:
+  multiversion.entity_index.rev.tree:
     class: Drupal\multiversion\Entity\Index\RevisionTreeIndex
-    arguments: ['@keyvalue', '@workspace.manager', '@entity.index.rev']
+    arguments: ['@keyvalue', '@workspace.manager', '@multiversion.entity_index.rev']
   entity.query.sql.multiversion:
     class: Drupal\multiversion\Entity\Query\Sql\QueryFactory
     arguments: ['@database']

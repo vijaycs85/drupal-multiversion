@@ -9,7 +9,7 @@ class RevisionIndex extends EntityIndex implements RevisionIndexInterface {
   /**
    * @var string
    */
-  protected $collectionPrefix = 'entity.index.rev.';
+  protected $collectionPrefix = 'multiversion.entity_index.rev.';
 
   /**
    * {@inheritdoc}

@@ -35,7 +35,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->tree = $this->container->get('entity.index.rev.tree');
+    $this->tree = $this->container->get('multiversion.entity_index.rev.tree');
   }
 
   public function testWithoutDelete() {

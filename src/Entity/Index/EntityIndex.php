@@ -11,7 +11,7 @@ class EntityIndex implements EntityIndexInterface {
   /**
    * @var string
    */
-  protected $collectionPrefix = 'entity.index.id.';
+  protected $collectionPrefix = 'multiversion.entity_index.id.';
 
   /**
    * @var \Drupal\Core\KeyValueStore\KeyValueFactoryInterface

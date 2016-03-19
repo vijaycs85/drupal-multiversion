@@ -9,7 +9,7 @@ class UuidIndex extends EntityIndex implements UuidIndexInterface {
   /**
    * @var string
    */
-  protected $collectionPrefix = 'entity.index.uuid.';
+  protected $collectionPrefix = 'multiversion.entity_index.uuid.';
 
   /**
    * {@inheritdoc}

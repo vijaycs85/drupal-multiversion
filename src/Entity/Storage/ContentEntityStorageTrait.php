@@ -161,7 +161,7 @@ trait ContentEntityStorageTrait {
 
       // Load entity by revision from entity index.
       $workspaces = \Drupal::entityTypeManager()->getStorage('workspace')->loadMultiple();
-      $entity_index = \Drupal::service('entity.index.id');
+      $entity_index = \Drupal::service('multiversion.entity_index.id');
       $key = $this->entityTypeId . ':' . $loaded_entity->id();
       $entity_revision = $loaded_entity;
 
@@ -198,9 +198,9 @@ trait ContentEntityStorageTrait {
 
       // Index the revision info.
       $entity_index->add($entity);
-      \Drupal::service('entity.index.sequence')->add($entity);
-      \Drupal::service('entity.index.uuid')->add($entity);
-      \Drupal::service('entity.index.rev')->add($entity);
+      \Drupal::service('multiversion.entity_index.sequence')->add($entity);
+      \Drupal::service('multiversion.entity_index.uuid')->add($entity);
+      \Drupal::service('multiversion.entity_index.rev')->add($entity);
 
       // Create the branch for the revision tree.
       $branch = [];
@@ -215,7 +215,7 @@ trait ContentEntityStorageTrait {
       }
 
       // Index the revision tree.
-      \Drupal::service('entity.index.rev.tree')->updateTree(
+      \Drupal::service('multiversion.entity_index.rev.tree')->updateTree(
         $entity->uuid(), $branch
       );
 
@@ -292,8 +292,8 @@ trait ContentEntityStorageTrait {
       }
 
       // Index the revision info and tree.
-      \Drupal::service('entity.index.rev')->add($entity);
-      \Drupal::service('entity.index.rev.tree')->updateTree(
+      \Drupal::service('multiversion.entity_index.rev')->add($entity);
+      \Drupal::service('multiversion.entity_index.rev.tree')->updateTree(
         $entity->uuid(), $branch
       );
 
@@ -327,7 +327,7 @@ trait ContentEntityStorageTrait {
 
       // Decide whether or not this is the default revision.
       if (!$entity->isNew()) {
-        $default_rev = \Drupal::service('entity.index.rev.tree')->getDefaultRevision($entity->uuid());
+        $default_rev = \Drupal::service('multiversion.entity_index.rev.tree')->getDefaultRevision($entity->uuid());
         if ($entity->_rev->value == $default_rev) {
           $entity->isDefaultRevision(TRUE);
         }

@@ -299,10 +299,10 @@ function multiversion_element_pre_render($element) {
 function multiversion_entity_insert(EntityInterface $entity) {
   $manager = \Drupal::service('multiversion.manager');
   if ($manager->isEnabledEntityType($entity->getEntityType()) && $entity->uuid()) {
-    \Drupal::service('entity.index.sequence')->add($entity);
-    \Drupal::service('entity.index.id')->add($entity);
-    \Drupal::service('entity.index.uuid')->add($entity);
-    \Drupal::service('entity.index.rev')->add($entity);
+    \Drupal::service('multiversion.entity_index.sequence')->add($entity);
+    \Drupal::service('multiversion.entity_index.id')->add($entity);
+    \Drupal::service('multiversion.entity_index.uuid')->add($entity);
+    \Drupal::service('multiversion.entity_index.rev')->add($entity);
   }
 }
 

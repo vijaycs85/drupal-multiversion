@@ -79,9 +79,9 @@ abstract class MultiversionWebTestBase extends WebTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->uuidIndex = $this->container->get('entity.index.uuid');
-    $this->revIndex = $this->container->get('entity.index.rev');
-    $this->revTree = $this->container->get('entity.index.rev.tree');
+    $this->uuidIndex = $this->container->get('multiversion.entity_index.uuid');
+    $this->revIndex = $this->container->get('multiversion.entity_index.rev');
+    $this->revTree = $this->container->get('multiversion.entity_index.rev.tree');
 
     $this->multiversionManager = $this->container->get('multiversion.manager');
     $this->workspaceManager = $this->container->get('workspace.manager');

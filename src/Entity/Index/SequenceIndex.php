@@ -12,7 +12,7 @@ class SequenceIndex implements SequenceIndexInterface {
   /**
    * @var string
    */
-  protected $collectionPrefix = 'entity.index.sequence.';
+  protected $collectionPrefix = 'multiversion.entity_index.sequence.';
 
   /**
    * @var string
