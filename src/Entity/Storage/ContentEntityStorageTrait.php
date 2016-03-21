@@ -211,7 +211,7 @@ trait ContentEntityStorageTrait {
         $p = $c + 1;
         $rev = $i-- . '-' . $revisions[$c];
         $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
-        $branch[$rev] = $parent_rev;
+        $branch[$rev] = [$parent_rev];
       }
 
       // Index the revision tree.
@@ -269,7 +269,7 @@ trait ContentEntityStorageTrait {
         list(, $hash) = explode('-', $rev);
         $entity->_rev->value = $rev;
         $entity->_rev->revisions = [$hash];
-        $branch[$rev] = $parent_rev;
+        $branch[$rev] = [$parent_rev];
 
         // Add the parent revision to list of known revisions. This will be useful
         // if an exception is thrown during entity save and a new attempt is made.
@@ -287,7 +287,7 @@ trait ContentEntityStorageTrait {
           $p = $c + 1;
           $rev = $i-- . '-' . $revisions[$c];
           $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
-          $branch[$rev] = $parent_rev;
+          $branch[$rev] = [$parent_rev];
         }
       }
 
