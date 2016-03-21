@@ -442,7 +442,8 @@ trait ContentEntityStorageTrait {
       'entity_field_info',
       'workspace_' . $ws,
     );
-    foreach ($entities as $id => $entity) {
+    foreach ($entities as $entity) {
+      $id = $entity->id();
       $cache_tags[] = 'workspace_' . $this->entityTypeId . '_' . $id;
       $this->cacheBackend->set($this->buildCacheId($id), $entity, CacheBackendInterface::CACHE_PERMANENT, $cache_tags);
     }
