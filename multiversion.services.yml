@@ -31,6 +31,9 @@ services:
     arguments: ['@request_stack', '@entity.manager']
     tags:
       - { name: service_collector, tag: workspace_negotiator, call: addNegotiator }
+  workspace.conflict_tracker:
+    class: Drupal\multiversion\Workspace\ConflictTracker
+    arguments: ['@keyvalue', '@workspace.manager']
   cache_context.workspace:
     class: Drupal\multiversion\WorkspaceCacheContext
     arguments: ['@workspace.manager']

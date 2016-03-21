@@ -218,6 +218,7 @@ trait ContentEntityStorageTrait {
       \Drupal::service('multiversion.entity_index.rev.tree')->updateTree(
         $entity->uuid(), $branch
       );
+      $this->trackConflicts($entity);
 
       // Invalidate the cache tag.
       Cache::invalidateTags(['workspace_' . $this->entityTypeId . '_' . $id]);
@@ -302,7 +303,9 @@ trait ContentEntityStorageTrait {
       }
 
       try {
-        return parent::save($entity);
+        $save_result = parent::save($entity);
+        $this->trackConflicts($entity);
+        return $save_result;
       } catch (\Exception $e) {
         // If a new attempt at saving the entity is made after an exception its
         // important that a new rev token is not generated.
@@ -446,6 +449,26 @@ trait ContentEntityStorageTrait {
       $id = $entity->id();
       $cache_tags[] = 'workspace_' . $this->entityTypeId . '_' . $id;
       $this->cacheBackend->set($this->buildCacheId($id), $entity, CacheBackendInterface::CACHE_PERMANENT, $cache_tags);
+    }
+  }
+
+  /**
+   * Uses the Conflict Tracker service to track conflicts for an entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The entity to track for which to track conflicts.
+   */
+  protected function trackConflicts(EntityInterface $entity) {
+    /** @var \Drupal\multiversion\Workspace\ConflictTrackerInterface $conflictTracker */
+    $conflictTracker = \Drupal::service('workspace.conflict_tracker');
+    /** @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $tree */
+    $tree = \Drupal::service('entity.index.rev.tree');
+    $conflicts = $tree->getConflicts($entity->uuid());
+    if ($conflicts) {
+      $conflictTracker->add($entity->uuid(), $conflicts, TRUE);
+    }
+    else {
+      $conflictTracker->resolveAll($entity->uuid());
     }
   }
 
