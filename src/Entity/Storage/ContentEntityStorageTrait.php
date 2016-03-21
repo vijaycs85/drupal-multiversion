@@ -462,7 +462,7 @@ trait ContentEntityStorageTrait {
     /** @var \Drupal\multiversion\Workspace\ConflictTrackerInterface $conflictTracker */
     $conflictTracker = \Drupal::service('workspace.conflict_tracker');
     /** @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $tree */
-    $tree = \Drupal::service('entity.index.rev.tree');
+    $tree = \Drupal::service('multiversion.entity_index.rev.tree');
     $conflicts = $tree->getConflicts($entity->uuid());
     if ($conflicts) {
       $conflictTracker->add($entity->uuid(), $conflicts, TRUE);
