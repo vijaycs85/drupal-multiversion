@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait.
+ */
+
 namespace Drupal\multiversion\Entity\Storage;
 
 use Drupal\Core\Cache\Cache;
@@ -94,7 +99,7 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function loadUnchanged($id) {
-    $this->resetCache(array($id));
+    $this->resetCache([$id]);
     return $this->load($id) ?: $this->loadDeleted($id);
   }
 
@@ -140,37 +145,40 @@ trait ContentEntityStorageTrait {
   /**
    * {@inheritdoc}
    */
-  public function loadByPropertiesFromAnyWorkspace(array $values = array()) {
+  public function loadByPropertiesFromAnyWorkspace(array $values = []) {
     // Build a query to fetch the entity IDs.
     $entity_query = $this->getQuery();
     $entity_query->loadFromAnyWorkspace();
     $this->buildPropertyQuery($entity_query, $values);
     $result = $entity_query->execute();
-    return $result ? $this->loadFromAnyWorkspace($result) : array();
+    return $result ? $this->loadFromAnyWorkspace($result) : [];
   }
 
   /**
    * {@inheritdoc}
    */
   public function save(EntityInterface $entity) {
-    $entities = $this->loadByPropertiesFromAnyWorkspace(['uuid' => $entity->uuid()]);
-    $loaded_entity = reset($entities);
     $active_workspace_id = $this->getActiveWorkspaceId();
+    // Try to load the entity with the current UUID from all workspaces, if we
+    // have this entity on other workspace than current one then we save just
+    // the workspace field to the dedicated table, not the entire entity.
+    $loaded_entity = $this->loadByPropertiesFromAnyWorkspace(['uuid' => $entity->uuid()]);
+    $loaded_entity = reset($loaded_entity);
     if ($loaded_entity instanceof ContentEntityInterface
       && $loaded_entity->workspace->target_id != $entity->workspace->target_id) {
-
-      // Load entity by revision from entity index.
-      $workspaces = \Drupal::entityTypeManager()->getStorage('workspace')->loadMultiple();
-      $entity_index = \Drupal::service('multiversion.entity_index.id');
-      $key = $this->entityTypeId . ':' . $loaded_entity->id();
+      // Load the entity by revision from entity index.
+      $workspaces = $this->entityManager->getStorage('workspace')->loadMultiple();
       $entity_revision = $loaded_entity;
 
-      // Load the entity revision we need.
+      // Search for a revision in the entity index using all existent workspaces.
+      $entity_index = \Drupal::service('multiversion.entity_index.id');
+      $key = $this->entityTypeId . ':' . $loaded_entity->id();
       foreach ($workspaces as $workspace) {
         $entity_index->useWorkspace($workspace->id());
         $index = $entity_index->get($key);
         if (!empty($index['rev']) && $index['rev'] == $entity->_rev->value) {
           $entity_revision = $this->loadRevision($index['revision_id']);
+          break;
         }
       }
 
@@ -179,9 +187,8 @@ trait ContentEntityStorageTrait {
       $revision_key = $this->entityType->getKey('revision');
       $id = $entity_revision->id();
       $entity->{$id_key}->value = $id;
-      $entity->setOriginalId($id);
-      $revision = $entity_revision->getRevisionId();
-      $entity->{$revision_key}->value = $revision;
+      $entity->{$revision_key}->value = $entity_revision->getRevisionId();
+      $entity->enforceIsNew(FALSE);
       $entity->setNewRevision(FALSE);
       $workspaces = $entity_revision->get('workspace')->getValue();
       $values = array_column($workspaces, 'target_id');
@@ -197,109 +204,35 @@ trait ContentEntityStorageTrait {
       $entity_index->useWorkspace($active_workspace_id);
 
       // Index the revision info.
-      $entity_index->add($entity);
-      \Drupal::service('multiversion.entity_index.sequence')->add($entity);
-      \Drupal::service('multiversion.entity_index.uuid')->add($entity);
-      \Drupal::service('multiversion.entity_index.rev')->add($entity);
+      multiversion_entity_insert($entity);
 
-      // Create the branch for the revision tree.
-      $branch = [];
-      $rev = $entity->_rev->value;
-      list($i) = explode('-', $rev);
-      $revisions = $entity->_rev->revisions;
-      for ($c = 0; $c < count($revisions); ++$c) {
-        $p = $c + 1;
-        $rev = $i-- . '-' . $revisions[$c];
-        $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
-        $branch[$rev] = [$parent_rev];
-      }
+      // Index the revision tree info.
+      $this->indexEntityRevisionTree($entity);
 
-      // Index the revision tree.
-      \Drupal::service('multiversion.entity_index.rev.tree')->updateTree(
-        $entity->uuid(), $branch
-      );
       $this->trackConflicts($entity);
 
       // Invalidate the cache tag.
       Cache::invalidateTags(['workspace_' . $this->entityTypeId . '_' . $id]);
 
-      // Set the static cache.
-      $this->setStaticCache([$id => $entity]);
-      // Set the persistent cache.
-      $this->setPersistentCache([$id => $entity]);
-
       // Save just the 'workspace' field, not entire entity.
       parent::saveToDedicatedTables($entity, TRUE, ['workspace']);
-      $this->resetCache(array($entity->id()));
-      $is_new = $entity->isNew();
-      $entity->postSave($this, !$is_new);
-      return TRUE;
     }
     else {
       $this->currentWorkspace = TRUE;
-      $entity->workspace = ['target_id' => $active_workspace_id];
+      $entity->workspace[] = ['target_id' => $active_workspace_id];
 
       // Every update is a new revision with this storage model.
       $entity->setNewRevision();
 
-      // We are going to index the revision ahead of save in order to accurately
-      // determine if this is going to be the default revision or not. We also run
-      // this logic here outside of any transactions that the parent storage
-      // handler might perform. It's important that the revision index does not
-      // get rolled back during exceptions. All records are kept in order to more
-      // accurately build revision trees of all universally known revisions.
-      $branch = [];
-      $rev = $entity->_rev->value;
-      list($i) = explode('-', $rev);
+      // Index the revision tree.
+      $this->indexEntityRevisionTree($entity);
 
-      // This is a regular local save operation and a new revision token should be
-      // generated. The new_edit property will be set to FALSE during replication
-      // to ensure the revision token is saved as-is.
-      if ($entity->_rev->new_edit || $entity->_rev->is_stub) {
-        // If this is the first revision it means that there's no parent.
-        // By definition the existing revision value is the parent revision.
-        $parent_rev = $i == 0 ? 0 : $rev;
-        // Only generate a new revision if this is not a stub entity. This will
-        // ensure that stub entities remain with the default value (0) to make it
-        // clear on a storage level that this is a stub and not a "real" revision.
-        if (!$entity->_rev->is_stub) {
-          $rev = \Drupal::service('multiversion.manager')->newRevisionId(
-            $entity, $i
-          );
-        }
-        list(, $hash) = explode('-', $rev);
-        $entity->_rev->value = $rev;
-        $entity->_rev->revisions = [$hash];
-        $branch[$rev] = [$parent_rev];
-
-        // Add the parent revision to list of known revisions. This will be useful
-        // if an exception is thrown during entity save and a new attempt is made.
-        if ($parent_rev != 0) {
-          list(, $parent_hash) = explode('-', $parent_rev);
-          $entity->_rev->revisions = [$hash, $parent_hash];
-        }
-      }
-      // A list of all known revisions can be passed in to let the current host
-      // know about the revision history, for conflict handling etc. A list of
-      // revisions are always passed in during replication.
-      else {
-        $revisions = $entity->_rev->revisions;
-        for ($c = 0; $c < count($revisions); ++$c) {
-          $p = $c + 1;
-          $rev = $i-- . '-' . $revisions[$c];
-          $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
-          $branch[$rev] = [$parent_rev];
-        }
-      }
-
-      // Index the revision info and tree.
-      \Drupal::service('multiversion.entity_index.rev')->add($entity);
-      \Drupal::service('multiversion.entity_index.rev.tree')->updateTree(
-        $entity->uuid(), $branch
-      );
-
+      // Prepare the file directory.
       if ($entity instanceof FileInterface) {
-        multiversion_prepare_file_destination($entity->getFileUri(), \Drupal::service('stream_wrapper.public'));
+        $uri = $entity->getFileUri();
+        $scheme = \Drupal::service('file_system')->uriScheme($uri) ?: 'public';
+        $stream_wrapper_name = 'stream_wrapper.' . $scheme;
+        multiversion_prepare_file_destination($uri, \Drupal::service($stream_wrapper_name));
       }
 
       try {
@@ -316,6 +249,77 @@ trait ContentEntityStorageTrait {
   }
 
   /**
+   * Indexes the revision tree.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   */
+  protected function indexEntityRevisionTree(EntityInterface $entity) {
+    // Index the revision tree.
+    \Drupal::service('multiversion.entity_index.rev.tree')->updateTree(
+      $entity->uuid(), $this->buildRevisionBranch($entity)
+    );
+  }
+
+  /**
+   * Builds the revision branch.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @return array
+   */
+  protected function buildRevisionBranch(EntityInterface $entity) {
+    // We are going to index the revision ahead of save in order to accurately
+    // determine if this is going to be the default revision or not. We also run
+    // this logic here outside of any transactions that the parent storage
+    // handler might perform. It's important that the revision index does not
+    // get rolled back during exceptions. All records are kept in order to more
+    // accurately build revision trees of all universally known revisions.
+    $branch = [];
+    $rev = $entity->_rev->value;
+    list($i) = explode('-', $rev);
+
+    // This is a regular local save operation and a new revision token should be
+    // generated. The new_edit property will be set to FALSE during replication
+    // to ensure the revision token is saved as-is.
+    if ($entity->_rev->new_edit || $entity->_rev->is_stub) {
+      // If this is the first revision it means that there's no parent.
+      // By definition the existing revision value is the parent revision.
+      $parent_rev = $i == 0 ? 0 : $rev;
+      // Only generate a new revision if this is not a stub entity. This will
+      // ensure that stub entities remain with the default value (0) to make it
+      // clear on a storage level that this is a stub and not a "real" revision.
+      if (!$entity->_rev->is_stub) {
+        $rev = \Drupal::service('multiversion.manager')->newRevisionId(
+          $entity, $i
+        );
+      }
+      list(, $hash) = explode('-', $rev);
+      $entity->_rev->value = $rev;
+      $entity->_rev->revisions = [$hash];
+      $branch[$rev] = [$parent_rev];
+
+      // Add the parent revision to list of known revisions. This will be useful
+      // if an exception is thrown during entity save and a new attempt is made.
+      if ($parent_rev != 0) {
+        list(, $parent_hash) = explode('-', $parent_rev);
+        $entity->_rev->revisions = [$hash, $parent_hash];
+      }
+    }
+    // A list of all known revisions can be passed in to let the current host
+    // know about the revision history, for conflict handling etc. A list of
+    // revisions are always passed in during replication.
+    else {
+      $revisions = $entity->_rev->revisions;
+      for ($c = 0; $c < count($revisions); ++$c) {
+        $p = $c + 1;
+        $rev = $i-- . '-' . $revisions[$c];
+        $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
+        $branch[$rev] = [$parent_rev];
+      }
+    }
+    return $branch;
+  }
+
+  /**
    * {@inheritdoc}
    *
    * @todo Revisit this logic with forward revisions in mind.
@@ -327,18 +331,6 @@ trait ContentEntityStorageTrait {
     else {
       // Enforce new revision if any module messed with it in a hook.
       $entity->setNewRevision();
-
-      // Decide whether or not this is the default revision.
-      if (!$entity->isNew()) {
-        $default_rev = \Drupal::service('multiversion.entity_index.rev.tree')->getDefaultRevision($entity->uuid());
-        if ($entity->_rev->value == $default_rev) {
-          $entity->isDefaultRevision(TRUE);
-        }
-        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
-        else {
-          $entity->isDefaultRevision(FALSE);
-        }
-      }
     }
 
     // Invalidate the cache tag.
@@ -350,22 +342,37 @@ trait ContentEntityStorageTrait {
   /**
    * {@inheritdoc}
    */
-  public function delete(array $entities) {
-    // Ensure that the entities are keyed by ID.
-    $keyed_entities = [];
-    foreach ($entities as $entity) {
-      $keyed_entities[$entity->id()] = $entity;
-    }
+  protected function doPostSave(EntityInterface $entity, $update) {
+    parent::doPostSave($entity, $update);
 
+    // Decide whether or not this is the default revision.
+    if (!$entity->isNew()) {
+      $default_rev = \Drupal::service('multiversion.entity_index.rev.tree')->getDefaultRevision($entity->uuid());
+      if ($entity->_rev->value == $default_rev) {
+        $entity->isDefaultRevision(TRUE);
+      }
+      // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
+      else {
+        $entity->isDefaultRevision(FALSE);
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function delete(array $entities) {
     // Entities are always "deleted" as new revisions when using a Multiversion
     // storage handler.
+    $ids = [];
     foreach ($entities as $entity) {
+      $ids[] = $entity->id();
       $entity->_deleted->value = TRUE;
       $this->save($entity);
     }
 
     // Reset the static cache for the "deleted" entities.
-    $this->resetCache(array_keys($keyed_entities));
+    $this->resetCache(array_keys($ids));
   }
 
   /**
@@ -394,7 +401,7 @@ trait ContentEntityStorageTrait {
       }
     }
     else {
-      $this->entities[$ws] = array();
+      $this->entities[$ws] = [];
     }
   }
 
@@ -403,7 +410,7 @@ trait ContentEntityStorageTrait {
    */
   protected function getFromStaticCache(array $ids) {
     $ws = $this->getActiveWorkspaceId();
-    $entities = array();
+    $entities = [];
     // Load any available entities from the internal cache.
     if ($this->entityType->isStaticallyCacheable() && !empty($this->entities[$ws])) {
       $entities += array_intersect_key($this->entities[$ws], array_flip($ids));
@@ -418,7 +425,7 @@ trait ContentEntityStorageTrait {
     if ($this->entityType->isStaticallyCacheable()) {
       $ws = $this->getActiveWorkspaceId();
       if (!isset($this->entities[$ws])) {
-        $this->entities[$ws] = array();
+        $this->entities[$ws] = [];
       }
       $this->entities[$ws] += $entities;
     }
@@ -440,11 +447,11 @@ trait ContentEntityStorageTrait {
       return;
     }
     $ws = $this->getActiveWorkspaceId();
-    $cache_tags = array(
+    $cache_tags = [
       $this->entityTypeId . '_values',
       'entity_field_info',
       'workspace_' . $ws,
-    );
+    ];
     foreach ($entities as $entity) {
       $id = $entity->id();
       $cache_tags[] = 'workspace_' . $this->entityTypeId . '_' . $id;
