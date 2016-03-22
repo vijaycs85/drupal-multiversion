@@ -56,7 +56,7 @@ class RevisionFieldTest extends FieldTestBase {
 
       $entity->_rev->value = $sample_rev['value'];
       $entity->_rev->new_edit = FALSE;
-      $entity->_rev->revisions = [$sample_rev['value']];
+      $entity->_rev->revisions = [$sample_rev['revisions'][0]];
       $entity->save();
       // Assert that the revision token did not change.
       $this->assertEqual($entity->_rev->value, $sample_rev['value']);
