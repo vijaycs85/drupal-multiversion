@@ -28,7 +28,7 @@ services:
       - [setContainer, ['@service_container']]
   workspace.manager:
     class: Drupal\multiversion\Workspace\WorkspaceManager
-    arguments: ['@request_stack', '@entity.manager', '@logger.channel.workspace']
+    arguments: ['@request_stack', '@entity.manager']
     tags:
       - { name: service_collector, tag: workspace_negotiator, call: addNegotiator }
   workspace.conflict_tracker:
@@ -43,9 +43,6 @@ services:
     class: Drupal\multiversion\StreamWrapper\MigrateStream
     tags:
       - { name: stream_wrapper, scheme: migrate }
-  logger.channel.workspace:
-    parent: logger.channel_base
-    arguments: ['cron']
 
   # @todo: {@link https://www.drupal.org/node/2597414 Simplify the container
   # definition for negotiators.}
