@@ -60,13 +60,12 @@ class MenuTreeStorage extends CoreMenuTreeStorage {
 
     // Load all menu_link_content entities and remove links for the those that
     // don't belong to the active workspace.
-    $active_workspace_id = $this->workspaceManager->getActiveWorkspace()->id();
     $entities = $this->entityTypeManager
       ->getStorage('menu_link_content')
       ->loadMultiple(array_keys($map));
 
     foreach ($map as $entity_id => $link_id) {
-      if (!isset($entities[$entity_id]) || $active_workspace_id != $entities[$entity_id]->workspace->target_id) {
+      if (!isset($entities[$entity_id])) {
         unset($links[$link_id]);
       }
     }
