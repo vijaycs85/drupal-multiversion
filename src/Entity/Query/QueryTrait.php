@@ -102,7 +102,7 @@ trait QueryTrait {
       }
       // Don't add this condition user entity type.
       if ($entity_type->id() !== 'user' && $this->currentWorkspace) {
-        $this->condition('workspace.target_id', $this->workspaceId ?: $this->multiversionManager->getActiveWorkspaceId());
+        $this->condition('workspace', $this->workspaceId ?: $this->multiversionManager->getActiveWorkspaceId());
       }
     }
     return $this;

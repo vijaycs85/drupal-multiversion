@@ -3,7 +3,6 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
@@ -93,15 +92,17 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
 
-    // @todo: {@link https://www.drupal.org/node/2362433 Make this not
-    // revisionable, currently it's not possible.}
+    // This field shouldn't really be revisionable since all revisions for an
+    // entity will only ever exist in one and the same workspace. But we mark
+    // this as revisionable to make the storage query more performance because
+    // then we don't need to join the data table (which it isn't by default).
     $fields['workspace'] = BaseFieldDefinition::create('workspace_reference')
       ->setLabel(t('Workspace reference'))
       ->setDescription(t('The workspace this entity belongs to.'))
       ->setSetting('target_type', 'workspace')
       ->setRevisionable(TRUE)
       ->setTranslatable(FALSE)
-      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+      ->setCardinality(1)
       ->setReadOnly(TRUE);
 
     $fields['_deleted'] = BaseFieldDefinition::create('boolean')
@@ -291,26 +292,6 @@ function multiversion_element_pre_render($element) {
     $element['#cache']['contexts'][] = 'workspace';
   }
   return $element;
-}
-
-/**
- * Implements hook_entity_insert().
- */
-function multiversion_entity_insert(EntityInterface $entity) {
-  $manager = \Drupal::service('multiversion.manager');
-  if ($manager->isEnabledEntityType($entity->getEntityType()) && $entity->uuid()) {
-    \Drupal::service('multiversion.entity_index.sequence')->add($entity);
-    \Drupal::service('multiversion.entity_index.id')->add($entity);
-    \Drupal::service('multiversion.entity_index.uuid')->add($entity);
-    \Drupal::service('multiversion.entity_index.rev')->add($entity);
-  }
-}
-
-/**
- * Implements hook_entity_update().
- */
-function multiversion_entity_update(EntityInterface $entity) {
-  multiversion_entity_insert($entity);
 }
 
 /**

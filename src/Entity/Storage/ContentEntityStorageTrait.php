@@ -46,7 +46,6 @@ trait ContentEntityStorageTrait {
     }
 
     $revision_alias = 'revision';
-    $workspace_alias = 'workspace';
     if ($this->entityType->isTranslatable()) {
       // Join the revision data table in order to set the delete condition.
       $revision_table = $this->getRevisionDataTable();
@@ -67,23 +66,7 @@ trait ContentEntityStorageTrait {
     // the Entity Query API and not by the storage handler itself.
     // Just UserStorage can be queried in all workspaces by the storage handler.
     if ($this->currentWorkspace && !($this instanceof UserStorageInterface)) {
-      /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping */
-      $table_mapping = $this->getTableMapping();
-      /** @var \Drupal\Core\Entity\EntityFieldManager $field_manager */
-      $field_manager = \Drupal::service('entity_field.manager');
-      $base_definitions = $field_manager->getBaseFieldDefinitions($this->entityTypeId);
-
-      $workspace_definition = $base_definitions['workspace'];
-      $workspace_table = $table_mapping->getDedicatedRevisionTableName($workspace_definition);
-      $workspace_column = $table_mapping->getFieldColumnName($workspace_definition, 'target_id');
-
-      if ($revision_id) {
-        $query->join($workspace_table, $workspace_alias, "$workspace_alias.revision_id = revision.{$this->revisionKey} AND $workspace_alias.revision_id = :revisionId", array(':revisionId' => $revision_id));
-      }
-      else {
-        $query->join($workspace_table, $workspace_alias, "$workspace_alias.revision_id = revision.{$this->revisionKey}");
-      }
-      $query->condition("$workspace_alias.$workspace_column", $this->getActiveWorkspaceId());
+      $query->condition("$revision_alias.workspace", $this->getActiveWorkspaceId());
     }
     return $query;
   }
@@ -203,19 +186,21 @@ trait ContentEntityStorageTrait {
       // Set back the active workspace for entity index.
       $entity_index->useWorkspace($active_workspace_id);
 
-      // Index the revision info.
-      multiversion_entity_insert($entity);
-
-      // Index the revision tree info.
-      $this->indexEntityRevisionTree($entity);
-
-      $this->trackConflicts($entity);
+      // Index the revision.
+      $branch = $this->buildRevisionBranch($entity);
+      $this->indexEntityRevision($entity);
+      $this->indexEntityRevisionTree($entity, $branch);
 
       // Invalidate the cache tag.
       Cache::invalidateTags(['workspace_' . $this->entityTypeId . '_' . $id]);
 
       // Save just the 'workspace' field, not entire entity.
       parent::saveToDedicatedTables($entity, TRUE, ['workspace']);
+
+      // Update indexes.
+      $this->trackConflicts($entity);
+      $this->indexEntity($entity);
+      $this->indexEntityRevision($entity);
     }
     else {
       $this->currentWorkspace = TRUE;
@@ -224,8 +209,10 @@ trait ContentEntityStorageTrait {
       // Every update is a new revision with this storage model.
       $entity->setNewRevision();
 
-      // Index the revision tree.
-      $this->indexEntityRevisionTree($entity);
+      // Index the revision.
+      $branch = $this->buildRevisionBranch($entity);
+      $this->indexEntityRevision($entity);
+      $this->indexEntityRevisionTree($entity, $branch);
 
       // Prepare the file directory.
       if ($entity instanceof FileInterface) {
@@ -237,9 +224,15 @@ trait ContentEntityStorageTrait {
 
       try {
         $save_result = parent::save($entity);
+
+        // Update indexes.
         $this->trackConflicts($entity);
+        $this->indexEntity($entity);
+        $this->indexEntityRevision($entity);
+
         return $save_result;
-      } catch (\Exception $e) {
+      }
+      catch (\Exception $e) {
         // If a new attempt at saving the entity is made after an exception its
         // important that a new rev token is not generated.
         $entity->_rev->new_edit = FALSE;
@@ -249,15 +242,34 @@ trait ContentEntityStorageTrait {
   }
 
   /**
-   * Indexes the revision tree.
+   * Indexes basic information about the entity.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    */
-  protected function indexEntityRevisionTree(EntityInterface $entity) {
-    // Index the revision tree.
-    \Drupal::service('multiversion.entity_index.rev.tree')->updateTree(
-      $entity->uuid(), $this->buildRevisionBranch($entity)
-    );
+  protected function indexEntity(EntityInterface $entity) {
+    \Drupal::service('multiversion.entity_index.sequence')->add($entity);
+    \Drupal::service('multiversion.entity_index.id')->add($entity);
+    \Drupal::service('multiversion.entity_index.uuid')->add($entity);
+  }
+
+  /**
+   * Indexes information about the revision.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param array $branch
+   */
+  protected function indexEntityRevision(EntityInterface $entity) {
+    \Drupal::service('multiversion.entity_index.rev')->add($entity);
+  }
+
+  /**
+   * Indexes the revision tree.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @param array $branch
+   */
+  protected function indexEntityRevisionTree(EntityInterface $entity, $branch) {
+    \Drupal::service('multiversion.entity_index.rev.tree')->updateTree($entity->uuid(), $branch);
   }
 
   /**
