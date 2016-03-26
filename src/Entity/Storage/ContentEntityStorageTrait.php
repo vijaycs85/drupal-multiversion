@@ -343,31 +343,24 @@ trait ContentEntityStorageTrait {
     else {
       // Enforce new revision if any module messed with it in a hook.
       $entity->setNewRevision();
+
+      // Decide whether or not this is the default revision.
+      if (!$entity->isNew()) {
+        $default_rev = \Drupal::service('multiversion.entity_index.rev.tree')->getDefaultRevision($entity->uuid());
+        if ($entity->_rev->value == $default_rev) {
+          $entity->isDefaultRevision(TRUE);
+        }
+        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
+        else {
+          $entity->isDefaultRevision(FALSE);
+        }
+      }
     }
 
     // Invalidate the cache tag.
     Cache::invalidateTags(['workspace_' . $this->entityTypeId . '_' . $id]);
 
     return parent::doSave($id, $entity);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function doPostSave(EntityInterface $entity, $update) {
-    parent::doPostSave($entity, $update);
-
-    // Decide whether or not this is the default revision.
-    if (!$entity->isNew()) {
-      $default_rev = \Drupal::service('multiversion.entity_index.rev.tree')->getDefaultRevision($entity->uuid());
-      if ($entity->_rev->value == $default_rev) {
-        $entity->isDefaultRevision(TRUE);
-      }
-      // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
-      else {
-        $entity->isDefaultRevision(FALSE);
-      }
-    }
   }
 
   /**
