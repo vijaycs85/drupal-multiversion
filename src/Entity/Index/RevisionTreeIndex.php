@@ -86,7 +86,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    */
   public function getDefaultRevision($uuid) {
     $values = $this->buildTree($uuid);
-    return $values['default_rev'];
+    return $values['default_rev']['#rev'];
   }
 
   /**
@@ -101,16 +101,58 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    * {@inheritdoc}
    */
   public function getOpenRevisions($uuid) {
+    $revs = [];
     $values = $this->buildTree($uuid);
-    return $values['open_revs'];
+    foreach ($values['open_revs'] as $rev => $element) {
+      $revs[$rev] = $element['#rev_info']['status'];
+    }
+    return $revs;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getConflicts($uuid) {
+    $revs = [];
     $values = $this->buildTree($uuid);
-    return $values['conflicts'];
+    foreach ($values['conflicts'] as $rev => $element) {
+      $revs[$rev] = $element['#rev_info']['status'];
+    }
+    return $revs;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function sortRevisions(array $a, array $b) {
+    $a_deleted = ($a['#rev_info']['status'] == 'deleted') ? TRUE : FALSE;
+    $b_deleted = ($b['#rev_info']['status'] == 'deleted') ? TRUE : FALSE;
+
+    // The goal is to sort winning revision candidates from low to high. The
+    // criteria are:
+    // 1. Non-deleted always win over deleted
+    // 2. Higher ASCII sort on revision hash wins
+    if ($a_deleted && !$b_deleted) {
+      return 1;
+    }
+    elseif (!$a_deleted && $b_deleted) {
+      return -1;
+    }
+    return ($a['#rev'] < $b['#rev']) ? 1 : -1;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function sortTree(array &$tree) {
+    // Sort all tree elements according to the algorithm before recursing.
+    usort($tree, [__CLASS__, 'sortRevisions']);
+
+    foreach ($tree as &$element) {
+      if (!empty($element['children'])) {
+        self::sortTree($element['children']);
+      }
+    }
   }
 
   /**
@@ -179,20 +221,17 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
           // Recurse down through the children.
           self::doBuildTree($uuid, $revs, $revs_info, $rev, $tree[$i]['children'], $open_revs, $conflicts);
 
-          // Sort all tree elements from low to high.
-          usort($tree, function ($a, $b) {
-            return ($a['#rev'] < $b['#rev']) ? -1 : 1;
-          });
-
-          if (empty($tree[$i]['children'])) {
+          // Find open revisions and conflicts. Only revisions with no children,
+          // and that are not missing can be an open revision or a conflict.
+          if (empty($tree[$i]['children']) && $tree[$i]['#rev_info']['status'] != 'missing') {
             $tree[$i]['#rev_info']['open_rev'] = TRUE;
-            $open_revs[$rev] = $revs_info["$uuid:$rev"]['status'];
+            $open_revs[$rev] = $tree[$i];
             // All open revisions, except deleted and default revisions, are
             // conflicts by definition. We will revert the conflict flag when we
             // find the default revision later on.
             if ($tree[$i]['#rev_info']['status'] != 'deleted') {
               $tree[$i]['#rev_info']['conflict'] = TRUE;
-              $conflicts[$rev] = $revs_info["$uuid:$rev"]['status'];
+              $conflicts[$rev] = $tree[$i];
             }
           }
         }
@@ -203,22 +242,20 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
     // its branch.
     if ($parse == 0) {
       $default_rev = 0;
-      // Sort from high to low and find the default revision.
-      krsort($open_revs);
-      foreach ($open_revs as $open_rev => $status) {
-        if ($status != 'missing') {
-          $default_rev = $open_rev;
-          break;
-        }
-      }
-      // Update the default revision in the tree array and remove it from the
-      // conflicts array.
-      unset($conflicts[$default_rev]);
+      uasort($open_revs, [__CLASS__, 'sortRevisions']);
+      $default_rev = reset($open_revs);
+
+      // Remove the default revision from the conflicts array and sort it.
+      unset($conflicts[$default_rev['#rev']]);
+      uasort($conflicts, [__CLASS__, 'sortRevisions']);
+
+      // Update the default revision in the tree and sort it.
       self::updateDefaultRevision($tree, $default_rev);
+      self::sortTree($tree);
 
       // Find the branch of the default revision.
       $default_branch = array();
-      $rev = $default_rev;
+      $rev = $default_rev['#rev'];
       while ($rev != 0) {
         if (isset($revs_info["$uuid:$rev"])) {
           $default_branch[$rev] = $revs_info["$uuid:$rev"]['status'];
@@ -243,7 +280,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
     // @todo: {@link https://www.drupal.org/node/2597442 We can temporarily
     // flip the sort to find the default rev earlier.}
     foreach ($tree as &$element) {
-      if (isset($element['#rev']) && $element['#rev'] == $default_rev) {
+      if (isset($element['#rev']) && $element['#rev'] == $default_rev['#rev']) {
         $element['#rev_info']['default'] = TRUE;
         $element['#rev_info']['conflict'] = FALSE;
         break;

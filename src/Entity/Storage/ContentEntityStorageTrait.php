@@ -198,9 +198,9 @@ trait ContentEntityStorageTrait {
       parent::saveToDedicatedTables($entity, TRUE, ['workspace']);
 
       // Update indexes.
-      $this->trackConflicts($entity);
       $this->indexEntity($entity);
       $this->indexEntityRevision($entity);
+      $this->trackConflicts($entity);
     }
     else {
       $this->currentWorkspace = TRUE;
@@ -226,9 +226,9 @@ trait ContentEntityStorageTrait {
         $save_result = parent::save($entity);
 
         // Update indexes.
-        $this->trackConflicts($entity);
         $this->indexEntity($entity);
         $this->indexEntityRevision($entity);
+        $this->trackConflicts($entity);
 
         return $save_result;
       }

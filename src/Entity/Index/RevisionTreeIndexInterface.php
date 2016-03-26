@@ -50,4 +50,17 @@ interface RevisionTreeIndexInterface {
    */
   public function getConflicts($uuid);
 
+  /**
+   * @param array $a
+   * @param array $b
+   * @return integer
+   */
+  public static function sortRevisions(array $a, array $b);
+
+  /**
+   * @param array $tree
+   * @return mixed
+   */
+  public static function sortTree(array &$tree);
+
 }
