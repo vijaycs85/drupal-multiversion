@@ -7,7 +7,11 @@
 
 namespace Drupal\multiversion\Workspace;
 
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Cache\UseCacheBackendTrait;
 use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -18,6 +22,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class WorkspaceManager implements WorkspaceManagerInterface {
 
+  use UseCacheBackendTrait;
+
   /**
    * @var \Symfony\Component\HttpFoundation\RequestStack
    */
@@ -27,6 +33,11 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @var \Drupal\Core\Entity\EntityManagerInterface
    */
   protected $entityManager;
+
+  /**
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
 
   /**
    * @var array
@@ -41,10 +52,14 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   /**
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
    */
-  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager) {
+  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager, AccountProxyInterface $current_user, CacheBackendInterface $cache_backend) {
     $this->requestStack = $request_stack;
     $this->entityManager = $entity_manager;
+    $this->currentUser = $current_user;
+    $this->cacheBackend = $cache_backend;
   }
 
   /**
@@ -83,27 +98,39 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @todo {@link https://www.drupal.org/node/2600382 Access check.}
    */
   public function getActiveWorkspace() {
-    $request = $this->requestStack->getCurrentRequest();
-    foreach ($this->getSortedNegotiators() as $negotiator) {
-      if ($negotiator->applies($request)) {
-        if ($workspace_id = $negotiator->getWorkspaceId($request)) {
-          if ($active_workspace = $this->load($workspace_id)) {
-            return $active_workspace;
+    $cid = 'active_workspace_id:' . $this->currentUser->id();
+
+    if ($cache = $this->cacheGet($cid)) {
+      $workspace = $this->load($cache->data);
+    }
+    else {
+      $request = $this->requestStack->getCurrentRequest();
+      foreach ($this->getSortedNegotiators() as $negotiator) {
+        if ($negotiator->applies($request)) {
+          if ($workspace_id = $negotiator->getWorkspaceId($request)) {
+            if ($workspace = $this->load($workspace_id)) {
+              $this->cacheSet($cid, $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
+              break;
+            }
           }
         }
       }
     }
+    return $workspace;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setActiveWorkspace(WorkspaceInterface $workspace) {
+    $cid = 'active_workspace_id:' . $this->currentUser->id();
+
     // Set the workspace on the proper negotiator.
     $request = $this->requestStack->getCurrentRequest();
     foreach ($this->getSortedNegotiators() as $negotiator) {
       if ($negotiator->applies($request)) {
         $negotiator->persist($workspace);
+        $this->cacheSet($cid, $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
         break;
       }
     }
@@ -126,6 +153,13 @@ class WorkspaceManager implements WorkspaceManagerInterface {
       }
     }
     return $this->sortedNegotiators;
+  }
+
+  /**
+   * @return array
+   */
+  protected function getCacheTags() {
+    return ['workspace_values', 'entity_field_info'];
   }
 
 }

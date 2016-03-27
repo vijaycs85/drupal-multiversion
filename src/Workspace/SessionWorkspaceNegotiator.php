@@ -20,19 +20,12 @@ class SessionWorkspaceNegotiator extends WorkspaceNegotiatorBase {
   protected $tempstore;
 
   /**
-   * @var \Drupal\Core\Session\AccountProxyInterface
-   */
-  protected $currentUser;
-
-  /**
    * Constructor.
    *
    * @param \Drupal\user\PrivateTempStoreFactory $tempstore_factory
-   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    */
-  public function __construct(PrivateTempStoreFactory $tempstore_factory, AccountProxyInterface $current_user) {
-    $this->tempstore = $tempstore_factory->get('workspace');
-    $this->currentUser = $current_user;
+  public function __construct(PrivateTempStoreFactory $tempstore_factory) {
+    $this->tempstore = $tempstore_factory->get('workspace.negotiator.session');
   }
 
   /**

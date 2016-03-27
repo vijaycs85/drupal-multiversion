@@ -28,7 +28,7 @@ services:
       - [setContainer, ['@service_container']]
   workspace.manager:
     class: Drupal\multiversion\Workspace\WorkspaceManager
-    arguments: ['@request_stack', '@entity.manager']
+    arguments: ['@request_stack', '@entity.manager', '@current_user', '@cache.discovery']
     tags:
       - { name: service_collector, tag: workspace_negotiator, call: addNegotiator }
   workspace.conflict_tracker:
@@ -56,7 +56,7 @@ services:
       - { name: workspace_negotiator, priority: 0 }
   workspace.negotiator.session:
     class: Drupal\multiversion\Workspace\SessionWorkspaceNegotiator
-    arguments: ['@user.private_tempstore', '@current_user']
+    arguments: ['@user.private_tempstore']
     calls:
       - [setContainer, ['@service_container']]
       - [setCurrentUser, ['@current_user']]
