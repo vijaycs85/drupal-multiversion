@@ -11,6 +11,11 @@ use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @todo Cache the active workspace in a cache backend. Caching in a class
+ *   property is causing issues when there might be multiple instances of the
+ *   manager.
+ */
 class WorkspaceManager implements WorkspaceManagerInterface {
 
   /**
@@ -32,12 +37,6 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @var array
    */
   protected $sortedNegotiators;
-
-  /**
-   * @var \Drupal\multiversion\Entity\WorkspaceInterface $activeWorkspace
-   *   Track the active workspace for performance gain.
-   */
-  protected $activeWorkspace;
 
   /**
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
@@ -84,25 +83,16 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @todo {@link https://www.drupal.org/node/2600382 Access check.}
    */
   public function getActiveWorkspace() {
-    // Return the cached value if it is set.
-    if (isset($this->activeWorkspace)) {
-      return $this->activeWorkspace;
-    }
-
-    $this->activeWorkspace = NULL;
     $request = $this->requestStack->getCurrentRequest();
     foreach ($this->getSortedNegotiators() as $negotiator) {
       if ($negotiator->applies($request)) {
         if ($workspace_id = $negotiator->getWorkspaceId($request)) {
           if ($active_workspace = $this->load($workspace_id)) {
-            $this->activeWorkspace = $active_workspace;
-            break;
+            return $active_workspace;
           }
         }
       }
     }
-
-    return $this->activeWorkspace;
   }
 
   /**
@@ -118,7 +108,6 @@ class WorkspaceManager implements WorkspaceManagerInterface {
       }
     }
 
-    $this->activeWorkspace = $workspace;
     return $this;
   }
 
