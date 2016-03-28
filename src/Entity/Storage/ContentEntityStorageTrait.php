@@ -9,7 +9,6 @@ namespace Drupal\multiversion\Entity\Storage;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\file\FileInterface;
@@ -21,11 +20,6 @@ trait ContentEntityStorageTrait {
    * @var boolean
    */
   protected $isDeleted = FALSE;
-
-  /**
-   * @var boolean
-   */
-  protected $currentWorkspace = TRUE;
 
   /**
    * {@inheritdoc}
@@ -65,7 +59,7 @@ trait ContentEntityStorageTrait {
     // Entities in other workspaces than the active one can only be queried with
     // the Entity Query API and not by the storage handler itself.
     // Just UserStorage can be queried in all workspaces by the storage handler.
-    if ($this->currentWorkspace && !($this instanceof UserStorageInterface)) {
+    if (!$this instanceof UserStorageInterface) {
       $query->condition("$revision_alias.workspace", $this->getActiveWorkspaceId());
     }
     return $query;
@@ -98,19 +92,6 @@ trait ContentEntityStorageTrait {
   /**
    * {@inheritdoc}
    */
-  public function loadFromAnyWorkspace(array $ids = NULL) {
-    $this->isDeleted = FALSE;
-    $this->currentWorkspace = FALSE;
-    $entities = parent::doLoadMultiple($ids);
-    if (!empty($entities)) {
-      $this->postLoad($entities);
-    }
-    return $entities;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function loadDeleted($id) {
     $entities = $this->loadMultipleDeleted(array($id));
     return isset($entities[$id]) ? $entities[$id] : NULL;
@@ -121,123 +102,44 @@ trait ContentEntityStorageTrait {
    */
   public function loadMultipleDeleted(array $ids = NULL) {
     $this->isDeleted = TRUE;
-    $this->currentWorkspace = TRUE;
     return parent::loadMultiple($ids);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function loadByPropertiesFromAnyWorkspace(array $values = []) {
-    // Build a query to fetch the entity IDs.
-    $entity_query = $this->getQuery();
-    $entity_query->loadFromAnyWorkspace();
-    $this->buildPropertyQuery($entity_query, $values);
-    $result = $entity_query->execute();
-    return $result ? $this->loadFromAnyWorkspace($result) : [];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function save(EntityInterface $entity) {
-    $active_workspace_id = $this->getActiveWorkspaceId();
-    // Try to load the entity with the current UUID from all workspaces, if we
-    // have this entity on other workspace than current one then we save just
-    // the workspace field to the dedicated table, not the entire entity.
-    $loaded_entity = $this->loadByPropertiesFromAnyWorkspace(['uuid' => $entity->uuid()]);
-    $loaded_entity = reset($loaded_entity);
-    if ($loaded_entity instanceof ContentEntityInterface
-      && $loaded_entity->workspace->target_id != $entity->workspace->target_id) {
-      // Load the entity by revision from entity index.
-      $workspaces = $this->entityManager->getStorage('workspace')->loadMultiple();
-      $entity_revision = $loaded_entity;
+    // Every update is a new revision with this storage model.
+    $entity->setNewRevision();
 
-      // Search for a revision in the entity index using all existent workspaces.
-      $entity_index = \Drupal::service('multiversion.entity_index.id');
-      $key = $this->entityTypeId . ':' . $loaded_entity->id();
-      foreach ($workspaces as $workspace) {
-        $entity_index->useWorkspace($workspace->id());
-        $index = $entity_index->get($key);
-        if (!empty($index['rev']) && $index['rev'] == $entity->_rev->value) {
-          $entity_revision = $this->loadRevision($index['revision_id']);
-          break;
-        }
-      }
+    // Index the revision.
+    $branch = $this->buildRevisionBranch($entity);
+    $this->indexEntityRevision($entity);
+    $this->indexEntityRevisionTree($entity, $branch);
 
-      // Set the necessary values for entity object before saving the field.
-      $id_key = $this->entityType->getKey('id');
-      $revision_key = $this->entityType->getKey('revision');
-      $id = $entity_revision->id();
-      $entity->{$id_key}->value = $id;
-      $entity->{$revision_key}->value = $entity_revision->getRevisionId();
-      $entity->enforceIsNew(FALSE);
-      $entity->setNewRevision(FALSE);
-      $workspaces = $entity_revision->get('workspace')->getValue();
-      $values = array_column($workspaces, 'target_id');
-      // Create an array with values for 'workspace' field.
-      foreach ($entity->get('workspace')->getValue() as $item) {
-        if (!in_array($item['target_id'], $values)) {
-          $workspaces[] = $item;
-        }
-      }
-      $entity->workspace = $workspaces;
+    // Prepare the file directory.
+    if ($entity instanceof FileInterface) {
+      $uri = $entity->getFileUri();
+      $scheme = \Drupal::service('file_system')->uriScheme($uri) ?: 'public';
+      $stream_wrapper_name = 'stream_wrapper.' . $scheme;
+      multiversion_prepare_file_destination($uri, \Drupal::service($stream_wrapper_name));
+    }
 
-      // Set back the active workspace for entity index.
-      $entity_index->useWorkspace($active_workspace_id);
-
-      // Index the revision.
-      $branch = $this->buildRevisionBranch($entity);
-      $this->indexEntityRevision($entity);
-      $this->indexEntityRevisionTree($entity, $branch);
-
-      // Invalidate the cache tag.
-      Cache::invalidateTags(['workspace_' . $this->entityTypeId . '_' . $id]);
-
-      // Save just the 'workspace' field, not entire entity.
-      parent::saveToDedicatedTables($entity, TRUE, ['workspace']);
+    try {
+      $save_result = parent::save($entity);
 
       // Update indexes.
       $this->indexEntity($entity);
       $this->indexEntityRevision($entity);
       $this->trackConflicts($entity);
+
+      return $save_result;
     }
-    else {
-      $this->currentWorkspace = TRUE;
-      $entity->workspace[] = ['target_id' => $active_workspace_id];
-
-      // Every update is a new revision with this storage model.
-      $entity->setNewRevision();
-
-      // Index the revision.
-      $branch = $this->buildRevisionBranch($entity);
-      $this->indexEntityRevision($entity);
-      $this->indexEntityRevisionTree($entity, $branch);
-
-      // Prepare the file directory.
-      if ($entity instanceof FileInterface) {
-        $uri = $entity->getFileUri();
-        $scheme = \Drupal::service('file_system')->uriScheme($uri) ?: 'public';
-        $stream_wrapper_name = 'stream_wrapper.' . $scheme;
-        multiversion_prepare_file_destination($uri, \Drupal::service($stream_wrapper_name));
-      }
-
-      try {
-        $save_result = parent::save($entity);
-
-        // Update indexes.
-        $this->indexEntity($entity);
-        $this->indexEntityRevision($entity);
-        $this->trackConflicts($entity);
-
-        return $save_result;
-      }
-      catch (\Exception $e) {
-        // If a new attempt at saving the entity is made after an exception its
-        // important that a new rev token is not generated.
-        $entity->_rev->new_edit = FALSE;
-        throw new EntityStorageException($e->getMessage(), $e->getCode(), $e);
-      }
+    catch (\Exception $e) {
+      // If a new attempt at saving the entity is made after an exception its
+      // important that a new rev token is not generated.
+      $entity->_rev->new_edit = FALSE;
+      throw new EntityStorageException($e->getMessage(), $e->getCode(), $e);
     }
   }
 
