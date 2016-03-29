@@ -109,32 +109,17 @@ class ConflictTrackerTest extends MultiversionWebTestBase {
   protected function resolveConflicts($uuid) {
     // Get the conflicts for this entity.
     $expected_conflicts = $this->conflictTracker->get($uuid);
-    $revision_uuids = array_keys($expected_conflicts);
-    foreach ($revision_uuids as $revision_uuid) {
+    $revs = array_keys($expected_conflicts);
+    foreach ($revs as $rev) {
       // Load and delete one of the revisions in conflict
-      $revision = $this->loadByRevisionUUID($revision_uuid);
+      $record = \Drupal::service('multiversion.entity_index.rev')->get("$uuid:$rev");
+      $revision = $this->storage->loadRevision($record['revision_id']);
       $revision->delete();
       // Unset the expected conflict for the revision just deleted.
-      unset($expected_conflicts[$revision_uuid]);
+      unset($expected_conflicts[$rev]);
       $tracker_conflicts = $this->conflictTracker->get($uuid);
       $this->assertEqual($tracker_conflicts, $expected_conflicts, 'Resolved conflict removed correctly.');
     }
     $this->assertEqual($tracker_conflicts, [], 'All conflicts resolved for entity.');
-  }
-
-  /**
-   * Load a revision by revision uuid.
-   *
-   * @param $revision_uuid
-   *
-   * @return \Drupal\Core\Entity\EntityInterface|null
-   */
-  protected function loadByRevisionUUID($revision_uuid) {
-    $query = $this->storage->getQuery();
-    $query->allRevisions();
-    $query->condition('_rev', $revision_uuid);
-    $results = $query->execute();
-    $revision_ids = array_keys($results);
-    return $this->storage->loadRevision($revision_ids[0]);
   }
 }
