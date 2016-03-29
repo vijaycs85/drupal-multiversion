@@ -190,7 +190,9 @@ trait ContentEntityStorageTrait {
    * @param array $branch
    */
   protected function indexEntityRevisionTree(EntityInterface $entity, $branch) {
-    \Drupal::service('multiversion.entity_index.rev.tree')->updateTree($entity->uuid(), $branch);
+    \Drupal::service('multiversion.entity_index.rev.tree')
+      ->useWorkspace($entity->workspace->target_id)
+      ->updateTree($entity->uuid(), $branch);
   }
 
   /**
@@ -267,7 +269,12 @@ trait ContentEntityStorageTrait {
 
       // Decide whether or not this is the default revision.
       if (!$entity->isNew()) {
-        $default_rev = \Drupal::service('multiversion.entity_index.rev.tree')->getDefaultRevision($entity->uuid());
+        /** @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $tree */
+        $tree = \Drupal::service('multiversion.entity_index.rev.tree');
+        $default_rev = $tree
+          ->useWorkspace($entity->workspace->target_id)
+          ->getDefaultRevision($entity->uuid());
+
         if ($entity->_rev->value == $default_rev) {
           $entity->isDefaultRevision(TRUE);
         }
@@ -396,7 +403,9 @@ trait ContentEntityStorageTrait {
     $conflictTracker = \Drupal::service('workspace.conflict_tracker');
     /** @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $tree */
     $tree = \Drupal::service('multiversion.entity_index.rev.tree');
-    $conflicts = $tree->getConflicts($entity->uuid());
+    $conflicts = $tree
+      ->useWorkspace($entity->workspace->target_id)
+      ->getConflicts($entity->uuid());
     if ($conflicts) {
       $conflictTracker->add($entity->uuid(), $conflicts, TRUE);
     }

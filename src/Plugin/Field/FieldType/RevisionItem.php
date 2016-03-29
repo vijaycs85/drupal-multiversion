@@ -39,7 +39,8 @@ class RevisionItem extends FieldItemBase {
       ->setLabel(t('A list of all known revisions of the entity.'))
       ->setDescription(t('During replication this will be populated with hashes (i.e. without the index prefix) from all known revisions of the entity.'))
       ->setRequired(FALSE)
-      ->setComputed(TRUE);
+      ->setComputed(TRUE)
+      ->setClass('\Drupal\multiversion\Field\RevisionsProperty');
 
     $properties['is_stub'] = DataDefinition::create('boolean')
       ->setLabel(t('Is stub flag'))
