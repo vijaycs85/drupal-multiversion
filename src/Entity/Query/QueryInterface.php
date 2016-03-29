@@ -20,26 +20,6 @@ interface QueryInterface extends CoreQueryInterface {
   /**
    * @return \Drupal\multiversion\Entity\Query\QueryInterface
    */
-  public function loadFromCurrentWorkspace();
-
-  /**
-   * @return \Drupal\multiversion\Entity\Query\QueryInterface
-   */
-  public function loadFromAnyWorkspace();
-
-  /**
-   * @return \Drupal\multiversion\Entity\Query\QueryInterface
-   */
   public function isNotDeleted();
-
-  /**
-   * @return \Drupal\multiversion\Entity\Query\QueryInterface
-   */
-  public function isTransacting();
-
-  /**
-   * @return \Drupal\multiversion\Entity\Query\QueryInterface
-   */
-  public function isNotTransacting();
 
 }
