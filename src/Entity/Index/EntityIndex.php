@@ -64,7 +64,7 @@ class EntityIndex implements EntityIndexInterface {
    * @see \Drupal\Core\State\State::getMultiple()
    */
   public function getMultiple(array $keys) {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
+    $workspace_id = $this->getWorkspaceId();
     // Initialize the cache storage.
     if (!isset($this->cache[$workspace_id])) {
       $this->cache[$workspace_id] = array();
@@ -112,7 +112,7 @@ class EntityIndex implements EntityIndexInterface {
    * {@inheritdoc}
    */
   public function addMultiple(array $entities) {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
+    $workspace_id = $this->getWorkspaceId();
     $values = array();
     foreach ($entities as $entity) {
       $key = $this->buildKey($entity);
@@ -132,14 +132,20 @@ class EntityIndex implements EntityIndexInterface {
   }
 
   /**
-   * {@inheritdoc}
+   * Helper method for building the key to be indexed.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @return string
    */
   protected function buildKey(EntityInterface $entity) {
     return $entity->getEntityTypeId() . ':' . $entity->id();
   }
 
   /**
-   * {@inheritdoc}
+   * Helper method for building the value to be indexed.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   * @return array
    */
   protected function buildValue(EntityInterface $entity) {
     !$is_new = $entity->isNew();
@@ -161,6 +167,13 @@ class EntityIndex implements EntityIndexInterface {
       'is_stub' => $entity->_rev->is_stub,
       'status' => $status,
     );
+  }
+
+  /**
+   * Helper method for getting what workspace ID to query.
+   */
+  protected function getWorkspaceId() {
+    return $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
   }
 
 }
