@@ -109,8 +109,6 @@ class UninstallTest extends WebTestBase {
       $count_before[$entity_type_id] = $count;
     }
 
-    drupal_flush_all_caches();
-
     // Disable entity types.
     /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
     $manager = \Drupal::getContainer()->get('multiversion.manager');
