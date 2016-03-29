@@ -320,7 +320,7 @@ trait ContentEntityStorageTrait {
    */
   public function resetCache(array $ids = NULL) {
     parent::resetCache($ids);
-    $ws = $this->getActiveWorkspaceId();
+    $ws = $this->getWorkspaceId();
     if ($this->entityType->isStaticallyCacheable() && isset($ids)) {
       foreach ($ids as $id) {
         unset($this->entities[$ws][$id]);
