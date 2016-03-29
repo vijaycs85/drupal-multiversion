@@ -10,7 +10,7 @@ namespace Drupal\multiversion\Entity\Storage\Sql;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 
 /**
- * Defines the controller class for menu_link_content.
+ * Storage handler for menu link content.
  */
 class MenuLinkContentStorage extends ContentEntityStorage implements ContentEntityStorageInterface {
 

@@ -12,7 +12,7 @@ use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
 use Drupal\comment\CommentStorage as CoreCommentStorage;
 
 /**
- * Defines the controller class for comments.
+ * Storage handler for comments.
  */
 class CommentStorage extends CoreCommentStorage implements ContentEntityStorageInterface {
 

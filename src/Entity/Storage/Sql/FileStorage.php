@@ -12,7 +12,7 @@ use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
 use Drupal\file\FileStorage as CoreFileStorage;
 
 /**
- * File storage for files.
+ * Storage handler for files.
  */
 class FileStorage extends CoreFileStorage implements ContentEntityStorageInterface {
 

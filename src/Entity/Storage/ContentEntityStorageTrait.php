@@ -39,28 +39,35 @@ trait ContentEntityStorageTrait {
       return $query;
     }
 
-    $revision_alias = 'revision';
+    $field_data_alias = 'base';
+    $revision_data_alias = 'revision';
     if ($this->entityType->isTranslatable()) {
+      // Join the field data table in order to set the workspace condition.
+      $field_data_table = $this->getDataTable();
+      $field_data_alias = 'field_data';
+      $query->join($field_data_table, $field_data_alias, "$field_data_alias.{$this->idKey} = base.{$this->idKey}");
+
       // Join the revision data table in order to set the delete condition.
-      $revision_table = $this->getRevisionDataTable();
-      $revision_alias = 'revision_data';
+      $revision_data_table = $this->getRevisionDataTable();
+      $revision_data_alias = 'revision_data';
       if ($revision_id) {
-        $query->join($revision_table, $revision_alias, "$revision_alias.{$this->revisionKey} = revision.{$this->revisionKey} AND $revision_alias.{$this->revisionKey} = :revisionId", array(':revisionId' => $revision_id));
+        $query->join($revision_data_table, $revision_data_alias, "$revision_data_alias.{$this->revisionKey} = revision.{$this->revisionKey} AND $revision_data_alias.{$this->revisionKey} = :revisionId", array(':revisionId' => $revision_id));
       }
       else {
-        $query->join($revision_table, $revision_alias, "$revision_alias.{$this->revisionKey} = revision.{$this->revisionKey}");
+        $query->join($revision_data_table, $revision_data_alias, "$revision_data_alias.{$this->revisionKey} = revision.{$this->revisionKey}");
       }
     }
     // Loading a revision is explicit. So when we try to load one we should do
     // so without a condition on the deleted flag.
     if (!$revision_id) {
-      $query->condition("$revision_alias._deleted", (int) $this->isDeleted);
+      $query->condition("$revision_data_alias._deleted", (int) $this->isDeleted);
     }
     // Entities in other workspaces than the active one can only be queried with
     // the Entity Query API and not by the storage handler itself.
     // Just UserStorage can be queried in all workspaces by the storage handler.
     if (!$this instanceof UserStorageInterface) {
-      $query->condition("$revision_alias.workspace", $this->getActiveWorkspaceId());
+      // We have to join the data table to set a condition on the workspace.
+      $query->condition("$field_data_alias.workspace", $this->getActiveWorkspaceId());
     }
     return $query;
   }

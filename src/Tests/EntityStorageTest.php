@@ -7,6 +7,8 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\Workspace;
 
 /**
@@ -152,6 +154,17 @@ class EntityStorageTest extends MultiversionWebTestBase {
         $info['info']['name'] = $this->randomMachineName();
       }
       $storage = $this->entityManager->getStorage($entity_type_id);
+
+      $message = "$entity_type_id has the correct storage handler.";
+      if ($storage instanceof ContentEntityStorageInterface) {
+        $this->pass($message);
+      }
+      else {
+        $this->fail($message);
+        // No idea to continue because things will completely blow up.
+        continue;
+      }
+
       $ids = [];
       $entity = $storage->create($info['info']);
       $return = $entity->save();
@@ -337,7 +350,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertEqual($record->workspace, 1, "The workspace reference was stored for deleted $entity_type_id.");
     }
 
-    // Test workspace when switching the workspace.
+    // Test saving entities in a different workspace.
 
     // Create a new workspace and switch to it.
     $workspace = Workspace::create([
@@ -373,6 +386,8 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertTrue(!empty($entity), "$entity_type_id was loaded by UUID in the workspace it belongs to.");
     }
 
+    // Switch back to the original workspace and check that the entities does
+    // NOT exists here.
     $this->multiversionManager->setActiveWorkspaceId(1);
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
@@ -390,6 +405,56 @@ class EntityStorageTest extends MultiversionWebTestBase {
       }
       else {
         $this->assertTrue(empty($entity), "$entity_type_id was not loaded by UUID in a workspace it does not belong to.");
+      }
+    }
+
+    // Test saving the same entity in two workspaces. This is a simplified
+    // simulation of replication.
+    $source = Workspace::create([
+      'machine_name' => $this->randomMachineName(),
+      'label' => $this->randomMachineName(),
+      'type' => 'basic'
+    ]);
+    $source->save();
+    $target = Workspace::create([
+      'machine_name' => $this->randomMachineName(),
+      'label' => $this->randomMachineName(),
+      'type' => 'basic'
+    ]);
+    $target->save();
+
+    // Save an initial set of entities on source.
+    $this->workspaceManager->setActiveWorkspace($source);
+
+    $entities = [];
+    foreach ($this->entityTypes as $entity_type_id => $info) {
+      $storage = $this->entityManager->getStorage($entity_type_id);
+      if ($entity_type_id == 'user') {
+        $info['info']['name'] = $this->randomMachineName();
+      }
+      $entity = $storage->create($info['info']);
+      $entity->save();
+      $entities[$entity_type_id][$entity->uuid()] = $entity;
+    }
+
+    // Save the same entities on target as new entities, but with the same UUID.
+    $this->workspaceManager->setActiveWorkspace($target);
+    foreach ($this->entityTypes as $entity_type_id => $info) {
+      /** @var \Drupal\Core\Entity\ContentEntityInterface $source_entity */
+      foreach ($entities[$entity_type_id] as $source_entity) {
+        $target_entity = clone $source_entity;
+
+        // Reset the ID and assign the new workspace.
+        $target_entity->{$info['id']}->value = NULL;
+        $target_entity->enforceIsNew(TRUE);
+        $target_entity->workspace->target_id = $target->id();
+
+        // Save the new entity
+        $target_entity->save();
+
+        $this->assertTrue(!empty($target_entity->id()), "$entity_type_id in the target workspace got a new entity ID");
+        $this->assertEqual($target_entity->uuid(), $source_entity->uuid(), "Entities from source and target share the same UUID");
+        $this->assertNotEqual($target_entity->id(), $source_entity->id(), "Entities from source and target does not share the same local ID");
       }
     }
   }

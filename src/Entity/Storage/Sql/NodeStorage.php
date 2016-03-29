@@ -12,7 +12,7 @@ use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
 use Drupal\node\NodeStorage as CoreNodeStorage;
 
 /**
- * Defines the controller class for nodes.
+ * Storage handler for nodes.
  */
 class NodeStorage extends CoreNodeStorage implements ContentEntityStorageInterface {
 

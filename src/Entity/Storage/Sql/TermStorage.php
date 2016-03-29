@@ -12,7 +12,7 @@ use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
 use Drupal\taxonomy\TermStorage as CoreTermStorage;
 
 /**
- * Defines a Controller class for taxonomy terms.
+ * Storage handler for taxonomy terms.
  */
 class TermStorage extends CoreTermStorage implements ContentEntityStorageInterface {
 

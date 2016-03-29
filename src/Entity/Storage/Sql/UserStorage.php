@@ -12,7 +12,7 @@ use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
 use Drupal\user\UserStorage as CoreUserStorage;
 
 /**
- * Defines the controller class for nodes.
+ * Storage handler for users.
  */
 class UserStorage extends CoreUserStorage implements ContentEntityStorageInterface {
 

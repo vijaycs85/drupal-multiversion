@@ -34,28 +34,53 @@ function multiversion_entity_type_alter(array &$entity_types) {
           $entity_type->set('revision_data_table', $entity_type->id() . '_field_revision');
         }
       }
+
       $namespace = 'Drupal\multiversion\Entity\Storage\Sql';
       switch ($entity_type->id()) {
         case 'node':
-          $entity_type->setStorageClass($namespace . '\NodeStorage');
+          $entity_type->setHandlerClass('storage', "$namespace\\NodeStorage");
+          $entity_type->setHandlerClass('storage_schema', "$namespace\\NodeStorageSchema");
           break;
+
         case 'taxonomy_term':
-          $entity_type->setStorageClass($namespace . '\TermStorage');
+          $entity_type->setHandlerClass('storage', "$namespace\\TermStorage");
+          $entity_type->setHandlerClass('storage_schema', "$namespace\\TermStorageSchema");
           break;
+
         case 'comment':
-          $entity_type->setStorageClass($namespace . '\CommentStorage');
+          $entity_type->setHandlerClass('storage', "$namespace\\CommentStorage");
+          $entity_type->setHandlerClass('storage_schema', "$namespace\\CommentStorageSchema");
           break;
+
         case 'menu_link_content':
-          $entity_type->setStorageClass($namespace . '\MenuLinkContentStorage');
+          $entity_type->setHandlerClass('storage', "$namespace\\MenuLinkContentStorage");
+          $entity_type->setHandlerClass('storage_schema', "$namespace\\MenuLinkContentStorageSchema");
           break;
+
         case 'user':
-          $entity_type->setStorageClass($namespace . '\UserStorage');
+          $entity_type->setHandlerClass('storage', "$namespace\\UserStorage");
+          $entity_type->setHandlerClass('storage_schema', "$namespace\\UserStorageSchema");
           break;
+
         case 'file':
-          $entity_type->setStorageClass($namespace . '\FileStorage');
+          $entity_type->setHandlerClass('storage', "$namespace\\FileStorage");
+          $entity_type->setHandlerClass('storage_schema', "$namespace\\FileStorageSchema");
           break;
+
         default:
-          $entity_type->setStorageClass($namespace . '\ContentEntityStorage');
+          $storage_class = $entity_type->getHandlerClass('storage');
+          $storage_schema_class = $entity_type->getHandlerClass('storage_schema');
+
+          // We can only override the storage handler for entity types we know
+          // what to expect of.
+          if (
+            in_array($storage_class, [NULL, 'Drupal\Core\Entity\Sql\SqlContentEntityStorage']) &&
+            in_array($storage_schema_class, [NULL, 'Drupal\Core\Entity\Sql\SqlContentEntityStorageSchema'])
+          ) {
+            $entity_type->setHandlerClass('storage', "$namespace\\ContentEntityStorage");
+            $entity_type->setHandlerClass('storage_schema', "$namespace\\ContentEntityStorageSchema");
+          }
+          break;
       }
     }
   }
@@ -100,7 +125,7 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setLabel(t('Workspace reference'))
       ->setDescription(t('The workspace this entity belongs to.'))
       ->setSetting('target_type', 'workspace')
-      ->setRevisionable(TRUE)
+      ->setRevisionable(FALSE)
       ->setTranslatable(FALSE)
       ->setCardinality(1)
       ->setReadOnly(TRUE);
