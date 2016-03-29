@@ -15,16 +15,6 @@ trait QueryTrait {
   protected $isDeleted = FALSE;
 
   /**
-   * @var boolean
-   */
-  protected $currentWorkspace = TRUE;
-
-  /**
-   * @var boolean
-   */
-  protected $isTransacting = FALSE;
-
-  /**
    *
    */
   public function useWorkspace($id) {
@@ -45,38 +35,6 @@ trait QueryTrait {
    */
   public function isNotDeleted() {
     $this->isDeleted = FALSE;
-    return $this;
-  }
-
-  /**
-   * @see \Drupal\multiversion\Entity\Query\QueryInterface::loadFromCurrentWorkspace()
-   */
-  public function loadFromCurrentWorkspace() {
-    $this->currentWorkspace = TRUE;
-    return $this;
-  }
-
-  /**
-   * @see \Drupal\multiversion\Entity\Query\QueryInterface::loadFromAllWorkspaces()
-   */
-  public function loadFromAnyWorkspace() {
-    $this->currentWorkspace = FALSE;
-    return $this;
-  }
-
-  /**
-   * @see \Drupal\multiversion\Entity\Query\QueryInterface::isTransacting()
-   */
-  public function isTransacting() {
-    $this->isTransacting = TRUE;
-    return $this;
-  }
-
-  /**
-   * @see \Drupal\multiversion\Entity\Query\QueryInterface::isNotTransacting()
-   */
-  public function isNotTransacting() {
-    $this->isTransacting = FALSE;
     return $this;
   }
 
@@ -101,7 +59,7 @@ trait QueryTrait {
         $this->condition('_deleted', (int) $this->isDeleted);
       }
       // Don't add this condition user entity type.
-      if ($entity_type->id() !== 'user' && $this->currentWorkspace) {
+      if ($entity_type->id() !== 'user') {
         $this->condition('workspace', $this->workspaceId ?: $this->multiversionManager->getActiveWorkspaceId());
       }
     }
