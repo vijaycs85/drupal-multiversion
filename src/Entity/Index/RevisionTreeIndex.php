@@ -160,7 +160,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
    */
   protected function keyValueStore($uuid) {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
+    $workspace_id = $this->getWorkspaceId();
     return $this->keyValueFactory->get("multiversion.entity_index.rev.tree.$workspace_id.$uuid");
   }
 
@@ -174,7 +174,9 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
     foreach (array_keys($revs) as $rev) {
       $keys[] = "$uuid:$rev";
     }
-    $revs_info = $this->revIndex->getMultiple($keys);
+    $revs_info = $this->revIndex
+      ->useWorkspace($this->getWorkspaceId())
+      ->getMultiple($keys);
     return self::doBuildTree($uuid, $revs, $revs_info);
   }
 
@@ -289,6 +291,13 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
         self::updateDefaultRevision($element['children'], $default_rev);
       }
     }
+  }
+
+  /**
+   * Helper method to get the workspace ID to query.
+   */
+  protected function getWorkspaceId() {
+    return $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
   }
 
 }
