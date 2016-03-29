@@ -17,7 +17,7 @@ class RevisionsProperty extends TypedData {
   /**
    * @var array
    */
-  protected $value;
+  protected $value = [];
 
   /**
    * {@inheritdoc}
@@ -36,7 +36,7 @@ class RevisionsProperty extends TypedData {
       ->useWorkspace($entity->workspace->target_id)
       ->getDefaultBranch($entity->uuid());
 
-    if (empty($branch)) {
+    if (empty($branch) && !$entity->_rev->is_stub && !$entity->isNew()) {
       list($i, $hash) = explode('-', $entity->_rev->value);
       $this->value = [$hash];
     }
