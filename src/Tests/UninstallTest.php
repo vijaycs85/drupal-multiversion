@@ -9,6 +9,7 @@ namespace Drupal\multiversion\Tests;
 
 use Drupal\comment\CommentStorage;
 use Drupal\Core\Entity\ContentEntityStorageInterface;
+use Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\node\NodeStorage;
 use Drupal\simpletest\WebTestBase;
@@ -115,7 +116,14 @@ class UninstallTest extends WebTestBase {
     $manager->disableEntityTypes();
     // Uninstall Multiversion.
     $this->moduleInstaller->uninstall(['multiversion']);
-    $this->assertFalse(\Drupal::service('entity.definition_update_manager')->needsUpdates(), 'There are not new updates to apply.');
+
+    /** @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface $update_manager */
+    $update_manager = \Drupal::service('entity.definition_update_manager');
+    // The field class for the UUID field that Multiversion provides will now
+    // be gone. So we need to apply updates.
+    $update_manager->applyUpdates();
+    // Check that applying updates worked.
+    $this->assertFalse($update_manager->needsUpdates(), 'There are not new updates to apply.');
 
     $ids_after = [];
     $manager = \Drupal::entityTypeManager();
