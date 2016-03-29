@@ -22,6 +22,11 @@ trait ContentEntityStorageTrait {
   protected $isDeleted = FALSE;
 
   /**
+   * @var integer
+   */
+  protected $workspaceId = NULL;
+
+  /**
    * {@inheritdoc}
    */
   public function getQueryServiceName() {
@@ -67,16 +72,24 @@ trait ContentEntityStorageTrait {
     // Just UserStorage can be queried in all workspaces by the storage handler.
     if (!$this instanceof UserStorageInterface) {
       // We have to join the data table to set a condition on the workspace.
-      $query->condition("$field_data_alias.workspace", $this->getActiveWorkspaceId());
+      $query->condition("$field_data_alias.workspace", $this->getWorkspaceId());
     }
     return $query;
   }
 
   /**
-   * Helper method to get the active workspace ID.
+   * {@inheritdoc}
    */
-  protected function getActiveWorkspaceId() {
-    return \Drupal::service('workspace.manager')->getActiveWorkspace()->id();
+  public function useWorkspace($id) {
+    $this->workspaceId = $id;
+    return $this;
+  }
+
+  /**
+   * Helper method to get the workspace ID to query.
+   */
+  protected function getWorkspaceId() {
+    return $this->workspaceId ?: \Drupal::service('workspace.manager')->getActiveWorkspace()->id();
   }
 
   /**
@@ -92,7 +105,6 @@ trait ContentEntityStorageTrait {
    */
   public function loadMultiple(array $ids = NULL) {
     $this->isDeleted = FALSE;
-    $this->currentWorkspace = TRUE;
     return parent::loadMultiple($ids);
   }
 
@@ -323,7 +335,7 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   protected function getFromStaticCache(array $ids) {
-    $ws = $this->getActiveWorkspaceId();
+    $ws = $this->getWorkspaceId();
     $entities = [];
     // Load any available entities from the internal cache.
     if ($this->entityType->isStaticallyCacheable() && !empty($this->entities[$ws])) {
@@ -337,7 +349,7 @@ trait ContentEntityStorageTrait {
    */
   protected function setStaticCache(array $entities) {
     if ($this->entityType->isStaticallyCacheable()) {
-      $ws = $this->getActiveWorkspaceId();
+      $ws = $this->getWorkspaceId();
       if (!isset($this->entities[$ws])) {
         $this->entities[$ws] = [];
       }
@@ -349,7 +361,7 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   protected function buildCacheId($id) {
-    $ws = $this->getActiveWorkspaceId();
+    $ws = $this->getWorkspaceId();
     return "values:{$this->entityTypeId}:$id:$ws";
   }
 
@@ -360,7 +372,7 @@ trait ContentEntityStorageTrait {
     if (!$this->entityType->isPersistentlyCacheable()) {
       return;
     }
-    $ws = $this->getActiveWorkspaceId();
+    $ws = $this->getWorkspaceId();
     $cache_tags = [
       $this->entityTypeId . '_values',
       'entity_field_info',

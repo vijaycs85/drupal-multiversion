@@ -7,6 +7,14 @@ use Drupal\Core\Entity\EntityStorageInterface;
 interface ContentEntityStorageInterface extends EntityStorageInterface {
 
   /**
+   * What workspace to query.
+   *
+   * @param integer $id
+   * @return \Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface
+   */
+  public function useWorkspace($id);
+
+  /**
    * @param integer $id
    * @return \Drupal\Core\Entity\ContentEntityInterface|null
    */
