@@ -98,7 +98,8 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @todo {@link https://www.drupal.org/node/2600382 Access check.}
    */
   public function getActiveWorkspace() {
-    $cid = 'active_workspace_id:' . $this->currentUser->id();
+    $path = $this->requestStack->getCurrentRequest()->getPathInfo();
+    $cid = 'active_workspace_id:' . $this->currentUser->id() . ':' . $path;
 
     if ($cache = $this->cacheGet($cid)) {
       $workspace = $this->load($cache->data);
@@ -123,7 +124,8 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * {@inheritdoc}
    */
   public function setActiveWorkspace(WorkspaceInterface $workspace) {
-    $cid = 'active_workspace_id:' . $this->currentUser->id();
+    $path = $this->requestStack->getCurrentRequest()->getPathInfo();
+    $cid = 'active_workspace_id:' . $this->currentUser->id() . ':' . $path;
 
     // Set the workspace on the proper negotiator.
     $request = $this->requestStack->getCurrentRequest();
