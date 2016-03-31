@@ -98,7 +98,7 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @todo {@link https://www.drupal.org/node/2600382 Access check.}
    */
   public function getActiveWorkspace() {
-    $cid = $this->getCid();
+    $cid = $this->getCacheId();
     if ($cache = $this->cacheGet($cid)) {
       return $this->load($cache->data);
     }
@@ -126,7 +126,7 @@ class WorkspaceManager implements WorkspaceManagerInterface {
     foreach ($this->getSortedNegotiators() as $negotiator) {
       if ($negotiator->applies($request)) {
         $negotiator->persist($workspace);
-        $this->cacheSet($this->getCid(), $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
+        $this->cacheSet($this->getCacheId(), $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
         break;
       }
     }
@@ -161,7 +161,7 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   /**
    * @return string
    */
-  protected function getCid() {
+  protected function getCacheId() {
     $path = $this->requestStack->getCurrentRequest()->getPathInfo();
     return 'active_workspace_id:' . $this->currentUser->id() . ':' . $path;
   }
