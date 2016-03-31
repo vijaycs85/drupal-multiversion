@@ -295,9 +295,6 @@ trait ContentEntityStorageTrait {
       }
     }
 
-    // Invalidate the cache tag.
-    Cache::invalidateTags(['workspace_' . $this->entityTypeId . '_' . $id]);
-
     return parent::doSave($id, $entity);
   }
 
@@ -396,9 +393,7 @@ trait ContentEntityStorageTrait {
       'workspace_' . $ws,
     ];
     foreach ($entities as $entity) {
-      $id = $entity->id();
-      $cache_tags[] = 'workspace_' . $this->entityTypeId . '_' . $id;
-      $this->cacheBackend->set($this->buildCacheId($id), $entity, CacheBackendInterface::CACHE_PERMANENT, $cache_tags);
+      $this->cacheBackend->set($this->buildCacheId($entity->id()), $entity, CacheBackendInterface::CACHE_PERMANENT, $cache_tags);
     }
   }
 
