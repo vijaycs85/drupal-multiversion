@@ -98,10 +98,9 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @todo {@link https://www.drupal.org/node/2600382 Access check.}
    */
   public function getActiveWorkspace() {
-    $cid = 'active_workspace_id:' . $this->currentUser->id();
-
+    $cid = $this->getCacheId();
     if ($cache = $this->cacheGet($cid)) {
-      $workspace = $this->load($cache->data);
+      return $this->load($cache->data);
     }
     else {
       $request = $this->requestStack->getCurrentRequest();
@@ -110,27 +109,24 @@ class WorkspaceManager implements WorkspaceManagerInterface {
           if ($workspace_id = $negotiator->getWorkspaceId($request)) {
             if ($workspace = $this->load($workspace_id)) {
               $this->cacheSet($cid, $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
-              break;
+              return $workspace;
             }
           }
         }
       }
     }
-    return $workspace;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setActiveWorkspace(WorkspaceInterface $workspace) {
-    $cid = 'active_workspace_id:' . $this->currentUser->id();
-
     // Set the workspace on the proper negotiator.
     $request = $this->requestStack->getCurrentRequest();
     foreach ($this->getSortedNegotiators() as $negotiator) {
       if ($negotiator->applies($request)) {
         $negotiator->persist($workspace);
-        $this->cacheSet($cid, $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
+        $this->cacheSet($this->getCacheId(), $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
         break;
       }
     }
@@ -160,6 +156,14 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    */
   protected function getCacheTags() {
     return ['workspace_values', 'entity_field_info'];
+  }
+
+  /**
+   * @return string
+   */
+  protected function getCacheId() {
+    $path = $this->requestStack->getCurrentRequest()->getPathInfo();
+    return 'active_workspace_id:' . $this->currentUser->id() . ':' . $path;
   }
 
 }
