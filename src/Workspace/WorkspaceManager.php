@@ -25,7 +25,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class WorkspaceManager implements WorkspaceManagerInterface {
   use StringTranslationTrait;
-
   use UseCacheBackendTrait;
 
   /**
@@ -42,9 +41,6 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @var \Drupal\Core\Session\AccountProxyInterface
    */
   protected $currentUser;
-
-  /** @var \Drupal\Core\Cache\CacheBackendInterface  */
-  protected $cacheBackend;
 
   /**
    * @var array
