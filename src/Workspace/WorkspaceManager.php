@@ -12,7 +12,10 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Cache\UseCacheBackendTrait;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\multiversion\Entity\WorkspaceInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -21,6 +24,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *   manager.
  */
 class WorkspaceManager implements WorkspaceManagerInterface {
+  use StringTranslationTrait;
 
   use UseCacheBackendTrait;
 
@@ -39,6 +43,9 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    */
   protected $currentUser;
 
+  /** @var \Drupal\Core\Cache\CacheBackendInterface  */
+  protected $cacheBackend;
+
   /**
    * @var array
    */
@@ -50,16 +57,24 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   protected $sortedNegotiators;
 
   /**
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
+
+  /**
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
+   * @param \Psr\Log\LoggerInterface $logger
    */
-  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager, AccountProxyInterface $current_user, CacheBackendInterface $cache_backend) {
+  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager, AccountProxyInterface $current_user, CacheBackendInterface $cache_backend, LoggerInterface $logger = NULL) {
     $this->requestStack = $request_stack;
     $this->entityManager = $entity_manager;
     $this->currentUser = $current_user;
     $this->cacheBackend = $cache_backend;
+    $this->logger = $logger ?: new NullLogger();
   }
 
   /**
@@ -121,6 +136,15 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * {@inheritdoc}
    */
   public function setActiveWorkspace(WorkspaceInterface $workspace) {
+
+    // If the current user doesn't have access to view the workspace, they
+    // shouldn't be allowed to switch to it.
+    // @todo Could this be handled better?
+    if (!$workspace->access('view')) {
+      $this->logger->error('Denied access to view workspace {workspace}', ['workspace' => $workspace->label()]);
+      throw new WorkspaceAccessException('The user does not have permission to view that workspace.');
+    }
+
     // Set the workspace on the proper negotiator.
     $request = $this->requestStack->getCurrentRequest();
     foreach ($this->getSortedNegotiators() as $negotiator) {
