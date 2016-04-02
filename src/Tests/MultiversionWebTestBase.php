@@ -94,6 +94,9 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     }
     // Create comment field on article.
     $this->addDefaultCommentField('node', 'article');
+
+    $test_user = $this->drupalCreateUser(['administer workspaces']);
+    $this->drupalLogin($test_user);
   }
 
 }
