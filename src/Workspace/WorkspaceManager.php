@@ -114,14 +114,25 @@ class WorkspaceManager implements WorkspaceManagerInterface {
       return $this->load($cache->data);
     }
     else {
-      $request = $this->requestStack->getCurrentRequest();
-      foreach ($this->getSortedNegotiators() as $negotiator) {
-        if ($negotiator->applies($request)) {
-          if ($workspace_id = $negotiator->getWorkspaceId($request)) {
-            if ($workspace = $this->load($workspace_id)) {
-              $this->cacheSet($cid, $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
-              return $workspace;
-            }
+      if ($workspace = $this->getActiveWorkspaceFromStorage()) {
+        $this->cacheSet($cid, $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
+        return $workspace;
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * @todo {@link https://www.drupal.org/node/2600382 Access check.}
+   */
+  public function getActiveWorkspaceFromStorage() {
+    $request = $this->requestStack->getCurrentRequest();
+    foreach ($this->getSortedNegotiators() as $negotiator) {
+      if ($negotiator->applies($request)) {
+        if ($workspace_id = $negotiator->getWorkspaceId($request)) {
+          if ($workspace = $this->load($workspace_id)) {
+            return $workspace;
           }
         }
       }

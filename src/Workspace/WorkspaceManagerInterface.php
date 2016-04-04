@@ -38,6 +38,11 @@ interface WorkspaceManagerInterface {
   public function getActiveWorkspace();
 
   /**
+   * @return \Drupal\multiversion\Entity\WorkspaceInterface
+   */
+  public function getActiveWorkspaceFromStorage();
+
+  /**
    * Sets the active workspace for the site/session.
    *
    * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
