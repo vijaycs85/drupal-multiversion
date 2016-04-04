@@ -77,8 +77,8 @@ class EntityQueryTest extends MultiversionWebTestBase {
       $entity->save();
 
       // For user entity type we expect to have three entities: anonymous, root
-      // user and the new created entity (anonymous - 0, admin - 1, new user - 2).
-      $expected_results = $entity_type_id == 'user' ? ['0', '1', '2'] : ['1'];
+      // user and the new created entity (anonymous - 0, admin - 1, test user - 2, new user - 3).
+      $expected_results = $entity_type_id == 'user' ? ['0', '1', '2', '3'] : ['1'];
       $results = $this->factory->get($entity_type_id)
         ->execute();
       $this->assertIdentical(array_values($results), $expected_results, "Query without isNotDeleted on existing $entity_type_id returned expected result.");
@@ -105,9 +105,9 @@ class EntityQueryTest extends MultiversionWebTestBase {
       $entity->delete();
 
       // For user entity type we expect to have two entities: anonymous and
-      // admin (anonymous - 0, admin - 1). Deleted user's id shouldn't be in the
+      // admin (anonymous - 0, admin - 1, test user - 2). Deleted user's id shouldn't be in the
       // results array.
-      $expected_results = $entity_type_id == 'user' ? ['0', '1'] : [];
+      $expected_results = $entity_type_id == 'user' ? ['0', '1', '2'] : [];
       $results = $this->factory->get($entity_type_id)
         ->execute();
       $this->assertIdentical(array_values($results), $expected_results, "Query without isNotDeleted on deleted $entity_type_id returned expected result.");
@@ -117,7 +117,7 @@ class EntityQueryTest extends MultiversionWebTestBase {
         ->execute();
       $this->assertIdentical(array_values($results), $expected_results, "Query with isNotDeleted on deleted $entity_type_id returned expected result.");
 
-      $expected_results = $entity_type_id == 'user' ? ['2'] : ['1'];
+      $expected_results = $entity_type_id == 'user' ? ['3'] : ['1'];
       $results = $this->factory->get($entity_type_id)
         ->isDeleted()
         ->execute();

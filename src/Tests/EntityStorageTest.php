@@ -181,10 +181,10 @@ class EntityStorageTest extends MultiversionWebTestBase {
       // Update and save a new revision.
       $entity->{$info['name']} = $this->randomMachineName();
       $entity->save();
-      // For user entity type we should have three entities: anonymous, root
-      // user and the new created user. For other entity types we should have
+      // For user entity type we should have 4 entities: anonymous, root
+      // user, test user and the new created user. For other entity types we should have
       // just the new created entity.
-      $revision_id = $entity_type_id == 'user' ? 3 : 1;
+      $revision_id = $entity_type_id == 'user' ? 4 : 1;
       /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
       $revision = $storage->loadRevision($revision_id);
       $this->assertTrue(($revision->getRevisionId() == $revision_id && !$revision->isDefaultRevision()), "Old revision of $entity_type_id was loaded.");
