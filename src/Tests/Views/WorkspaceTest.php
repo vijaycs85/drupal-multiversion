@@ -30,7 +30,7 @@ class WorkspaceTest extends MultiversionTestBase {
    * Tests the workspace filter.
    */
   public function testWorkspace() {
-    $admin_user = $this->drupalCreateUser(['bypass node access']);
+    $admin_user = $this->drupalCreateUser(['administer workspaces', 'bypass node access']);
     $uid = $admin_user->id();
     $this->drupalLogin($admin_user);
 
