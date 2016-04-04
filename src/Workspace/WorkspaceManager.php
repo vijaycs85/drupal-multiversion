@@ -132,11 +132,11 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * {@inheritdoc}
    */
   public function setActiveWorkspace(WorkspaceInterface $workspace) {
-
+    $default_workspace_id = \Drupal::getContainer()->getParameter('workspace.default');
     // If the current user doesn't have access to view the workspace, they
     // shouldn't be allowed to switch to it.
     // @todo Could this be handled better?
-    if (!$workspace->access('view')) {
+    if (!$workspace->access('view') && ($workspace->id() != $default_workspace_id)) {
       $this->logger->error('Denied access to view workspace {workspace}', ['workspace' => $workspace->label()]);
       throw new WorkspaceAccessException('The user does not have permission to view that workspace.');
     }

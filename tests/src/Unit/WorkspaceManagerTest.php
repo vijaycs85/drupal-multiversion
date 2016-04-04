@@ -113,6 +113,7 @@ class WorkspaceManagerTest extends UnitTestCase {
     $container->set('entity.manager', $this->entityManager);
     $container->set('request_stack', $this->requestStack);
     $container->set('cache.render', $this->cacheRender);
+    $container->setParameter('workspace.default', 1);
     \Drupal::setContainer($container);
 
     foreach ($this->values as $value) {

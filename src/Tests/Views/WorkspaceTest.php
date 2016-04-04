@@ -34,6 +34,13 @@ class WorkspaceTest extends MultiversionTestBase {
     $uid = $admin_user->id();
     $this->drupalLogin($admin_user);
 
+    /** @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager */
+    $workspace_manager = \Drupal::service('workspace.manager');
+
+    // Get workspace nodes will be added to.
+    /** @var \Drupal\multiversion\Entity\WorkspaceInterface $initial_workspace */
+    $initial_workspace = $workspace_manager->getActiveWorkspace();
+
     // Create two nodes on 'default' workspace.
     $node1 = $this->drupalCreateNode(['uid' => $uid]);
     $node2 = $this->drupalCreateNode(['uid' => $uid]);
@@ -41,7 +48,8 @@ class WorkspaceTest extends MultiversionTestBase {
     // Create a new workspace and switch to it.
     $new_workspace = Workspace::create(['machine_name' => 'new_workspace', 'label' => 'New Workspace', 'type' => 'basic']);
     $new_workspace->save();
-    \Drupal::service('workspace.manager')->setActiveWorkspace($new_workspace);
+    $workspace_manager->setActiveWorkspace($new_workspace);
+    $this->assertEqual($new_workspace->id(), $workspace_manager->getActiveWorkspace()->id());
 
     // Create two nodes on 'new_workspace' workspace.
     $node3 = $this->drupalCreateNode(['uid' => $uid]);
@@ -55,7 +63,8 @@ class WorkspaceTest extends MultiversionTestBase {
     $this->assertText($node4->label());
 
     // Switch back to the original workspace and test the view.
-    \Drupal::service('workspace.manager')->setActiveWorkspace(Workspace::load(1));
+    $workspace_manager->setActiveWorkspace($initial_workspace);
+    $this->assertEqual($initial_workspace->id(), $workspace_manager->getActiveWorkspace()->id());
     $this->drupalGet('test_current_workspace');
     $this->assertText($node1->label());
     $this->assertText($node2->label());
