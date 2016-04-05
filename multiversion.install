@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\multiversion\Entity\Workspace;
+use Drupal\Core\Database\Database;
 
 /**
  * Implements hook_install().
@@ -18,4 +19,98 @@ function multiversion_install() {
  */
 function multiversion_uninstall() {
   \Drupal::state()->delete('multiversion_enabled');
+}
+
+/**
+ * Add workspace field to data_field and revision_field tables and migrate data.
+ */
+function multiversion_update_8001() {
+  $connection = Database::getConnection();
+  if ($connection instanceOf \Drupal\Core\Database\Driver\mysql\Connection) {
+    $schema = $connection->schema();
+    $entity_manager = \Drupal::service('entity.manager');
+    $manager = \Drupal::service('multiversion.manager');
+
+    // Find all supported entities
+    $entities = $manager->getSupportedEntityTypes();
+
+    // Field can't be NOT NULL on an table with existing data.
+    $field = array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+    );
+
+    // Make the field NOT NULL after data migration.
+    $new_field = array(
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+    );
+
+    // Loop through each one.
+    foreach ($entities as $entity_type => $entity) {
+      $entity_keys = $entity->getKeys();
+
+      // Get the field names used as keys.
+      $field_id = $entity_keys['id'];
+      $field_revision = $entity_keys['revision'];
+
+      // Get the tables name used for base table and revision table.
+      $table_base = ($entity->isTranslatable()) ? $entity->getDataTable() : $entity->getBaseTable();
+      $table_revision = ($entity->isTranslatable()) ? $entity->getRevisionDataTable() : $entity->getRevisionTable();
+
+      // Block content definition doesn't include the revision field table.
+      // So get it.
+      $tables = $entity_manager->getStorage($entity_type)->getTableMapping()->getTableNames();
+
+      if (!$table_revision && in_array($entity_type . '_field_revision', $tables)) {
+        $table_revision = $entity_type . '_field_revision';
+      }
+
+      // Add new field to the base table.
+      $schema->addField($table_base, 'workspace', $field);
+
+      // Pull data from the old table.
+      $old_data_table = $entity_type . '__workspace';
+      $results = $connection->select($old_data_table)
+        ->fields($old_data_table, array('entity_id', 'workspace_target_id'))
+        ->execute()->fetchAll();
+
+      foreach ($results as $result) {
+        // Add the value to the new column.
+        $connection->update($table_base)
+          ->fields(array('workspace' => $result->workspace_target_id))
+          ->condition($field_id, $result->entity_id, '=')
+          ->execute();
+      }
+
+      // Add NOT NULL constraint.
+      $schema->changeField($table_base, 'workspace', 'workspace', $new_field);
+      // Drop old table.
+      $schema->dropTable($old_data_table);
+
+      // Add new field to the field revision table.
+      $schema->addField($table_revision, 'workspace', $field);
+
+      // Pull data from old table.
+      $old_revision_table = $entity_type . '_revision__workspace';
+      $results = $connection->select($old_revision_table)
+        ->fields($old_revision_table, array('entity_id,', 'revision_id', 'workspace_target_id'))
+        ->execute();
+
+      foreach ($results as $result) {
+        // Add data to the revision table.
+        $connection->update($table_revision)
+          ->fields(array('workspace' => $result->workspace_target_id))
+          ->condition($field_id, $result->entity_id, '=')
+          ->condition($field_revision, $result->revision_id)
+          ->execute();
+      }
+
+      // Add NOT NULL constraint.
+      $schema->changeField($table_revision, 'workspace', 'workspace', $new_field);
+      // Drop old table.
+      $schema->dropTable($old_revision_table);
+    }
+  }
 }
