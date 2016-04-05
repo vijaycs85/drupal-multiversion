@@ -1,6 +1,7 @@
 parameters:
   workspace.default: 1
-  required_cache_contexts: ['workspace']
+  renderer.config:
+    required_cache_contexts: ['workspace']
 
 services:
   multiversion.entity_index.sequence:
@@ -28,7 +29,7 @@ services:
       - [setContainer, ['@service_container']]
   workspace.manager:
     class: Drupal\multiversion\Workspace\WorkspaceManager
-    arguments: ['@request_stack', '@entity.manager', '@current_user', '@cache.discovery', '@logger.channel.workspace']
+    arguments: ['@request_stack', '@entity.manager', '@current_user', '@logger.channel.workspace']
     tags:
       - { name: service_collector, tag: workspace_negotiator, call: addNegotiator }
   workspace.conflict_tracker:

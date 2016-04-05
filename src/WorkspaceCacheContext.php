@@ -13,6 +13,8 @@ use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
 /**
  * Defines the WorkspaceCacheContext service, for "per workspace" caching.
+ *
+ * Cache context ID: 'workspace'.
  */
 class WorkspaceCacheContext implements CacheContextInterface {
 

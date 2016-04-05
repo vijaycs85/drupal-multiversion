@@ -7,9 +7,6 @@
 
 namespace Drupal\multiversion\Workspace;
 
-use Drupal\Core\Cache\Cache;
-use Drupal\Core\Cache\CacheBackendInterface;
-use Drupal\Core\Cache\UseCacheBackendTrait;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -18,14 +15,8 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * @todo Cache the active workspace in a cache backend. Caching in a class
- *   property is causing issues when there might be multiple instances of the
- *   manager.
- */
 class WorkspaceManager implements WorkspaceManagerInterface {
   use StringTranslationTrait;
-  use UseCacheBackendTrait;
 
   /**
    * @var \Symfony\Component\HttpFoundation\RequestStack
@@ -62,14 +53,12 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    *   The request stack.
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
-   * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
    * @param \Psr\Log\LoggerInterface $logger
    */
-  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager, AccountProxyInterface $current_user, CacheBackendInterface $cache_backend, LoggerInterface $logger = NULL) {
+  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager, AccountProxyInterface $current_user, LoggerInterface $logger = NULL) {
     $this->requestStack = $request_stack;
     $this->entityManager = $entity_manager;
     $this->currentUser = $current_user;
-    $this->cacheBackend = $cache_backend;
     $this->logger = $logger ?: new NullLogger();
   }
 
@@ -109,19 +98,12 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @todo {@link https://www.drupal.org/node/2600382 Access check.}
    */
   public function getActiveWorkspace() {
-    $cid = $this->getCacheId();
-    if ($cache = $this->cacheGet($cid)) {
-      return $this->load($cache->data);
-    }
-    else {
-      $request = $this->requestStack->getCurrentRequest();
-      foreach ($this->getSortedNegotiators() as $negotiator) {
-        if ($negotiator->applies($request)) {
-          if ($workspace_id = $negotiator->getWorkspaceId($request)) {
-            if ($workspace = $this->load($workspace_id)) {
-              $this->cacheSet($cid, $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
-              return $workspace;
-            }
+    $request = $this->requestStack->getCurrentRequest();
+    foreach ($this->getSortedNegotiators() as $negotiator) {
+      if ($negotiator->applies($request)) {
+        if ($workspace_id = $negotiator->getWorkspaceId($request)) {
+          if ($workspace = $this->load($workspace_id)) {
+            return $workspace;
           }
         }
       }
@@ -146,7 +128,6 @@ class WorkspaceManager implements WorkspaceManagerInterface {
     foreach ($this->getSortedNegotiators() as $negotiator) {
       if ($negotiator->applies($request)) {
         $negotiator->persist($workspace);
-        $this->cacheSet($this->getCacheId(), $workspace->id(), Cache::PERMANENT, $this->getCacheTags());
         break;
       }
     }
@@ -169,21 +150,6 @@ class WorkspaceManager implements WorkspaceManagerInterface {
       }
     }
     return $this->sortedNegotiators;
-  }
-
-  /**
-   * @return array
-   */
-  protected function getCacheTags() {
-    return ['workspace_values', 'entity_field_info'];
-  }
-
-  /**
-   * @return string
-   */
-  protected function getCacheId() {
-    $path = $this->requestStack->getCurrentRequest()->getPathInfo();
-    return 'active_workspace_id:' . $this->currentUser->id() . ':' . $path;
   }
 
 }

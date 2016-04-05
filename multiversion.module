@@ -1,6 +1,6 @@
 <?php
 
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
@@ -313,9 +313,11 @@ function multiversion_element_info_alter(array &$types) {
 function multiversion_element_pre_render($element) {
   if (isset($element['#cache'])) {
     if (!isset($element['#cache']['contexts'])) {
-      $element['#cache']['contexts'] = array();
+      $element['#cache']['contexts'] = [];
     }
-    $element['#cache']['contexts'][] = 'workspace';
+    $element['#cache']['contexts'] = Cache::mergeContexts(
+      $element['#cache']['contexts'], ['workspace']
+    );
   }
   return $element;
 }
