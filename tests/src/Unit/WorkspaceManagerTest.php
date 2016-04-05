@@ -54,13 +54,6 @@ class WorkspaceManagerTest extends UnitTestCase {
   protected $requestStack;
 
   /**
-   * The cache render.
-   *
-   * @var \Drupal\Core\Cache\CacheBackendInterface|\PHPUnit_Framework_MockObject_MockObject
-   */
-  protected $cacheRender;
-
-  /**
    * The ID of the type of the entity under test.
    *
    * @var string
@@ -89,6 +82,13 @@ class WorkspaceManagerTest extends UnitTestCase {
   protected $currentUser;
 
   /**
+   * The logger.
+   *
+   * @var \Psr\Log\LoggerInterface|\PHPUnit_Framework_MockObject_MockObject
+   */
+  protected $logger;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp() {
@@ -102,7 +102,7 @@ class WorkspaceManagerTest extends UnitTestCase {
     $this->entityType = $this->getMock('Drupal\multiversion\Entity\WorkspaceInterface');
     $this->entityManager = $this->getMock('Drupal\Core\Entity\EntityManagerInterface');
     $this->currentUser = $this->getMock('Drupal\Core\Session\AccountProxyInterface');
-    $this->cacheRender = $this->getMock('Drupal\Core\Cache\CacheBackendInterface');
+    $this->logger = $this->getMock('Psr\Log\LoggerInterface');
     $this->entityManager->expects($this->any())
       ->method('getDefinition')
       ->with($this->entityTypeId)
@@ -112,7 +112,6 @@ class WorkspaceManagerTest extends UnitTestCase {
     $container = new ContainerBuilder();
     $container->set('entity.manager', $this->entityManager);
     $container->set('request_stack', $this->requestStack);
-    $container->set('cache.render', $this->cacheRender);
     $container->setParameter('workspace.default', 1);
     \Drupal::setContainer($container);
 
@@ -138,7 +137,7 @@ class WorkspaceManagerTest extends UnitTestCase {
    * Tests the addNegotiator() method.
    */
   public function testAddNegotiator() {
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->cacheRender);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->logger);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[0][0], 0);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[1][0], 1);
 
@@ -163,7 +162,7 @@ class WorkspaceManagerTest extends UnitTestCase {
       ->with($this->entityTypeId)
       ->will($this->returnValue($storage));
 
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->cacheRender);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->logger);
     $entity = $workspace_manager->load(1);
 
     $this->assertSame($this->entities[0], $entity);
@@ -185,7 +184,7 @@ class WorkspaceManagerTest extends UnitTestCase {
       ->with($this->entityTypeId)
       ->will($this->returnValue($storage));
 
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->cacheRender);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->logger);
     $entities = $workspace_manager->loadMultiple($ids);
 
     $this->assertSame($this->entities, $entities);
@@ -212,7 +211,7 @@ class WorkspaceManagerTest extends UnitTestCase {
     $negotiator->persist(Argument::any())->will(function(){ return $this; });
 
     // Create the workspace manager.
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->cacheRender);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->logger);
     $workspace_manager->addNegotiator($negotiator->reveal(), 1);
 
     // Execute the code under test.
@@ -252,7 +251,7 @@ class WorkspaceManagerTest extends UnitTestCase {
       ->willReturn($storage);
 
     // Create the workspace manager with the negotiator.
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->cacheRender);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->logger);
     $workspace_manager->addNegotiator($negotiator, 1);
 
     // Execute the code under test.
@@ -266,7 +265,7 @@ class WorkspaceManagerTest extends UnitTestCase {
    * Tests the getSortedNegotiators() method.
    */
   public function testGetSortedNegotiators() {
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->cacheRender);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityManager, $this->currentUser, $this->logger);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[0][0], 1);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[1][0], 3);
 
