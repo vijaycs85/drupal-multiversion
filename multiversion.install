@@ -61,56 +61,89 @@ function multiversion_update_8001() {
 
       // Block content definition doesn't include the revision field table.
       // So get it.
-      $tables = $entity_manager->getStorage($entity_type)->getTableMapping()->getTableNames();
+      $tables = $entity_manager->getStorage($entity_type)
+        ->getTableMapping()
+        ->getTableNames();
 
       if (!$table_revision && in_array($entity_type . '_field_revision', $tables)) {
         $table_revision = $entity_type . '_field_revision';
       }
 
-      // Add new field to the base table.
-      $schema->addField($table_base, 'workspace', $field);
 
+      $results = array();
       // Pull data from the old table.
       $old_data_table = $entity_type . '__workspace';
-      $results = $connection->select($old_data_table)
-        ->fields($old_data_table, array('entity_id', 'workspace_target_id'))
-        ->execute()->fetchAll();
 
-      foreach ($results as $result) {
-        // Add the value to the new column.
-        $connection->update($table_base)
-          ->fields(array('workspace' => $result->workspace_target_id))
-          ->condition($field_id, $result->entity_id, '=')
-          ->execute();
+      if ($schema->tableExists($old_data_table)){
+        $results = $connection->select($old_data_table)
+          ->fields($old_data_table, array('entity_id', 'workspace_target_id'))
+          ->execute()->fetchAll();
       }
 
-      // Add NOT NULL constraint.
-      $schema->changeField($table_base, 'workspace', 'workspace', $new_field);
-      // Drop old table.
-      $schema->dropTable($old_data_table);
+      if ($schema->tableExists($table_base)) {
 
-      // Add new field to the field revision table.
-      $schema->addField($table_revision, 'workspace', $field);
+        if (!$schema->fieldExists($table_base, 'workspace')) {
+          // Add new field to the base table.
+          $schema->addField($table_base, 'workspace', $field);
+        }
 
+        foreach ($results as $result) {
+          // Add the value to the new column.
+          $connection->update($table_base)
+            ->fields(array('workspace' => $result->workspace_target_id))
+            ->condition($field_id, $result->entity_id, '=')
+            ->execute();
+        }
+
+        // Add NOT NULL constraint.
+        $schema->changeField($table_base, 'workspace', 'workspace', $new_field);
+      }
+
+
+      if ($schema->tableExists($old_data_table)) {
+        // Drop old table.
+        $schema->dropTable($old_data_table);
+      }
+
+
+      $results = array();
       // Pull data from old table.
       $old_revision_table = $entity_type . '_revision__workspace';
-      $results = $connection->select($old_revision_table)
-        ->fields($old_revision_table, array('entity_id,', 'revision_id', 'workspace_target_id'))
-        ->execute();
 
-      foreach ($results as $result) {
-        // Add data to the revision table.
-        $connection->update($table_revision)
-          ->fields(array('workspace' => $result->workspace_target_id))
-          ->condition($field_id, $result->entity_id, '=')
-          ->condition($field_revision, $result->revision_id)
+      if ($schema->tableExists($old_revision_table)) {
+        $results = $connection->select($old_revision_table)
+          ->fields($old_revision_table, array(
+            'entity_id,',
+            'revision_id',
+            'workspace_target_id'
+          ))
           ->execute();
       }
 
-      // Add NOT NULL constraint.
-      $schema->changeField($table_revision, 'workspace', 'workspace', $new_field);
-      // Drop old table.
-      $schema->dropTable($old_revision_table);
+      if ($schema->tableExists($table_revision)) {
+
+        if (!$schema->fieldExists($table_revision, 'workspace')) {
+          // Add new field to the field revision table.
+          $schema->addField($table_revision, 'workspace', $field);
+        }
+
+        foreach ($results as $result) {
+          // Add data to the revision table.
+          $connection->update($table_revision)
+            ->fields(array('workspace' => $result->workspace_target_id))
+            ->condition($field_id, $result->entity_id, '=')
+            ->condition($field_revision, $result->revision_id)
+            ->execute();
+        }
+
+        // Add NOT NULL constraint.
+        $schema->changeField($table_revision, 'workspace', 'workspace', $new_field);
+      }
+
+      if ($schema->tableExists($old_revision_table)) {
+        // Drop old table.
+        $schema->dropTable($old_revision_table);
+      }
     }
   }
 }
