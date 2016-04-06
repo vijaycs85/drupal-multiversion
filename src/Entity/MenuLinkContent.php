@@ -15,7 +15,7 @@ class MenuLinkContent extends CoreMenuLinkContent {
    * {@inheritdoc}
    */
   public function getPluginId() {
-    return 'menu_link_content:' . $this->uuid() . ':' . $this->getRevisionId();
+    return 'menu_link_content:' . $this->uuid() . ':' . $this->id();
   }
 
 }
