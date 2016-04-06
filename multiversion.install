@@ -40,13 +40,6 @@ function multiversion_update_8001() {
       'unsigned' => TRUE,
     );
 
-    // Make the field NOT NULL after data migration.
-    $new_field = array(
-      'type' => 'int',
-      'unsigned' => TRUE,
-      'not null' => TRUE,
-    );
-
     // Loop through each one.
     foreach ($entities as $entity_type => $entity) {
       $entity_keys = $entity->getKeys();
@@ -94,9 +87,6 @@ function multiversion_update_8001() {
             ->condition($field_id, $result->entity_id, '=')
             ->execute();
         }
-
-        // Add NOT NULL constraint.
-        $schema->changeField($table_base, 'workspace', 'workspace', $new_field);
       }
 
 
@@ -135,9 +125,6 @@ function multiversion_update_8001() {
             ->condition($field_revision, $result->revision_id)
             ->execute();
         }
-
-        // Add NOT NULL constraint.
-        $schema->changeField($table_revision, 'workspace', 'workspace', $new_field);
       }
 
       if ($schema->tableExists($old_revision_table)) {
