@@ -1,7 +1,5 @@
 parameters:
   workspace.default: 1
-  renderer.config:
-    required_cache_contexts: ['workspace']
 
 services:
   multiversion.entity_index.sequence:
