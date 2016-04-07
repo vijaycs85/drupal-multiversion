@@ -29,6 +29,10 @@ class MultiversionServiceProvider extends ServiceProviderBase {
       // Do nothing, migrate module is not installed.
     }
 
+    $renderer_config = $container->getParameter('renderer.config');
+    $renderer_config['required_cache_contexts'][] = 'workspace';
+    $container->setParameter('renderer.config', $renderer_config);
+
     // Switch the menu tree storage to our own that respect Workspace cache
     // contexts.
     $definition = $container->getDefinition('menu.tree_storage');
