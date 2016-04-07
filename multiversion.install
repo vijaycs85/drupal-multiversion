@@ -2,6 +2,7 @@
 
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Utility\UpdateException;
 
 /**
  * Implements hook_install().
@@ -131,6 +132,21 @@ function multiversion_update_8001() {
         // Drop old table.
         $schema->dropTable($old_revision_table);
       }
+    }
+  }
+}
+
+/**
+ * Enable content_storage_migrate module.
+ */
+function multiversion_update_8002() {
+  if (!Drupal::moduleHandler()->moduleExists('entity_storage_migrate')) {
+    $modules = array('entity_storage_migrate');
+    // Enable the module
+    $enabled = \Drupal::service('module_installer')->install($modules);
+    // If not, throw an exception.
+    if (!$enabled) {
+      throw new UpdateException('Could not enable entity_storage_migrate module.');
     }
   }
 }
