@@ -18,9 +18,9 @@ class WorkspaceReferenceItem extends EntityReferenceItem {
    * {@inheritdoc}
    */
   public function applyDefaultValue($notify = TRUE) {
-    $workspace_id = \Drupal::service('multiversion.manager')
-      ->getActiveWorkspaceId();
-    $this->setValue(array('target_id' => $workspace_id), $notify);
+    /** @var \Drupal\multiversion\Entity\WorkspaceInterface $workspace */
+    $workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
+    $this->setValue(array('target_id' => $workspace->id()), $notify);
     return $this;
   }
 }
