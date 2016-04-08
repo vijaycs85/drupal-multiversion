@@ -24,9 +24,14 @@ use Drupal\Core\Config\Entity\ConfigEntityBundleBase;
  *     "uuid" = "uuid"
  *   },
  *   config_export = {
- *      "id",
- *      "label",
- *    }
+ *     "id",
+ *     "label",
+ *   },
+ *   links = {
+ *     "edit-form" = "/admin/structure/workspace/types/{workspace_type}/edit",
+ *     "delete-form" = "/admin/structure/workspace/types/{workspace_type}/delete",
+ *     "collection" = "/admin/structure/workspace/types",
+ *   }
  * )
  */
 class WorkspaceType extends ConfigEntityBundleBase implements WorkspaceTypeInterface {
