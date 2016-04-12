@@ -35,6 +35,7 @@ class TermStorage extends CoreTermStorage implements ContentEntityStorageInterfa
         $this->treeChildren[$vid] = array();
         $this->treeParents[$vid] = array();
         $this->treeTerms[$vid] = array();
+        $active_workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
         $query = $this->database->select('taxonomy_term_field_data', 't');
         $query->join('taxonomy_term_hierarchy', 'h', 'h.tid = t.tid');
         $result = $query
@@ -44,6 +45,7 @@ class TermStorage extends CoreTermStorage implements ContentEntityStorageInterfa
           ->condition('t.vid', $vid)
           ->condition('t.default_langcode', 1)
           ->condition('t._deleted', 0)
+          ->condition('t.workspace', $active_workspace->id())
           ->orderBy('t.weight')
           ->orderBy('t.name')
           ->execute();
