@@ -3,6 +3,7 @@
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Utility\UpdateException;
+use \Drupal\Core\Database\Driver\mysql\Connection;
 
 /**
  * Implements hook_install().
@@ -27,12 +28,12 @@ function multiversion_uninstall() {
  */
 function multiversion_update_8001() {
   $connection = Database::getConnection();
-  if ($connection instanceOf \Drupal\Core\Database\Driver\mysql\Connection) {
+  if ($connection instanceof Connection) {
     $schema = $connection->schema();
     $entity_manager = \Drupal::service('entity.manager');
     $manager = \Drupal::service('multiversion.manager');
 
-    // Find all supported entities
+    // Find all supported entities.
     $entities = $manager->getSupportedEntityTypes();
 
     // Field can't be NOT NULL on an table with existing data.
@@ -63,7 +64,6 @@ function multiversion_update_8001() {
         $table_revision = $entity_type . '_field_revision';
       }
 
-
       $results = array();
       // Pull data from the old table.
       $old_data_table = $entity_type . '__workspace';
@@ -75,7 +75,6 @@ function multiversion_update_8001() {
       }
 
       if ($schema->tableExists($table_base)) {
-
         if (!$schema->fieldExists($table_base, 'workspace')) {
           // Add new field to the base table.
           $schema->addField($table_base, 'workspace', $field);
@@ -90,12 +89,10 @@ function multiversion_update_8001() {
         }
       }
 
-
       if ($schema->tableExists($old_data_table)) {
         // Drop old table.
         $schema->dropTable($old_data_table);
       }
-
 
       $results = array();
       // Pull data from old table.
@@ -112,7 +109,6 @@ function multiversion_update_8001() {
       }
 
       if ($schema->tableExists($table_revision)) {
-
         if (!$schema->fieldExists($table_revision, 'workspace')) {
           // Add new field to the field revision table.
           $schema->addField($table_revision, 'workspace', $field);
@@ -142,7 +138,7 @@ function multiversion_update_8001() {
 function multiversion_update_8002() {
   if (!Drupal::moduleHandler()->moduleExists('entity_storage_migrate')) {
     $modules = array('entity_storage_migrate');
-    // Enable the module
+    // Enable the module.
     $enabled = \Drupal::service('module_installer')->install($modules);
     // If not, throw an exception.
     if (!$enabled) {
