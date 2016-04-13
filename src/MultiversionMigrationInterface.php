@@ -5,7 +5,6 @@ namespace Drupal\multiversion;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\file\FileStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

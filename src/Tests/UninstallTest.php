@@ -7,14 +7,8 @@
 
 namespace Drupal\multiversion\Tests;
 
-use Drupal\comment\CommentStorage;
-use Drupal\Core\Entity\ContentEntityStorageInterface;
-use Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface;
 use Drupal\Core\Entity\Query\QueryInterface;
-use Drupal\node\NodeStorage;
 use Drupal\simpletest\WebTestBase;
-use Drupal\taxonomy\TermStorage;
-use Drupal\user\UserStorage;
 
 /**
  * Test the UninstallTest class.

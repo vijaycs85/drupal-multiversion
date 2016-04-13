@@ -7,7 +7,6 @@
 
 namespace Drupal\multiversion\Workspace;
 
-use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\HttpFoundation\Request;

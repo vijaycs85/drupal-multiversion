@@ -7,7 +7,6 @@
 
 namespace Drupal\multiversion\Entity\Storage;
 
-use Drupal\Core\Cache\Cache;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;

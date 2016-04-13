@@ -7,7 +7,6 @@
 
 namespace Drupal\multiversion\Tests;
 
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\Workspace;
 
