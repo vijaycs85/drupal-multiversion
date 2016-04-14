@@ -20,17 +20,4 @@ class MenuLinkContent extends CoreMenuLinkContent {
     return 'menu_link_content:' . $this->uuid() . ':' . $this->id();
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function preSave(EntityStorageInterface $storage) {
-    // If the $this->link->uri contains the entity object, presave it and
-    // replace the entity object with the uri.
-    // @see \Drupal\multiversion\LinkItem::preSave().
-    if (is_object($this->link->uri)) {
-      $this->link->preSave();
-    }
-    parent::preSave($storage);
-  }
-
 }
