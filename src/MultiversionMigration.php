@@ -10,10 +10,9 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\file\FileStorageInterface;
-use Drupal\migrate\Entity\Migration;
-use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\MigrateMessage;
+use Drupal\migrate\Plugin\MigrationInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -87,7 +86,8 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    */
   public function migrateContentToTemp(EntityTypeInterface $entity_type) {
     $id = $entity_type->id() . '__to_tmp';
-    if (!$migration = Migration::load($id)) {
+    $manager = \Drupal::service('plugin.manager.migration');
+    //if (!$migration = $manager->createInstance($id)) {
       $values = [
         'id' => $id,
         'label' => '',
@@ -95,9 +95,8 @@ class MultiversionMigration implements MultiversionMigrationInterface {
         'source' => ['plugin' => 'multiversion'],
         'destination' => ['plugin' => 'tempstore'],
       ];
-      $migration = Migration::create($values);
-      $migration->save();
-    }
+      $migration = $manager->createStubMigration($values);
+    //}
     $this->executeMigration($migration);
     return $this;
   }
@@ -163,7 +162,8 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    */
   public function migrateContentFromTemp(EntityTypeInterface $entity_type) {
     $id = $entity_type->id() . '__from_tmp';
-    if (!$migration = Migration::load($id)) {
+    $manager = \Drupal::service('plugin.manager.migration');
+    //if (!$migration = $manager->createInstance($id)) {
       $values = [
         'id' => $id,
         'label' => '',
@@ -171,9 +171,8 @@ class MultiversionMigration implements MultiversionMigrationInterface {
         'source' => ['plugin' => 'tempstore'],
         'destination' => ['plugin' => 'multiversion'],
       ];
-      $migration = Migration::create($values);
-      $migration->save();
-    }
+      $migration = $manager->createStubMigration($values);
+    //}
     $this->executeMigration($migration);
     return $this;
   }
@@ -189,7 +188,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * {@inheritdoc}
    */
   public function cleanupMigration($id) {
-    if ($migration = Migration::load($id)) {
+    if ($migration = \Drupal::service('plugin.manager.migration')->createInstance($id)) {
       $migration->getIdMap()->destroy();
     }
   }
@@ -233,7 +232,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   /**
    * Helper method for running a migration.
    *
-   * @param \Drupal\migrate\Entity\MigrationInterface $migration
+   * @param \Drupal\migrate\Plugin\MigrationInterface $migration
    * @return \Drupal\migrate\MigrateExecutableInterface
    */
   protected function executeMigration(MigrationInterface $migration) {
