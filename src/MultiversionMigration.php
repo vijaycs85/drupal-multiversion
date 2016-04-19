@@ -87,16 +87,14 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   public function migrateContentToTemp(EntityTypeInterface $entity_type) {
     $id = $entity_type->id() . '__to_tmp';
     $manager = \Drupal::service('plugin.manager.migration');
-    //if (!$migration = $manager->createInstance($id)) {
-      $values = [
-        'id' => $id,
-        'label' => '',
-        'process' => $this->getFieldMap($entity_type),
-        'source' => ['plugin' => 'multiversion'],
-        'destination' => ['plugin' => 'tempstore'],
-      ];
-      $migration = $manager->createStubMigration($values);
-    //}
+    $values = [
+      'id' => $id,
+      'label' => '',
+      'process' => $this->getFieldMap($entity_type),
+      'source' => ['plugin' => 'multiversion'],
+      'destination' => ['plugin' => 'tempstore'],
+    ];
+    $migration = $manager->createStubMigration($values);
     $this->executeMigration($migration);
     return $this;
   }
@@ -163,16 +161,14 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   public function migrateContentFromTemp(EntityTypeInterface $entity_type) {
     $id = $entity_type->id() . '__from_tmp';
     $manager = \Drupal::service('plugin.manager.migration');
-    //if (!$migration = $manager->createInstance($id)) {
-      $values = [
-        'id' => $id,
-        'label' => '',
-        'process' => $this->getFieldMap($entity_type, TRUE),
-        'source' => ['plugin' => 'tempstore'],
-        'destination' => ['plugin' => 'multiversion'],
-      ];
-      $migration = $manager->createStubMigration($values);
-    //}
+    $values = [
+      'id' => $id,
+      'label' => '',
+      'process' => $this->getFieldMap($entity_type, TRUE),
+      'source' => ['plugin' => 'tempstore'],
+      'destination' => ['plugin' => 'multiversion'],
+    ];
+    $migration = $manager->createStubMigration($values);
     $this->executeMigration($migration);
     return $this;
   }
@@ -188,9 +184,10 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * {@inheritdoc}
    */
   public function cleanupMigration($id) {
-    if ($migration = \Drupal::service('plugin.manager.migration')->createInstance($id)) {
-      $migration->getIdMap()->destroy();
-    }
+    \Drupal::service('plugin.manager.migration')
+      ->createStubMigration(['id' => $id])
+      ->getIdMap()
+      ->destroy();
   }
 
   /**
