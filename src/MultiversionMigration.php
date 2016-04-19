@@ -86,7 +86,6 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    */
   public function migrateContentToTemp(EntityTypeInterface $entity_type) {
     $id = $entity_type->id() . '__to_tmp';
-    $manager = \Drupal::service('plugin.manager.migration');
     $values = [
       'id' => $id,
       'label' => '',
@@ -94,7 +93,8 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       'source' => ['plugin' => 'multiversion'],
       'destination' => ['plugin' => 'tempstore'],
     ];
-    $migration = $manager->createStubMigration($values);
+    $migration = \Drupal::service('plugin.manager.migration')
+      ->createStubMigration($values);
     $this->executeMigration($migration);
     return $this;
   }
@@ -160,7 +160,6 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    */
   public function migrateContentFromTemp(EntityTypeInterface $entity_type) {
     $id = $entity_type->id() . '__from_tmp';
-    $manager = \Drupal::service('plugin.manager.migration');
     $values = [
       'id' => $id,
       'label' => '',
@@ -168,7 +167,8 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       'source' => ['plugin' => 'tempstore'],
       'destination' => ['plugin' => 'multiversion'],
     ];
-    $migration = $manager->createStubMigration($values);
+    $migration = \Drupal::service('plugin.manager.migration')
+      ->createStubMigration($values);
     $this->executeMigration($migration);
     return $this;
   }
