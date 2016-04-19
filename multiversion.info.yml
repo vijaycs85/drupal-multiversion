@@ -7,3 +7,4 @@ dependencies:
   - entity_storage_migrate
   - key_value
   - serialization
+  - system (>=8.1.0)

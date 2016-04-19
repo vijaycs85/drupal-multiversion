@@ -10,10 +10,9 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ModuleInstallerInterface;
 use Drupal\file\FileStorageInterface;
-use Drupal\migrate\Entity\Migration;
-use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\MigrateMessage;
+use Drupal\migrate\Plugin\MigrationInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -87,17 +86,15 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    */
   public function migrateContentToTemp(EntityTypeInterface $entity_type) {
     $id = $entity_type->id() . '__to_tmp';
-    if (!$migration = Migration::load($id)) {
-      $values = [
-        'id' => $id,
-        'label' => '',
-        'process' => $this->getFieldMap($entity_type),
-        'source' => ['plugin' => 'multiversion'],
-        'destination' => ['plugin' => 'tempstore'],
-      ];
-      $migration = Migration::create($values);
-      $migration->save();
-    }
+    $values = [
+      'id' => $id,
+      'label' => '',
+      'process' => $this->getFieldMap($entity_type),
+      'source' => ['plugin' => 'multiversion'],
+      'destination' => ['plugin' => 'tempstore'],
+    ];
+    $migration = \Drupal::service('plugin.manager.migration')
+      ->createStubMigration($values);
     $this->executeMigration($migration);
     return $this;
   }
@@ -163,17 +160,15 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    */
   public function migrateContentFromTemp(EntityTypeInterface $entity_type) {
     $id = $entity_type->id() . '__from_tmp';
-    if (!$migration = Migration::load($id)) {
-      $values = [
-        'id' => $id,
-        'label' => '',
-        'process' => $this->getFieldMap($entity_type, TRUE),
-        'source' => ['plugin' => 'tempstore'],
-        'destination' => ['plugin' => 'multiversion'],
-      ];
-      $migration = Migration::create($values);
-      $migration->save();
-    }
+    $values = [
+      'id' => $id,
+      'label' => '',
+      'process' => $this->getFieldMap($entity_type, TRUE),
+      'source' => ['plugin' => 'tempstore'],
+      'destination' => ['plugin' => 'multiversion'],
+    ];
+    $migration = \Drupal::service('plugin.manager.migration')
+      ->createStubMigration($values);
     $this->executeMigration($migration);
     return $this;
   }
@@ -189,9 +184,10 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * {@inheritdoc}
    */
   public function cleanupMigration($id) {
-    if ($migration = Migration::load($id)) {
-      $migration->getIdMap()->destroy();
-    }
+    \Drupal::service('plugin.manager.migration')
+      ->createStubMigration(['id' => $id])
+      ->getIdMap()
+      ->destroy();
   }
 
   /**
@@ -233,7 +229,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   /**
    * Helper method for running a migration.
    *
-   * @param \Drupal\migrate\Entity\MigrationInterface $migration
+   * @param \Drupal\migrate\Plugin\MigrationInterface $migration
    * @return \Drupal\migrate\MigrateExecutableInterface
    */
   protected function executeMigration(MigrationInterface $migration) {

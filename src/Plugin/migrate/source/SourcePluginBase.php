@@ -9,8 +9,8 @@ namespace Drupal\multiversion\Plugin\migrate\source;
 
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\Plugin\migrate\source\SourcePluginBase as CoreSourcePluginBase;
+use Drupal\migrate\Plugin\MigrationInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 abstract class SourcePluginBase extends CoreSourcePluginBase implements ContainerFactoryPluginInterface {
