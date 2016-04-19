@@ -46,7 +46,7 @@ services:
     arguments: ['@database']
   multiversion.manager:
     class: Drupal\multiversion\MultiversionManager
-    arguments: ['@workspace.manager', '@serializer', '@entity.manager', '@state', '@language_manager', '@cache.discovery', '@database']
+    arguments: ['@workspace.manager', '@serializer', '@state']
     calls:
       - [setContainer, ['@service_container']]
   workspace.manager:

@@ -11,9 +11,6 @@ use \Drupal\Core\Database\Driver\mysql\Connection;
 function multiversion_install() {
   // Create default workspace.
   Workspace::create(['machine_name' => 'live', 'label' => 'Live', 'type' => 'basic'])->save();
-  /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
-  $manager = \Drupal::getContainer()->get('multiversion.manager');
-  $manager->enableEntityTypes();
 }
 
 /**
