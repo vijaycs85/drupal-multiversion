@@ -262,7 +262,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
         // Because of the way the Entity API treats entity definition updates we
         // need to ensure each storage is empty before we can apply the new
         // definition.
-        $entity_type->isRevisionable();
         $migration->emptyOldStorage($entity_type, $storage);
       }
     }
@@ -348,16 +347,17 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
         unset($entity_types[$entity_type_id]);
       }
 
-      // Migrate content to temporary storage.
+      // Migrate content to temporary storage. And empty the old storage.
       if ($has_data[$entity_type_id]) {
+        if ($entity_type_id == 'file') {
+          $storage = $this->entityManager->getStorage($entity_type_id);
+          $migration->copyFilesToMigrateDirectory($storage);
+        }
         $migration->migrateContentToTemp($entity_type);
-      }
 
-      // Because of the way the Entity API treats entity definition updates we
-      // need to ensure each storage is empty before we can apply the new
-      // definition.
-      if ($has_data[$entity_type_id]) {
-        $storage = $this->entityManager->getStorage($entity_type_id);
+        // Because of the way the Entity API treats entity definition updates we
+        // need to ensure each storage is empty before we can apply the new
+        // definition.
         $migration->emptyOldStorage($entity_type, $storage);
       }
     }
@@ -372,7 +372,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $entity_manager->clearCachedDefinitions();
     $update_manager = \Drupal::entityDefinitionUpdateManager();
     foreach ($entity_manager->getDefinitions() as $entity_type) {
-      if ($entity_type->isSubclassOf(FieldableEntityInterface::CLASS)) {
+      if ($entity_type->isSubclassOf('Drupal\Core\Entity\FieldableEntityInterface')) {
         $entity_type_id = $entity_type->id();
         $revision_key = $entity_type->getKey('revision');
         /** @var \Drupal\Core\Entity\FieldableEntityStorageInterface $storage */
