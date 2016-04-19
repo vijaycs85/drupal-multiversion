@@ -5,6 +5,7 @@ namespace Drupal\multiversion;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -54,11 +55,13 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
   /**
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Drupal\Core\State\StateInterface $state
    */
-  public function __construct(WorkspaceManagerInterface $workspace_manager, Serializer $serializer, StateInterface $state) {
+  public function __construct(WorkspaceManagerInterface $workspace_manager, EntityTypeManagerInterface $entity_type_manager, Serializer $serializer, StateInterface $state) {
     $this->workspaceManager = $workspace_manager;
+    $this->entityTypeManager = $entity_type_manager;
     $this->serializer = $serializer;
     $this->state = $state;
   }
@@ -121,39 +124,9 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    */
   public function getSupportedEntityTypes() {
     $entity_types = [];
-    foreach ($this->entityManager->getDefinitions() as $entity_type_id => $entity_type) {
+    foreach ($this->entityTypeManager->getDefinitions() as $entity_type_id => $entity_type) {
       if ($this->isSupportedEntityType($entity_type)) {
         $entity_types[$entity_type->id()] = $entity_type;
-      }
-    }
-    return $entity_types;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function isEnabledEntityType(EntityTypeInterface $entity_type) {
-    if ($this->isSupportedEntityType($entity_type)
-      && !in_array($entity_type->id(), $this->disabledEntityTypes)) {
-      // Check if the whole migration is done.
-      if ($this->state->get('entity_storage_migrate.migration_done', FALSE)) {
-        return TRUE;
-      }
-      // Check if the migration for this particular entity type is done or if
-      // the migration is still active.
-      $done = $this->state->get('entity_storage_migrate.migration_done.' . $entity_type->id(), FALSE);
-      return ($done || self::migrationIsActive());
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getEnabledEntityTypes() {
-    $entity_types = [];
-    foreach ($this->getSupportedEntityTypes() as $entity_type_id => $entity_type) {
-      if ($this->isEnabledEntityType($entity_type)) {
-        $entity_types[$entity_type_id] = $entity_type;
       }
     }
     return $entity_types;

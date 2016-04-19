@@ -33,17 +33,6 @@ interface MultiversionManagerInterface {
   public function getSupportedEntityTypes();
 
   /**
-   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
-   * @return boolean
-   */
-  public function isEnabledEntityType(EntityTypeInterface $entity_type);
-
-  /**
-   * @return \Drupal\Core\Entity\EntityTypeInterface[]
-   */
-  public function getEnabledEntityTypes();
-
-  /**
    * @return integer
    */
   public function newSequenceId();

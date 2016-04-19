@@ -18,7 +18,7 @@ function multiversion_entity_type_alter(array &$entity_types) {
   $manager = \Drupal::service('multiversion.manager');
 
   foreach ($entity_types as $entity_type) {
-    if ($manager->isEnabledEntityType($entity_type)) {
+    if ($manager->isSupportedEntityType($entity_type)) {
       // Make all content entity types revisionable.
       if (!$entity_type->isRevisionable()) {
         // We only need to set the revision key to make an entity type
@@ -103,7 +103,7 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
   /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
   $manager = \Drupal::service('multiversion.manager');
 
-  if ($manager->isEnabledEntityType($entity_type)) {
+  if ($manager->isSupportedEntityType($entity_type)) {
     $fields = array();
 
     // @todo: Alter the entity label field to make it revisionable.
@@ -184,7 +184,7 @@ function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface
   /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
   $manager = \Drupal::service('multiversion.manager');
   $need_update = array('taxonomy_term', 'comment', 'menu_link_content');
-  if ($manager->isEnabledEntityType($entity_type) && in_array($entity_type->id(), $need_update)) {
+  if ($manager->isSupportedEntityType($entity_type) && in_array($entity_type->id(), $need_update)) {
     $exclude_fields = array();
     $exclude = array('id', 'uuid', 'revision_id', 'language', 'bundle');
     if ($entity_type->id() == 'taxonomy_term') {
@@ -253,7 +253,7 @@ function multiversion_views_post_execute(ViewExecutable $view) {
   if (is_array($view->result) && $content_type = $content_type_info[0]) {
     $manager = \Drupal::service('multiversion.manager');
     $storage = \Drupal::entityTypeManager()->getStorage($content_type);
-    if ($manager->isEnabledEntityType($storage->getEntityType())) {
+    if ($manager->isSupportedEntityType($storage->getEntityType())) {
       $ids = array();
       foreach ($view->result as $index => $row) {
         if (empty($row->_entity) && !empty($row->{$base_field})) {
