@@ -59,6 +59,7 @@ function multiversion_entity_type_alter(array &$entity_types) {
           break;
 
         case 'user':
+          $entity_type->set('workspace', FALSE);
           $entity_type->setHandlerClass('storage', "$namespace\\UserStorage");
           $entity_type->setHandlerClass('storage_schema', "$namespace\\UserStorageSchema");
           break;
