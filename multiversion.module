@@ -122,14 +122,16 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
     // entity will only ever exist in one and the same workspace. But we mark
     // this as revisionable to make the storage query more performance because
     // then we don't need to join the data table (which it isn't by default).
-    $fields['workspace'] = BaseFieldDefinition::create('workspace_reference')
-      ->setLabel(t('Workspace reference'))
-      ->setDescription(t('The workspace this entity belongs to.'))
-      ->setSetting('target_type', 'workspace')
-      ->setRevisionable(FALSE)
-      ->setTranslatable(FALSE)
-      ->setCardinality(1)
-      ->setReadOnly(TRUE);
+    if ($entity_type->id() != 'user') {
+      $fields['workspace'] = BaseFieldDefinition::create('workspace_reference')
+        ->setLabel(t('Workspace reference'))
+        ->setDescription(t('The workspace this entity belongs to.'))
+        ->setSetting('target_type', 'workspace')
+        ->setRevisionable(FALSE)
+        ->setTranslatable(FALSE)
+        ->setCardinality(1)
+        ->setReadOnly(TRUE);
+    }
 
     $fields['_deleted'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Deleted flag'))
