@@ -39,7 +39,7 @@ class EntityReference extends CoreEntityReference {
       $entity_type_id = $this->getTargetDefinition()->getEntityTypeId();
       $entity_type = $entity_type_manager->getDefinition($entity_type_id);
 
-      if ($multiversion_manager->isEnabledEntityType($entity_type)) {
+      if ($multiversion_manager->isSupportedEntityType($entity_type)) {
         /** @var \Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface $storage */
         $storage = $entity_type_manager->getStorage($entity_type_id);
 
