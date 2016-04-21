@@ -6,6 +6,7 @@
  */
 
 namespace Drupal\multiversion\Workspace;
+use Drupal\multiversion\Entity\WorkspaceInterface;
 
 /**
  * The interface for services that track conflicts in a workspace.
@@ -18,11 +19,11 @@ interface ConflictTrackerInterface {
    * If no workspace is set the default workspace will be used.
    * @see \Drupal\multiversion\Workspace\WorkspaceManagerInterface::getActiveWorkspace().
    *
-   * @param string $id
+   * @param \Drupal\multiversion\Entity\WorkspaceInterface $workspace
    *   The id of the workspace.
    * @return \Drupal\multiversion\Workspace\ConflictTrackerInterface
    */
-  public function useWorkspace($id);
+  public function useWorkspace(WorkspaceInterface $workspace);
 
   /**
    * Adds new conflicts to the tracker.

@@ -7,6 +7,7 @@
 namespace Drupal\multiversion\Workspace;
 
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
+use Drupal\multiversion\Entity\WorkspaceInterface;
 
 /**
  * The Conflict Tracker service.
@@ -56,8 +57,11 @@ class ConflictTracker implements ConflictTrackerInterface {
   /**
    * {@inheritdoc}
    */
-  public function useWorkspace($id) {
-    $this->workspaceId = $id;
+  public function useWorkspace(WorkspaceInterface $workspace = null) {
+    $this->workspaceId = 0;
+    if ($workspace) {
+      $this->workspaceId = $workspace->id();
+    }
     return $this;
   }
 

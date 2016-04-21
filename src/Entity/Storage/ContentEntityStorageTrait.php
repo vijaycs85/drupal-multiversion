@@ -167,7 +167,7 @@ trait ContentEntityStorageTrait {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    */
   protected function indexEntity(EntityInterface $entity) {
-    $workspace = isset($entity->workspace) ? $entity->workspace->target_id : null;
+    $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
     $index_factory = \Drupal::service('multiversion.entity_index.factory');
 
     $index_factory->get('multiversion.entity_index.sequence', $workspace)
@@ -187,7 +187,7 @@ trait ContentEntityStorageTrait {
    * @param array $branch
    */
   protected function indexEntityRevision(EntityInterface $entity) {
-    $workspace = isset($entity->workspace) ? $entity->workspace->target_id : null;
+    $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
     \Drupal::service('multiversion.entity_index.factory')
       ->get('multiversion.entity_index.rev', $workspace)
       ->add($entity);
@@ -200,7 +200,7 @@ trait ContentEntityStorageTrait {
    * @param array $branch
    */
   protected function indexEntityRevisionTree(EntityInterface $entity, $branch) {
-    $workspace = isset($entity->workspace) ? $entity->workspace->target_id : null;
+    $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
     \Drupal::service('multiversion.entity_index.factory')
       ->get('multiversion.entity_index.rev.tree', $workspace)
       ->updateTree($entity, $branch);
@@ -405,7 +405,7 @@ trait ContentEntityStorageTrait {
    *   The entity to track for which to track conflicts.
    */
   protected function trackConflicts(EntityInterface $entity) {
-    $workspace = isset($entity->workspace) ? $entity->workspace->target_id : null;
+    $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
     /** @var \Drupal\multiversion\Workspace\ConflictTrackerInterface $conflictTracker */
     $conflictTracker = \Drupal::service('workspace.conflict_tracker')
       ->useWorkspace($workspace);

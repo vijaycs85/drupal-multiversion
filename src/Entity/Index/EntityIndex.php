@@ -123,7 +123,7 @@ class EntityIndex implements EntityIndexInterface {
     foreach ($entities as $entity) {
       $key = $this->buildKey($entity);
       $value = $this->buildValue($entity);
-      if ($entity->getEntityType()->get('workspace') == FALSE) {
+      if ($entity->getEntityType()->get('workspace') === FALSE) {
         $values[0][$key] = $value;
       }
       else {

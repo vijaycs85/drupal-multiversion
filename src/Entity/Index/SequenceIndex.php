@@ -59,7 +59,7 @@ class SequenceIndex implements SequenceIndexInterface {
   public function add(ContentEntityInterface $entity) {
     $workspace_id = null;
     $record = $this->buildRecord($entity);
-    if ($entity->getEntityType()->get('workspace') == FALSE) {
+    if ($entity->getEntityType()->get('workspace') === FALSE) {
       $workspace_id = 0;
     }
     $this->sortedSetStore($workspace_id)->add($record['seq'], $record);

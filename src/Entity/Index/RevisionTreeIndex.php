@@ -6,7 +6,6 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
-use Symfony\Component\Validator\Constraints\False;
 
 /**
  * @todo: {@link https://www.drupal.org/node/2597444 Consider caching once/if
@@ -70,7 +69,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    * {@inheritdoc}
    */
   public function updateTree(ContentEntityInterface $entity, array $branch = array()) {
-    if ($entity->getEntityType()->get('workspace') == FALSE) {
+    if ($entity->getEntityType()->get('workspace') === FALSE) {
       $this->keyValueStore($entity->uuid(), 0)->setMultiple($branch);
     }
     else {
@@ -166,11 +165,11 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
 
   /**
    * @param string $uuid
-   * @param null $workspace_id
+   * @param $workspace_id
    * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
    */
   protected function keyValueStore($uuid, $workspace_id = null) {
-    if (!$workspace_id) {
+    if (!is_numeric($workspace_id)) {
       $workspace_id = $this->getWorkspaceId();
     }
     return $this->keyValueFactory->get("multiversion.entity_index.rev.tree.$workspace_id.$uuid");
