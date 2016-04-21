@@ -203,7 +203,7 @@ trait ContentEntityStorageTrait {
     $workspace = isset($entity->workspace) ? $entity->workspace->target_id : null;
     \Drupal::service('multiversion.entity_index.factory')
       ->get('multiversion.entity_index.rev.tree', $workspace)
-      ->updateTree($entity->uuid(), $branch);
+      ->updateTree($entity, $branch);
   }
 
   /**

@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Entity\Index;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
@@ -85,6 +86,10 @@ class EntityIndex implements EntityIndexInterface {
 
     if ($load) {
       $loaded_values = $this->keyValueStore($workspace_id)->getMultiple($load);
+      if (count($keys) != count($loaded_values)) {
+        $loaded_values2 = $this->keyValueStore()->getMultiple($load);
+        $loaded_values = array_merge($loaded_values, $loaded_values2);
+      }
       foreach ($load as $key) {
         // If we find a value, even one that is NULL, add it to the cache and
         // return it.
@@ -113,22 +118,32 @@ class EntityIndex implements EntityIndexInterface {
    */
   public function addMultiple(array $entities) {
     $workspace_id = $this->getWorkspaceId();
-    $values = array();
+    $values = [];
+    /** @var ContentEntityInterface $entity */
     foreach ($entities as $entity) {
       $key = $this->buildKey($entity);
       $value = $this->buildValue($entity);
-      $values[$key] = $value;
-      $this->cache[$workspace_id][$key] = $value;
+      if ($entity->getEntityType()->get('workspace') == FALSE) {
+        $values[0][$key] = $value;
+      }
+      else {
+        $values[$workspace_id][$key] = $value;
+      }
     }
-    $this->keyValueStore($workspace_id)->setMultiple($values);
+
+    $this->cache = $values;
+
+    foreach ($values as $workspace_id => $value) {
+      $this->keyValueStore($workspace_id)->setMultiple($value);
+    }
   }
 
   /**
-   * @param string $workspace_name
+   * @param int $workspace_id
    * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
    */
-  protected function keyValueStore($workspace_name) {
-    return $this->keyValueFactory->get($this->collectionPrefix . $workspace_name);
+  protected function keyValueStore($workspace_id = 0) {
+    return $this->keyValueFactory->get($this->collectionPrefix . $workspace_id);
   }
 
   /**
