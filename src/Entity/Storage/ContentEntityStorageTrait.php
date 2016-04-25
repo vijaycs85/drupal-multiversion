@@ -280,7 +280,7 @@ trait ContentEntityStorageTrait {
 
       // Decide whether or not this is the default revision.
       if (!$entity->isNew()) {
-        $workspace = isset($entity->workspace) ? $entity->workspace->target_id : null;
+        $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
         $index_factory = \Drupal::service('multiversion.entity_index.factory');
         /** @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $tree */
         $tree = $index_factory->get('multiversion.entity_index.rev.tree', $workspace);
