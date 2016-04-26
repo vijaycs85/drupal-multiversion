@@ -16,7 +16,7 @@ class ConflictTracker implements ConflictTrackerInterface {
 
   /**
    * The id of current workspace to query.
-   *y
+   *
    * @var string
    */
   protected $workspaceId;
