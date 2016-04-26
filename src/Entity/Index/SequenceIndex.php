@@ -71,7 +71,7 @@ class SequenceIndex implements SequenceIndexInterface {
   public function getRange($start, $stop = NULL, $inclusive = TRUE) {
     $range = $this->sortedSetStore()->getRange($start, $stop, $inclusive);
     if (empty($range)) {
-
+      $range = $this->sortedSetStore(0)->getRange($start, $stop, $inclusive);
     }
     return $range;
   }
