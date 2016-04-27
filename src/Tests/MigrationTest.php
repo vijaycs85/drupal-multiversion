@@ -134,22 +134,24 @@ class MigrationTest extends WebTestBase {
           ->condition('_rev', 'NULL', '<>')
           ->count()
           ->execute();
+        $this->assertEqual($rev, 1, "$entity_type_id $entity_id has a revision hash in database");
 
-        $workspace = (int) $storage->getQuery()
-          ->condition($id_key, $entity_id)
-          ->condition('workspace', 1)
-          ->count()
-          ->execute();
+        if ($entity_type->get('workspace') !== FALSE) {
+          $workspace = (int) $storage->getQuery()
+            ->condition($id_key, $entity_id)
+            ->condition('workspace', 1)
+            ->count()
+            ->execute();
+          $this->assertEqual($workspace, 1, "$entity_type_id $entity_id has correct workspace in database");
+        }
 
         $deleted = (int) $storage->getQuery()
           ->condition($id_key, $entity_id)
           ->condition('_deleted', 0)
           ->count()
           ->execute();
-
-        $this->assertEqual($rev, 1, "$entity_type_id $entity_id has a revision hash in database");
-        $this->assertEqual($workspace, 1, "$entity_type_id $entity_id has correct workspace in database");
         $this->assertEqual($deleted, 1, "$entity_type_id $entity_id is not marked as deleted in database");
+
       }
     }
 

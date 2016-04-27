@@ -57,29 +57,44 @@ class SequenceIndex implements SequenceIndexInterface {
    * {@inheritdoc}
    */
   public function add(ContentEntityInterface $entity) {
+    $workspace_id = null;
     $record = $this->buildRecord($entity);
-    $this->sortedSetStore()->add($record['seq'], $record);
+    if ($entity->getEntityType()->get('workspace') === FALSE) {
+      $workspace_id = 0;
+    }
+    $this->sortedSetStore($workspace_id)->add($record['seq'], $record);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getRange($start, $stop = NULL, $inclusive = TRUE) {
-    return $this->sortedSetStore()->getRange($start, $stop, $inclusive);
+    $range = $this->sortedSetStore()->getRange($start, $stop, $inclusive);
+    if (empty($range)) {
+      $range = $this->sortedSetStore(0)->getRange($start, $stop, $inclusive);
+    }
+    return $range;
   }
 
   /**
    * {@inheritdoc}
    */
   public function getLastSequenceId() {
-    return $this->sortedSetStore()->getMaxScore();
+    $max_score = $this->sortedSetStore()->getMaxScore();
+    if (empty($max_score)) {
+      $max_score = $this->sortedSetStore(0)->getMaxScore();
+    }
+    return $max_score;
   }
 
   /**
+   * @param $workspace_id
    * @return \Drupal\key_value\KeyValueStore\KeyValueStoreSortedSetInterface
    */
-  protected function sortedSetStore() {
-    $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
+  protected function sortedSetStore($workspace_id = null) {
+    if (!$workspace_id) {
+      $workspace_id = $this->workspaceId ?: $this->workspaceManager->getActiveWorkspace()->id();
+    }
     return $this->sortedSetFactory->get($this->collectionPrefix . $workspace_id);
   }
 

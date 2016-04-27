@@ -321,32 +321,31 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       // Test workspace.
 
-      if ($entity_type_id == 'user') {
-        $info['info']['name'] = $this->randomMachineName();
-      }
-      $entity = $storage->create($info['info']);
-      $entity->save();
-      $entity_id = $entity->id();
-      $this->assertEqual($entity->workspace->target_id, 1, "The workspace reference was saved for $entity_type_id.");
-      $record = db_select($info['data_table'], 'e')
-        ->fields('e')
-        ->condition('e.' . $info['id'], $entity->id())
-        ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
-        ->execute()
-        ->fetchObject();
-      $this->assertEqual($record->workspace, 1, "The workspace reference was stored for saved $entity_type_id.");
+      if ($entity_type->get('workspace') !== FALSE) {
+        $entity = $storage->create($info['info']);
+        $entity->save();
+        $entity_id = $entity->id();
+        $this->assertEqual($entity->workspace->target_id, 1, "The workspace reference was saved for $entity_type_id.");
+        $record = db_select($info['data_table'], 'e')
+          ->fields('e')
+          ->condition('e.' . $info['id'], $entity->id())
+          ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
+          ->execute()
+          ->fetchObject();
+        $this->assertEqual($record->workspace, 1, "The workspace reference was stored for saved $entity_type_id.");
 
-      $entities = $storage->loadMultiple([$entity_id]);
-      $storage->delete($entities);
-      $entity = $storage->loadDeleted($entity_id);
-      $this->assertEqual($entity->workspace->target_id, 1, "The workspace reference is retained for deleted $entity_type_id.");
-      $record = db_select($info['data_table'], 'e')
-        ->fields('e')
-        ->condition('e.' . $info['id'], $entity->id())
-        ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
-        ->execute()
-        ->fetchObject();
-      $this->assertEqual($record->workspace, 1, "The workspace reference was stored for deleted $entity_type_id.");
+        $entities = $storage->loadMultiple([$entity_id]);
+        $storage->delete($entities);
+        $entity = $storage->loadDeleted($entity_id);
+        $this->assertEqual($entity->workspace->target_id, 1, "The workspace reference is retained for deleted $entity_type_id.");
+        $record = db_select($info['data_table'], 'e')
+          ->fields('e')
+          ->condition('e.' . $info['id'], $entity->id())
+          ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
+          ->execute()
+          ->fetchObject();
+        $this->assertEqual($record->workspace, 1, "The workspace reference was stored for deleted $entity_type_id.");
+      }
     }
 
     // Test saving entities in a different workspace.
@@ -361,10 +360,12 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $this->workspaceManager->setActiveWorkspace($workspace);
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
-      $entity = $storage->create($info['info']);
-      $entity->save();
-      $this->assertEqual($entity->workspace->target_id, $workspace->id(), "$entity_type_id was saved in new workspace.");
+        $storage = $this->entityManager->getStorage($entity_type_id);
+        $entity = $storage->create($info['info']);
+        $entity->save();
+      if ($entity->getEntityType()->get('workspace') !== FALSE) {
+        $this->assertEqual($entity->workspace->target_id, $workspace->id(), "$entity_type_id was saved in new workspace.");
+      }
     }
 
     $uuids = [];
@@ -441,19 +442,23 @@ class EntityStorageTest extends MultiversionWebTestBase {
     foreach ($this->entityTypes as $entity_type_id => $info) {
       /** @var \Drupal\Core\Entity\ContentEntityInterface $source_entity */
       foreach ($entities[$entity_type_id] as $source_entity) {
-        $target_entity = clone $source_entity;
+        if ($source_entity->getEntityType()->get('workspace') !== FALSE) {
+          $target_entity = clone $source_entity;
 
-        // Reset the ID and assign the new workspace.
-        $target_entity->{$info['id']}->value = NULL;
-        $target_entity->enforceIsNew(TRUE);
-        $target_entity->workspace->target_id = $target->id();
+          // Reset the ID and assign the new workspace.
+          $target_entity->{$info['id']}->value = NULL;
 
-        // Save the new entity
-        $target_entity->save();
+          $target_entity->enforceIsNew(TRUE);
+          $target_entity->workspace->target_id = $target->id();
 
-        $this->assertTrue(!empty($target_entity->id()), "$entity_type_id in the target workspace got a new entity ID");
-        $this->assertEqual($target_entity->uuid(), $source_entity->uuid(), "Entities from source and target share the same UUID");
-        $this->assertNotEqual($target_entity->id(), $source_entity->id(), "Entities from source and target does not share the same local ID");
+          // Save the new entity
+          $target_entity->save();
+
+          $this->assertTrue(!empty($target_entity->id()), "$entity_type_id in the target workspace got a new entity ID");
+          $this->assertEqual($target_entity->uuid(), $source_entity->uuid(), "Entities from source and target share the same UUID");
+          $this->assertNotEqual($target_entity->id(), $source_entity->id(), "Entities from source and target does not share the same local ID");
+          $this->assertEqual($target_entity->workspace->entity->id(), $target->id(), "Entity in target workspace");
+        }
       }
     }
   }

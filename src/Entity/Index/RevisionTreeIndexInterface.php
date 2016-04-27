@@ -2,6 +2,8 @@
 
 namespace Drupal\multiversion\Entity\Index;
 
+use Drupal\Core\Entity\ContentEntityInterface;
+
 interface RevisionTreeIndexInterface extends IndexInterface {
 
   /**
@@ -12,9 +14,11 @@ interface RevisionTreeIndexInterface extends IndexInterface {
   public function getTree($uuid);
 
   /**
+   * @param \Drupal\Core\Entity\ContentEntityInterface $entity
    * @param array $branch
+   * @return RevisionTreeIndexInterface
    */
-  public function updateTree($uuid, array $branch = array());
+  public function updateTree(ContentEntityInterface $entity, array $branch = array());
 
   /**
    * @param string $uuid

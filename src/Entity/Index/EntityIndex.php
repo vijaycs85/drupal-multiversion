@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Entity\Index;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
@@ -27,11 +28,6 @@ class EntityIndex implements EntityIndexInterface {
    * @var string
    */
   protected $workspaceId;
-
-  /**
-   * @var array
-   */
-  protected $cache = array();
 
   /**
    * @param \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $key_value_factory
@@ -65,40 +61,14 @@ class EntityIndex implements EntityIndexInterface {
    */
   public function getMultiple(array $keys) {
     $workspace_id = $this->getWorkspaceId();
-    // Initialize the cache storage.
-    if (!isset($this->cache[$workspace_id])) {
-      $this->cache[$workspace_id] = array();
+
+    $loaded_values = $this->keyValueStore($workspace_id)->getMultiple($keys);
+    if (count($keys) != count($loaded_values)) {
+      $loaded_values2 = $this->keyValueStore()->getMultiple($keys);
+      $loaded_values = array_merge($loaded_values, $loaded_values2);
     }
 
-    $values = array();
-    $load = array();
-    foreach ($keys as $key) {
-      // Check if we have a value in the cache.
-      if (isset($this->cache[$workspace_id][$key])) {
-        $values[$key] = $this->cache[$workspace_id][$key];
-      }
-      // Load the value if we don't have an explicit NULL value.
-      elseif (!array_key_exists($key, $this->cache[$workspace_id])) {
-        $load[] = $key;
-      }
-    }
-
-    if ($load) {
-      $loaded_values = $this->keyValueStore($workspace_id)->getMultiple($load);
-      foreach ($load as $key) {
-        // If we find a value, even one that is NULL, add it to the cache and
-        // return it.
-        if (isset($loaded_values[$key]) || array_key_exists($key, $loaded_values)) {
-          $values[$key] = $loaded_values[$key];
-          $this->cache[$workspace_id][$key] = $loaded_values[$key];
-        }
-        else {
-          $this->cache[$workspace_id][$key] = NULL;
-        }
-      }
-    }
-
-    return $values;
+    return $loaded_values;
   }
 
   /**
@@ -113,22 +83,30 @@ class EntityIndex implements EntityIndexInterface {
    */
   public function addMultiple(array $entities) {
     $workspace_id = $this->getWorkspaceId();
-    $values = array();
+    $values = [];
+    /** @var ContentEntityInterface $entity */
     foreach ($entities as $entity) {
       $key = $this->buildKey($entity);
       $value = $this->buildValue($entity);
-      $values[$key] = $value;
-      $this->cache[$workspace_id][$key] = $value;
+      if ($entity->getEntityType()->get('workspace') === FALSE) {
+        $values[0][$key] = $value;
+      }
+      else {
+        $values[$workspace_id][$key] = $value;
+      }
     }
-    $this->keyValueStore($workspace_id)->setMultiple($values);
+
+    foreach ($values as $workspace_id => $value) {
+      $this->keyValueStore($workspace_id)->setMultiple($value);
+    }
   }
 
   /**
-   * @param string $workspace_name
+   * @param int $workspace_id
    * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
    */
-  protected function keyValueStore($workspace_name) {
-    return $this->keyValueFactory->get($this->collectionPrefix . $workspace_name);
+  protected function keyValueStore($workspace_id = 0) {
+    return $this->keyValueFactory->get($this->collectionPrefix . $workspace_id);
   }
 
   /**

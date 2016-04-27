@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Entity\Index;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
@@ -67,8 +68,14 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function updateTree($uuid, array $branch = array()) {
-    $this->keyValueStore($uuid)->setMultiple($branch);
+  public function updateTree(ContentEntityInterface $entity, array $branch = array()) {
+    if ($entity->getEntityType()->get('workspace') === FALSE) {
+      $this->keyValueStore($entity->uuid(), 0)->setMultiple($branch);
+    }
+    else {
+      $this->keyValueStore($entity->uuid())->setMultiple($branch);
+    }
+    return $this;
   }
 
   /**
@@ -158,10 +165,13 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
 
   /**
    * @param string $uuid
+   * @param $workspace_id
    * @return \Drupal\Core\KeyValueStore\KeyValueStoreInterface
    */
-  protected function keyValueStore($uuid) {
-    $workspace_id = $this->getWorkspaceId();
+  protected function keyValueStore($uuid, $workspace_id = null) {
+    if (!is_numeric($workspace_id)) {
+      $workspace_id = $this->getWorkspaceId();
+    }
     return $this->keyValueFactory->get("multiversion.entity_index.rev.tree.$workspace_id.$uuid");
   }
 
@@ -170,6 +180,9 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    */
   protected function buildTree($uuid) {
     $revs = $this->keyValueStore($uuid)->getAll();
+    if (!$revs) {
+      $revs = $this->keyValueStore($uuid, 0)->getAll();
+    }
     // Build the keys to fetch from the rev index.
     $keys = [];
     foreach (array_keys($revs) as $rev) {

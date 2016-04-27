@@ -30,8 +30,9 @@ class RevisionsProperty extends TypedData {
     /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
     $entity = $this->getRoot()->getValue();
 
+    $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
     $branch = \Drupal::service('multiversion.entity_index.factory')
-      ->get('multiversion.entity_index.rev.tree', $entity->workspace->entity)
+      ->get('multiversion.entity_index.rev.tree', $workspace)
       ->getDefaultBranch($entity->uuid());
 
     if (empty($branch) && !$entity->_rev->is_stub && !$entity->isNew()) {
