@@ -2,6 +2,11 @@
 
 namespace Drupal\multiversion\Entity\Query;
 
+/**
+ * @property $entityTypeId
+ * @property $entityManager
+ * @property $condition
+ */
 trait QueryTrait {
 
   /**
