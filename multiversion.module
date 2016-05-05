@@ -69,6 +69,11 @@ function multiversion_entity_type_alter(array &$entity_types) {
           $entity_type->setHandlerClass('storage_schema', "$namespace\\FileStorageSchema");
           break;
 
+        case 'media':
+          $entity_type->setHandlerClass('storage', "$namespace\\MediaStorage");
+          $entity_type->setHandlerClass('storage_schema', "$namespace\\ContentEntityStorageSchema");
+          break;
+
         default:
           $storage_class = $entity_type->getHandlerClass('storage');
           $storage_schema_class = $entity_type->getHandlerClass('storage_schema');
