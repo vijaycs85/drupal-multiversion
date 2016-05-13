@@ -17,9 +17,6 @@ use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 class MultiversionServiceProvider extends ServiceProviderBase {
 
   public function alter(ContainerBuilder $container) {
-    $definition = $container->getDefinition('current_user');
-    $definition->setClass('Drupal\multiversion\AccountProxy');
-
     // Override the password_migrate class with a new class.
     try {
       $definition = $container->getDefinition('password_migrate');

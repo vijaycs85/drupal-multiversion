@@ -42,11 +42,6 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
       'bundle' => 'menu_link_content',
       'link' => [['uri' => 'user-path:/']],
     ],
-    'user' => [
-      'name' => 'User',
-      'mail' => 'user@example.com',
-      'status' => 1,
-    ],
     'file' => [
       'uid' => 1,
       'filename' => 'druplicon.txt',
