@@ -107,6 +107,12 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function isSupportedEntityType(EntityTypeInterface $entity_type, $ignore_status = FALSE) {
+    $uninstall_multiversion = \Drupal::service('state')
+      ->get("entity_storage_migrate.uninstall_multiversion", FALSE);
+    if ($uninstall_multiversion) {
+      return FALSE;
+    }
+
     if ($entity_type->get('multiversion') === FALSE) {
       return FALSE;
     }
