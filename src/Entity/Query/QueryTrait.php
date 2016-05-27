@@ -63,10 +63,6 @@ trait QueryTrait {
       if (!$revision_query) {
         $this->condition('_deleted', (int) $this->isDeleted);
       }
-      // Don't add this condition user entity type.
-      if ($entity_type->id() !== 'user') {
-        $this->condition('workspace', $this->workspaceId ?: $this->multiversionManager->getActiveWorkspaceId());
-      }
     }
     return $this;
   }

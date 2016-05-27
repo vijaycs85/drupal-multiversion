@@ -80,10 +80,11 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * Some contrib modules might behave the same way?}
    */
   protected $entityTypeBlackList = array(
-    'entity_test_no_id',
-    'entity_test_base_field_display',
+    'user',
     'shortcut',
     'contact_message',
+    'entity_test_no_id',
+    'entity_test_base_field_display',
   );
 
   /**

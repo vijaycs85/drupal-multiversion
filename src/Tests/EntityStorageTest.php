@@ -95,16 +95,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
       'revision_table' => 'menu_link_content_field_revision',
       'id' => 'id',
     ],
-    'user' => [
-      'info' => [
-        'name' => 'User',
-        'mail' => 'user@example.com',
-        'status' => 1,
-      ],
-      'data_table' => 'users_field_data',
-      'revision_table' => 'user_field_revision',
-      'id' => 'uid',
-    ],
     'file' => [
       'info' => [
         'uid' => 1,
@@ -148,12 +138,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
     // Test save and load.
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      // User name should be unique.
-      if ($entity_type_id == 'user') {
-        $info['info']['name'] = $this->randomMachineName();
-      }
       $storage = $this->entityManager->getStorage($entity_type_id);
-
       $message = "$entity_type_id has the correct storage handler.";
       if ($storage instanceof ContentEntityStorageInterface) {
         $this->pass($message);
@@ -183,7 +168,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
       // For user entity type we should have 4 entities: anonymous, root
       // user, test user and the new created user. For other entity types we should have
       // just the new created entity.
-      $revision_id = $entity_type_id == 'user' ? 4 : 1;
+      $revision_id = 1;
       /** @var \Drupal\Core\Entity\ContentEntityInterface $revision */
       $revision = $storage->loadRevision($revision_id);
       $this->assertTrue(($revision->getRevisionId() == $revision_id && !$revision->isDefaultRevision()), "Old revision of $entity_type_id was loaded.");
@@ -197,9 +182,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       // Test delete.
 
-      if ($entity_type_id == 'user') {
-        $info['info']['name'] = $this->randomMachineName();
-      }
       $entity = $storage->create($info['info']);
       $entity->save();
       $id = $entity->id();
@@ -227,9 +209,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       // Test revisions.
 
-      if ($entity_type_id == 'user') {
-        $info['info']['name'] = $this->randomMachineName();
-      }
       $entity = $storage->create($info['info']);
       $entity->save();
       $id = $entity->id();
@@ -249,9 +228,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $entity_type = $this->entityManager->getDefinition($entity_type_id);
       $id_key = $entity_type->getKey('id');
       // Test with exception upon first save.
-      if ($entity_type_id == 'user') {
-        $info['info']['name'] = $this->randomMachineName();
-      }
       $entity = $storage->create($info['info']);
       $uuid = $entity->uuid->value;
       try {
@@ -280,9 +256,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $this->assertEqual($default_branch, $expected_default_branch, 'Default branch was built after exception on first save followed by re-save.');
 
       // Test with exception upon second save.
-      if ($entity_type_id == 'user') {
-        $info['info']['name'] = $this->randomMachineName();
-      }
       $entity = $storage->create($info['info']);
       $uuid = $entity->uuid->value;
       $entity->save();
@@ -372,9 +345,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $ids = [];
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $storage = $this->entityManager->getStorage($entity_type_id);
-      if ($entity_type_id == 'user') {
-        $info['info']['name'] = $this->randomMachineName();
-      }
       $entity = $storage->create($info['info']);
       $entity->save();
       $uuids[$entity_type_id] = $entity->uuid();
@@ -393,19 +363,9 @@ class EntityStorageTest extends MultiversionWebTestBase {
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $storage = $this->entityManager->getStorage($entity_type_id);
       $entity = $storage->load($ids[$entity_type_id]);
-      if ($entity_type_id == 'user') {
-        $this->assertFalse(empty($entity), "$entity_type_id was loaded in a workspace it does not belongs to.");
-      }
-      else {
-        $this->assertTrue(empty($entity), "$entity_type_id was not loaded in a workspace it does not belongs to.");
-      }
+      $this->assertTrue(empty($entity), "$entity_type_id was not loaded in a workspace it does not belongs to.");
       $entity = $this->entityManager->loadEntityByUuid($entity_type_id, $uuids[$entity_type_id]);
-      if ($entity_type_id == 'user') {
-        $this->assertFalse(empty($entity), "$entity_type_id was loaded by UUID in a workspace it does not belong to.");
-      }
-      else {
-        $this->assertTrue(empty($entity), "$entity_type_id was not loaded by UUID in a workspace it does not belong to.");
-      }
+      $this->assertTrue(empty($entity), "$entity_type_id was not loaded by UUID in a workspace it does not belong to.");
     }
 
     // Test saving the same entity in two workspaces. This is a simplified
@@ -429,9 +389,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $entities = [];
     foreach ($this->entityTypes as $entity_type_id => $info) {
       $storage = $this->entityManager->getStorage($entity_type_id);
-      if ($entity_type_id == 'user') {
-        $info['info']['name'] = $this->randomMachineName();
-      }
       $entity = $storage->create($info['info']);
       $entity->save();
       $entities[$entity_type_id][$entity->uuid()] = $entity;

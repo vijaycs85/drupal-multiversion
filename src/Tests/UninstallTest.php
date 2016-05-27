@@ -35,7 +35,6 @@ class UninstallTest extends WebTestBase {
    * @var array
    */
   protected $entityTypes = [
-    'user' => [],
     'node' => ['type' => 'article', 'title' => 'foo'],
 //    'taxonomy_term' => ['name' => 'A term', 'vid' => 123],
 //    'comment' => [
@@ -87,19 +86,9 @@ class UninstallTest extends WebTestBase {
 
     foreach ($this->entityTypes as $entity_type_id => $values) {
       $storage = \Drupal::entityTypeManager()->getStorage($entity_type_id);
-
-      if ($entity_type_id == 'user') {
-        $this->createUser(['administer nodes']);
-        // There should now be 3 users in total, including the initial anonymous
-        // and admin users.
-        $count = 3;
-      }
-      // Generic handling for the rest of the entity types.
-      else {
-        $count = 2;
-        for ($i = 0; $i < $count; $i++) {
-          $storage->create($values)->save();
-        }
+      $count = 2;
+      for ($i = 0; $i < $count; $i++) {
+        $storage->create($values)->save();
       }
       $count_before[$entity_type_id] = $count;
     }

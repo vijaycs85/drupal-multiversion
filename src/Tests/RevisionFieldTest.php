@@ -90,10 +90,6 @@ class RevisionFieldTest extends FieldTestBase {
       case 'block_content':
         $values['info'] = $this->randomMachineName();
         break;
-
-      case 'user':
-        $values['name'] = $this->randomMachineName();
-        break;
     }
     return $storage->create($values);
   }

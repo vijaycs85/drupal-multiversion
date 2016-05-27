@@ -46,20 +46,18 @@ class SequenceIndexTest extends MultiversionWebTestBase {
     $entity->_deleted->value = $expected['deleted'];
     $entity->_rev->value = $expected['rev'];
 
-    // We should have 3 user entities (anonymous, root user, and test user).
     $values = $this->sequenceIndex->getRange(3);
-    $this->assertEqual(3, count($values), 'There are three index entries');
+    $this->assertEqual(0, count($values), 'There are 0 index entries');
 
     $this->sequenceIndex->add($entity);
     $expected['seq'] = $this->multiversionManager->lastSequenceId();
 
-    // We should have 3 entities of user entity type (anonymous, root user,
-    // and test user) and one entity_test_rev.
+    // We should have one entity_test_rev.
     $values = $this->sequenceIndex->getRange(4);
-    $this->assertEqual(4, count($values), 'One new index entry was added.');
+    $this->assertEqual(1, count($values), 'One new index entry was added.');
 
     foreach ($expected as $key => $value) {
-      $this->assertIdentical($value, $values[3][$key], "Index entry key $key have value $value");
+      $this->assertIdentical($value, $values[0][$key], "Index entry key $key have value $value");
     }
 
     $entity = EntityTestRev::create();
