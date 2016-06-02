@@ -286,7 +286,6 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
     'taxonomy_term',
     'glossary',
     'archive',
-    'user_admin_people',
   );
   if (in_array($view->id(), $views_ids)) {
     $base_table = $view->storage->get('base_table');
