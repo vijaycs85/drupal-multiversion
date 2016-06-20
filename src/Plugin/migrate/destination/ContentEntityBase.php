@@ -81,7 +81,6 @@ class ContentEntityBase extends EntityContentBase {
     // Since password records from the earlier schema already was hashed we
     // disable hashing so that passwords stay intact.
     $this->password = $password;
-    $this->password->disablePasswordHashing();
     $this->storage->resetCache();
   }
 

@@ -17,15 +17,6 @@ use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 class MultiversionServiceProvider extends ServiceProviderBase {
 
   public function alter(ContainerBuilder $container) {
-    // Override the password_migrate class with a new class.
-    try {
-      $definition = $container->getDefinition('password_migrate');
-      $definition->setClass('Drupal\multiversion\MigratePassword');
-    }
-    catch (InvalidArgumentException $e) {
-      // Do nothing, migrate module is not installed.
-    }
-
     $renderer_config = $container->getParameter('renderer.config');
     $renderer_config['required_cache_contexts'][] = 'workspace';
     $container->setParameter('renderer.config', $renderer_config);
