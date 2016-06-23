@@ -53,7 +53,6 @@ function multiversion_entity_type_alter(array &$entity_types) {
           break;
 
         case 'menu_link_content':
-          $entity_type->setClass('Drupal\multiversion\Entity\MenuLinkContent');
           $entity_type->setHandlerClass('storage', "$namespace\\MenuLinkContentStorage");
           $entity_type->setHandlerClass('storage_schema', "$namespace\\MenuLinkContentStorageSchema");
           break;
