@@ -391,3 +391,32 @@ function multiversion_prepare_file_destination($destination, StreamWrapperInterf
 
   return FALSE;
 }
+
+/**
+ * Implements hook_menu_links_discovered_alter().
+ */
+function multiversion_menu_links_discovered_alter(&$links) {
+  // Get all custom menu links and set links with the correct ID.
+  // The ID format now will be 'menu_link_content:ENTITY_UUID:ENTITY_ID' - we
+  // need to change it because we need new entry in the menu_tree table for the
+  // same link on different workspaces.
+  // The old ID format is 'menu_link_content:ENTITY_UUID'.
+  $entity_ids = \Drupal::entityQuery('menu_link_content')
+    ->condition('rediscover', TRUE)
+    ->execute();
+  $menu_link_content_entities = \Drupal::service('entity.manager')
+    ->getStorage('menu_link_content')
+    ->loadMultiple($entity_ids);
+  /** @var \Drupal\menu_link_content\MenuLinkContentInterface $menu_link_content */
+  foreach ($menu_link_content_entities as $menu_link_content) {
+    // Unset links with old ID format.
+    if (isset($links['menu_link_content:' . $menu_link_content->uuid()])) {
+      unset($links['menu_link_content:' . $menu_link_content->uuid()]);
+    }
+    $id = 'menu_link_content:' . $menu_link_content->uuid() . ':' . $menu_link_content->id();
+    // Set links with the new ID format.
+    if (!isset($links[$id])) {
+      $links[$id] = $menu_link_content->getPluginDefinition();
+    }
+  }
+}
