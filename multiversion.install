@@ -164,6 +164,7 @@ function multiversion_update_8004() {
     $table_names = $table_mapping->getTableNames();
     $data = [];
     $database = \Drupal::database();
+    // Create the $data array keyed by table name.
     foreach ($table_names as $table_name) {
       $column_names = $table_mapping->getAllColumns($table_name);
       $results = $database->select($table_name, 't')->fields('t')->execute()->fetchAll();
@@ -214,7 +215,7 @@ function multiversion_update_8004() {
             $query->condition($field, $values[$field]);
           }
           $exists = $query->execute()->fetchAll();
-          // Insert or update a new field in the database
+          // Insert a new field or update an existing field in the database.
           if (isset($exists) && isset($exists[0])) {
             $query = $database->update($table_name)->fields($values);
             foreach ($fields as $field) {
