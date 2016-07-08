@@ -182,6 +182,14 @@ function multiversion_update_8004() {
       $database->truncate($table_name)->execute();
     }
 
+    // Delete revision tables that after applying updates doesn't get deleted.
+    $tables_to_delete = ['user_revision__roles', 'user_revision__user_picture'];
+    foreach ($tables_to_delete as $table_name) {
+      if ($database->schema()->tableExists($table_name)) {
+        $database->schema()->dropTable($table_name);
+      }
+    }
+
     // Apply updates twice.
     $update_manager->applyUpdates();
     $update_manager->applyUpdates();
