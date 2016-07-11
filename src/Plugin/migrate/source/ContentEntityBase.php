@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Plugin\Migrate\source\ContentEntityBase.
- */
-
 namespace Drupal\multiversion\Plugin\migrate\source;
 
 /**
@@ -20,15 +15,8 @@ class ContentEntityBase extends SourcePluginBase {
    * {@inheritdoc}
    */
   protected function initializeIterator() {
-    // At this point Multiversion is obviously installed and the new storage
-    // handler is already active. But since the new schema isn't applied yet
-    // and the new handler doesn't know how to load from the old schema, we have
-    // to initialize the previously installed storage handler and use that to
-    // load the entities.
-    $last_definition = $this->entityManager->getLastInstalledDefinition($this->entityTypeId);
-    $storage_class = $last_definition->getStorageClass();
-    $last_storage = $this->entityManager->createHandlerInstance($storage_class, $last_definition);
-    $entities = $last_storage->loadMultiple();
+    $storage = $this->entityManager->getStorage($this->entityTypeId);
+    $entities = $storage->loadMultiple();
 
     $result = [];
     foreach ($entities as $entity_id => $entity) {
@@ -56,6 +44,7 @@ class ContentEntityBase extends SourcePluginBase {
     }
 
     // Make sure we don't migrate deleted entities.
+    $storage_class = $storage->getEntityType()->getStorageClass();
     if (strpos($storage_class, 'Drupal\multiversion\Entity\Storage') !== FALSE) {
       foreach ($result as $entity_id => $entity) {
         if (isset($entity['_deleted']) && $entity['_deleted'] == 1) {

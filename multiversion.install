@@ -4,6 +4,7 @@ use Drupal\multiversion\Entity\Workspace;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Utility\UpdateException;
 use \Drupal\Core\Database\Driver\mysql\Connection;
+use Drupal\multiversion\MultiversionMigration;
 
 /**
  * Implements hook_install().
@@ -143,6 +144,51 @@ function multiversion_update_8002() {
     // If not, throw an exception.
     if (!$enabled) {
       throw new UpdateException('Could not enable entity_storage_migrate module.');
+    }
+  }
+}
+
+
+/**
+ * Update user entity type to non-multiversionable.
+ */
+function multiversion_update_8004() {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  $changes = $update_manager->getChangeSummary();
+  // Check if user entity type has new changes.
+  if (isset($changes['user'])) {
+    /** @var \Drupal\Core\Entity\EntityTypeManager $entity_type_manager */
+    $entity_type_manager = \Drupal::service('entity_type.manager');
+    $storage = $entity_type_manager->getStorage('user');
+    $entity_type = $storage->getEntityType();
+    $database = \Drupal::database();
+    try {
+      $entity_manager = \Drupal::entityManager();
+      // Create a new migration and migrate user entities to the temporary storage.
+      $migration = MultiversionMigration::create(\Drupal::getContainer(), $entity_manager);
+      $migration->installDependencies();
+      $migration->migrateContentToTemp($entity_type);
+      // Remove all data from the old storage.
+      $migration->emptyOldStorage($entity_type, $storage);
+
+      // Delete revision tables that after applying updates doesn't get deleted.
+      $tables_to_delete = ['user_revision__roles', 'user_revision__user_picture'];
+      foreach ($tables_to_delete as $table_name) {
+        if ($database->schema()->tableExists($table_name)) {
+          $database->schema()->dropTable($table_name);
+        }
+      }
+
+      // Apply new updates.
+      $migration->applyNewStorage();
+      // Migrate content from the temporary storage to the new storage.
+      $migration->migrateContentFromTemp($entity_type);
+      $migration->cleanupMigration('user__to_tmp');
+      $migration->cleanupMigration('user__from_tmp');
+      $migration->uninstallDependencies();
+    }
+    catch (\Exception $e) {
+      \Drupal::logger('multiversion')->error($e->getMessage());
     }
   }
 }
