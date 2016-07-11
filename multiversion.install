@@ -4,6 +4,7 @@ use Drupal\multiversion\Entity\Workspace;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Utility\UpdateException;
 use \Drupal\Core\Database\Driver\mysql\Connection;
+use Drupal\multiversion\MultiversionMigration;
 
 /**
  * Implements hook_install().
@@ -147,6 +148,7 @@ function multiversion_update_8002() {
   }
 }
 
+
 /**
  * Update user entity type to non-revisionable.
  */
@@ -158,87 +160,32 @@ function multiversion_update_8004() {
     /** @var \Drupal\Core\Entity\EntityTypeManager $entity_type_manager */
     $entity_type_manager = \Drupal::service('entity_type.manager');
     $storage = $entity_type_manager->getStorage('user');
-
-    /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping */
-    $table_mapping = $storage->getTableMapping();
-    $table_names = $table_mapping->getTableNames();
-    $data = [];
+    $entity_type = $storage->getEntityType();
     $database = \Drupal::database();
-    // Create the $data array keyed by table name.
-    foreach ($table_names as $table_name) {
-      $column_names = $table_mapping->getAllColumns($table_name);
-      $results = $database->select($table_name, 't')->fields('t')->execute()->fetchAll();
-      foreach ($results as $key => $result) {
-        foreach ($column_names as $column_name) {
-          if (isset($result->{$column_name})) {
-            $data[$table_name][$key][$column_name] = $result->{$column_name};
-          }
-        }
-      }
-    }
-
-    // Empty all tables.
-    foreach ($table_names as $table_name) {
-      $database->truncate($table_name)->execute();
-    }
-
-    // Delete revision tables that after applying updates doesn't get deleted.
-    $tables_to_delete = ['user_revision__roles', 'user_revision__user_picture'];
-    foreach ($tables_to_delete as $table_name) {
-      if ($database->schema()->tableExists($table_name)) {
-        $database->schema()->dropTable($table_name);
-      }
-    }
-
-    // Apply updates twice.
-    $update_manager->applyUpdates();
-    $update_manager->applyUpdates();
-
-    // Load tables info from the updated entity storage.
-    $entity_type_manager->clearCachedDefinitions();
-    $storage = $entity_type_manager->getStorage('user');
-    /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $new_table_mapping */
-    $new_table_mapping = $storage->getTableMapping();
-    $new_table_names = $new_table_mapping->getTableNames();
-
     try {
-      foreach ($data as $table_name => $table_data) {
-        if (!in_array($table_name, $new_table_names)) {
-          continue;
-        }
-        $column_names = $new_table_mapping->getAllColumns($table_name);
-        foreach ($table_data as $record) {
-          $values = [];
-          foreach ($column_names as $column_name) {
-            if (isset($record[$column_name])) {
-              $values[$column_name] = $record[$column_name];
-            }
-          }
+      $entity_manager = \Drupal::entityManager();
+      // Create a new migration and migrate user entities to the temporary storage.
+      $migration = MultiversionMigration::create(\Drupal::getContainer(), $entity_manager);
+      $migration->installDependencies();
+      $migration->migrateContentToTemp($entity_type);
+      // Remove all data from the old storage.
+      $migration->emptyOldStorage($entity_type, $storage);
 
-          // Prepare the query.
-          $query = $database->select($table_name);
-          $fields = array_keys($values);
-          $query->fields($table_name, $fields);
-          foreach ($fields as $field) {
-            $query->condition($field, $values[$field]);
-          }
-          $exists = $query->execute()->fetchAll();
-          // Insert a new field or update an existing field in the database.
-          if (isset($exists) && isset($exists[0])) {
-            $query = $database->update($table_name)->fields($values);
-            foreach ($fields as $field) {
-              $query->condition($field, $values[$field]);
-            }
-            $query->execute();
-          }
-          else {
-            $database
-              ->insert($table_name)
-              ->fields($values)
-              ->execute();
-          }
+      // Delete revision tables that after applying updates doesn't get deleted.
+      $tables_to_delete = ['user_revision__roles', 'user_revision__user_picture'];
+      foreach ($tables_to_delete as $table_name) {
+        if ($database->schema()->tableExists($table_name)) {
+          $database->schema()->dropTable($table_name);
         }
       }
+
+      // Apply new updates.
+      $migration->applyNewStorage();
+      // Migrate content from the temporary storage to the new storage.
+      $migration->migrateContentFromTemp($entity_type);
+      $migration->cleanupMigration('user__to_tmp');
+      $migration->cleanupMigration('user__from_tmp');
+      $migration->uninstallDependencies();
     }
     catch (\Exception $e) {
       \Drupal::logger('multiversion')->error($e->getMessage());
