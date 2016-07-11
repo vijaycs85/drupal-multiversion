@@ -150,7 +150,7 @@ function multiversion_update_8002() {
 
 
 /**
- * Update user entity type to non-revisionable.
+ * Update user entity type to non-multiversionable.
  */
 function multiversion_update_8004() {
   $update_manager = \Drupal::entityDefinitionUpdateManager();
