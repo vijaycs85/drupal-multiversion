@@ -48,6 +48,10 @@ class MenuTreeStorage extends CoreMenuTreeStorage {
    */
   protected function loadLinks($menu_name, MenuTreeParameters $parameters) {
     $links = parent::loadLinks($menu_name, $parameters);
+    // Return links if the menu_link_content is not enabled.
+    if (!\Drupal::moduleHandler()->moduleExists('menu_link_content')) {
+      return $links;
+    }
     $map = [];
     // Collect all menu_link_content IDs from the links.
     foreach ($links as $i => $link) {
