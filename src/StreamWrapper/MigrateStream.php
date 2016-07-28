@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\StreamWrapper\MigrateStream.
- */
-
 namespace Drupal\multiversion\StreamWrapper;
 
 use Drupal\Component\Utility\UrlHelper;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\MultiversionServiceProvider.
- */
-
 namespace Drupal\multiversion;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;

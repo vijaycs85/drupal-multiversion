@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Plugin\migrate\destination\ContentEntityBase.
- */
-
 namespace Drupal\multiversion\Plugin\migrate\destination;
 
 use Drupal\Core\Entity\EntityManagerInterface;

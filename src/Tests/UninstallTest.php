@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\UninstallTest.
- */
-
 namespace Drupal\multiversion\Tests;
 
 use Drupal\Core\Entity\Query\QueryInterface;

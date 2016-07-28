@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\MultiversionWebTestBase.
- */
-
 namespace Drupal\multiversion\Tests;
 
 use Drupal\comment\Tests\CommentTestTrait;

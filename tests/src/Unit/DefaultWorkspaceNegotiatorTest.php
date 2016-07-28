@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\multiversion\Unit\DefaultWorkspaceNegotiatorTest.
- */
-
 namespace Drupal\Tests\multiversion\Unit;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;

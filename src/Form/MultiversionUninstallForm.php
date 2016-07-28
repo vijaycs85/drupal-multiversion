@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Form\MultiversionUninstallForm.
- */
-
 namespace Drupal\multiversion\Form;
 
 use Behat\Mink\Exception\Exception;

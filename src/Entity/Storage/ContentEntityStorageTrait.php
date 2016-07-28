@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait.
- */
-
 namespace Drupal\multiversion\Entity\Storage;
 
 use Drupal\Core\Cache\CacheBackendInterface;

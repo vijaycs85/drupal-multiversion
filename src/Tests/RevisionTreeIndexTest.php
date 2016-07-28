@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\RevisionTreeIndexTest.
- */
-
 namespace Drupal\multiversion\Tests;
 use Drupal\multiversion\Entity\Index\RevisionTreeIndex;
 

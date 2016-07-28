@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Entity\Workspace.
- */
-
 namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Entity\Entity;

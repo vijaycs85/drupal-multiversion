@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\multiversion\Workspace\ConflictTracker.
- */
 
 namespace Drupal\multiversion\Workspace;
 

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\EntityStorageTest.
- */
-
 namespace Drupal\multiversion\Tests;
 
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;

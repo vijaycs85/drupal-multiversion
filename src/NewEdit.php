@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\NewEdit.
- */
-
 namespace Drupal\multiversion;
 
 use Drupal\Core\TypedData\TypedData;

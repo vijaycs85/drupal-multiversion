@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\Tests\multiversion\Unit\WorkspaceManagerTest.
- */
-
 namespace Drupal\Tests\multiversion\Unit;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;

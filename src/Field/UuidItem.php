@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Field\UuidItem
- */
-
 namespace Drupal\multiversion\Field;
 
 use Drupal\Core\Field\FieldStorageDefinitionInterface;

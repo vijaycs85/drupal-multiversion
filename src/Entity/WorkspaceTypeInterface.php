@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\WorkspaceTypeInterface.
- */
-
 namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;

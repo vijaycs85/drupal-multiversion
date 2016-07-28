@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\SequenceIndexTest.
- */
-
 namespace Drupal\multiversion\Tests;
 
 use Drupal\entity_test\Entity\EntityTestRev;

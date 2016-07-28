@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Entity\Storage\Sql\CommentStorageSchema.
- */
-
 namespace Drupal\multiversion\Entity\Storage\Sql;
 
 use Drupal\Core\Entity\ContentEntityTypeInterface;

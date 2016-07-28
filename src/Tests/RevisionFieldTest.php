@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\RevisionFieldTest.
- */
-
 namespace Drupal\multiversion\Tests;
 
 use Drupal\Core\Entity\EntityStorageInterface;

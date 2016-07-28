@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Workspace\WorkspaceManager.
- */
-
 namespace Drupal\multiversion\Workspace;
 
 use Drupal\Core\Entity\EntityManagerInterface;

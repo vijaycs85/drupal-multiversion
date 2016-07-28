@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\FieldTestBase.
- */
-
 namespace Drupal\multiversion\Tests;
 
 abstract class FieldTestBase extends MultiversionWebTestBase {

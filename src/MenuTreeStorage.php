@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\MenuTreeStorage.
- */
-
 namespace Drupal\multiversion;
 
 use Drupal\Core\Cache\CacheBackendInterface;

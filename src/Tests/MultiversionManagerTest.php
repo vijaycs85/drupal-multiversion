@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\MultiversionManagerTest.
- */
-
 namespace Drupal\multiversion\Tests;
 
 use Drupal\Core\Entity\ContentEntityTypeInterface;

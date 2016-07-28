@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Entity\Storage\Sql\TermStorage.
- */
-
 namespace Drupal\multiversion\Entity\Storage\Sql;
 
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;

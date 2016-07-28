@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\multiversion\EntityReferenceItem.
- */
 
 namespace Drupal\multiversion;
 

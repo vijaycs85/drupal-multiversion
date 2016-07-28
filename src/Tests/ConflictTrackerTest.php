@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\ConflictTrackerTest.
- */
 
 namespace Drupal\multiversion\Tests;
 

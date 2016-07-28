@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Plugin\migrate\process\TextFieldProcess.
- */
-
 namespace Drupal\multiversion\Plugin\migrate\process;
 
 use Drupal\Component\Utility\Html;

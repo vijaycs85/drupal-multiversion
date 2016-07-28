@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\Views\DeletedTest.
- */
-
 namespace Drupal\multiversion\Tests\Views;
 
 /**

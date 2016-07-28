@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Plugin\Migrate\source\SourcePluginBase.
- */
-
 namespace Drupal\multiversion\Plugin\migrate\source;
 
 use Drupal\Core\Entity\EntityManagerInterface;

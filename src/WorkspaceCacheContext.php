@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Cache\WorkspaceCacheContext.
- */
-
 namespace Drupal\multiversion;
 
 use Drupal\Core\Cache\CacheableMetadata;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\multiversion\Entity\Storage\Sql\MenuLinkContentStorage.
- */
-
 namespace Drupal\multiversion\Entity\Storage\Sql;
 
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;

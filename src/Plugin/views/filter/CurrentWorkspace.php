@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Plugin\views\filter\CurrentWorkspace.
- */
-
 namespace Drupal\multiversion\Plugin\views\filter;
 
 use Drupal\Core\Form\FormStateInterface;

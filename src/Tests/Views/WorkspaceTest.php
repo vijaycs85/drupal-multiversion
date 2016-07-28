@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\Views\WorkspaceTest.
- */
-
 namespace Drupal\multiversion\Tests\Views;
 
 use Drupal\multiversion\Entity\Workspace;

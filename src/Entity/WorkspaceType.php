@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Entity\WorkspaceType.
- */
-
 namespace Drupal\multiversion\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBundleBase;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Workspace\SessionWorkspaceNegotiator.
- */
-
 namespace Drupal\multiversion\Workspace;
 
 use Drupal\multiversion\Entity\WorkspaceInterface;

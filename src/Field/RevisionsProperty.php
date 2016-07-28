@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\IsStub.
- */
-
 namespace Drupal\multiversion\Field;
 
 use Drupal\Core\TypedData\TypedData;

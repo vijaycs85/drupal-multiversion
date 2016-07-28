@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\EntityQueryTest.
- */
-
 namespace Drupal\multiversion\Tests;
 
 /**

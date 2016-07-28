@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\UuidIndexHooksTest.
- */
-
 namespace Drupal\multiversion\Tests;
 
 /**

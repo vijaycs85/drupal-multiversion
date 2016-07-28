@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\Tests\Views\MultiversionTestBase.
- */
-
 namespace Drupal\multiversion\Tests\Views;
 
 use Drupal\views\Tests\ViewTestBase;

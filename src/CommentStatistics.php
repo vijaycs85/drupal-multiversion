@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\multiversion\CommentStatistics.
- */
-
 namespace Drupal\multiversion;
 
 use Drupal\comment\CommentInterface;
