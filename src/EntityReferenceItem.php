@@ -39,9 +39,9 @@ class EntityReferenceItem extends CoreEntityReferenceItem {
             ->getDefinition($entity_type_id)
             ->getKey('id');
 
-          // If the referenced entity is a stub, but a full entity already was
+          // If the referenced entity is a stub, but an entity already was
           // created, then load and use that entity instead without saving.
-          if ($this->entity->_rev->is_stub && !$record['is_stub']) {
+          if ($this->entity->_rev->is_stub && is_numeric($record['entity_id'])) {
             $this->entity = $entity_type_manager
               ->getStorage($entity_type_id)
               ->load($record['entity_id']);
