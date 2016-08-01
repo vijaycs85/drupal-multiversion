@@ -7,6 +7,7 @@ use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\Core\Menu\MenuTreeStorage as CoreMenuTreeStorage;
+use Drupal\multiversion\Entity\MenuLinkContent;
 
 class MenuTreeStorage extends CoreMenuTreeStorage {
 
@@ -70,4 +71,31 @@ class MenuTreeStorage extends CoreMenuTreeStorage {
     }
     return $links;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function findParent($link, $original) {
+    if (isset($link['parent']) && !empty($link['parent']) && strpos($link['parent'], 'menu_link_content') === 0) {
+      list($type, $uuid, $id) = explode(':', $link['parent']);
+      if ($type === 'menu_link_content' && $uuid && is_numeric($id)) {
+        $storage = $this->entityTypeManager->getStorage('menu_link_content');
+        $parent = $storage->loadByProperties(['uuid' => $uuid]);
+        $parent = reset($parent);
+        if ($parent instanceof MenuLinkContent && $parent->id() && $parent->id() != $id) {
+          $link['parent'] = $type . ':' . $uuid . ':' . $parent->id();
+        }
+        elseif (!$parent) {
+          // Create a new menu link as stub.
+          $parent = $storage->create(['uuid' => $uuid]);
+          // Indicate that this revision is a stub.
+          $parent->_rev->is_stub = TRUE;
+          $parent->save();
+          $link['parent'] = $type . ':' . $uuid . ':' . $parent->id();
+        }
+      }
+    }
+    return parent::findParent($link, $original);
+  }
+
 }
