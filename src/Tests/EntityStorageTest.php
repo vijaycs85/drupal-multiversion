@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Tests;
 
+use Drupal\Core\Database\Database;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\Workspace;
 
@@ -184,7 +185,8 @@ class EntityStorageTest extends MultiversionWebTestBase {
       $entities = $storage->loadMultiple([$id]);
       $storage->delete($entities);
 
-      $record = db_select($info['revision_table'], 'e')
+      $connection = Database::getConnection();
+      $record = $connection->select($info['revision_table'], 'e')
         ->fields('e')
         ->condition('e.' . $info['id'], $id)
         ->condition('e.' . $info['revision_id'], $revision_id + 1)
@@ -294,7 +296,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
         $entity->save();
         $entity_id = $entity->id();
         $this->assertEqual($entity->workspace->target_id, 1, "The workspace reference was saved for $entity_type_id.");
-        $record = db_select($info['data_table'], 'e')
+        $record = $connection->select($info['data_table'], 'e')
           ->fields('e')
           ->condition('e.' . $info['id'], $entity->id())
           ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
@@ -306,7 +308,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
         $storage->delete($entities);
         $entity = $storage->loadDeleted($entity_id);
         $this->assertEqual($entity->workspace->target_id, 1, "The workspace reference is retained for deleted $entity_type_id.");
-        $record = db_select($info['data_table'], 'e')
+        $record = $connection->select($info['data_table'], 'e')
           ->fields('e')
           ->condition('e.' . $info['id'], $entity->id())
           ->condition('e.' . $info['revision_id'], $entity->getRevisionId())
