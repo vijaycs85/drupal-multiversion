@@ -9,15 +9,12 @@ Extends the revision model for content entities.
 
 This module is part of [the content staging suite for D8](https://www.drupal.org/project/deploy#d8).
 
-## Installation
-
-**Update.php must be run immediately upon enabling multiversion** (See https://www.drupal.org/node/2353547).
-
 ### Dependencies
 
 Multiversion depends on
   * Drupal core's serialization module
-  * The Drupal contrib project [Key-value Extensions](https://www.drupal.org/project/key_value)
+  * [Key-value Extensions](https://www.drupal.org/project/key_value)
+  * [Entity Storage Migrate API](https://drupal.org/project/entity_storage_migrate)
 
 ## Presentations
 
