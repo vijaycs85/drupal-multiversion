@@ -132,10 +132,7 @@ trait ContentEntityStorageTrait {
 
     // Prepare the file directory.
     if ($entity instanceof FileInterface) {
-      $uri = $entity->getFileUri();
-      $scheme = \Drupal::service('file_system')->uriScheme($uri) ?: 'public';
-      $stream_wrapper_name = 'stream_wrapper.' . $scheme;
-      multiversion_prepare_file_destination($uri, \Drupal::service($stream_wrapper_name));
+      multiversion_prepare_file_destination($entity->getFileUri());
     }
 
     try {

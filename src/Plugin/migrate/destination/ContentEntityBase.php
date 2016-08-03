@@ -90,16 +90,20 @@ class ContentEntityBase extends EntityContentBase {
     }
     if ($entity->getEntityTypeId() == 'file') {
       $destinations = $row->getDestination();
+
       if (isset($destinations['uri'])) {
-        $destination = 'public://';
-        if ($target = file_uri_target($destinations['uri'])) {
-          $destination = $destination . $target;
+        $target = file_uri_target($destinations['uri']);
+
+        if ($target !== FALSE) {
+          $destination = 'public://' . $target;
+          if (multiversion_prepare_file_destination($destination)) {
+            // Move the file to a folder from 'public://' directory.
+            file_unmanaged_move($destinations['uri'], $destination, FILE_EXISTS_REPLACE);
+          }
+
+          // @todo Should this sitll set the destination if the move fails?
+          $entity->uri->setValue($destination);
         }
-        if (multiversion_prepare_file_destination($destination, \Drupal::service('stream_wrapper.public'))) {
-          // Move the file to a folder from 'public://' directory.
-          file_unmanaged_move($destinations['uri'], $destination, FILE_EXISTS_REPLACE);
-        }
-        $entity->uri->setValue($destination);
       }
     }
     return $this->save($entity, $old_destination_id_values);

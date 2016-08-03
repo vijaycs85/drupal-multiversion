@@ -3,7 +3,6 @@
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\multiversion\Entity\WorkspaceInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
@@ -369,27 +368,13 @@ function multiversion_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $f
  * When the directory exists and it is writable returns TRUE.
  *
  * @param string $destination
- * @param \Drupal\Core\StreamWrapper\StreamWrapperInterface $stream_wrapper
  *
  * @return bool
  */
-function multiversion_prepare_file_destination($destination, StreamWrapperInterface $stream_wrapper) {
+function multiversion_prepare_file_destination($destination) {
   $dirname = \Drupal::service('file_system')->dirname($destination);
-  $logger = \Drupal::logger('multiversion');
-  if (!is_dir($dirname) && !$stream_wrapper->mkdir($dirname, NULL, TRUE)) {
-    // If the directory does not exists and cannot be created.
-    $logger->error('The directory %directory does not exist and could not be created.', array('%directory' => $dirname));
-  }
 
-  if (is_dir($dirname) && !is_writable($dirname) && !\Drupal::service('file_system')->chmod($dirname, NULL)) {
-    // If the directory is not writable and cannot be made so.
-    $logger->error('The directory %directory exists but is not writable and could not be made writable.', array('%directory' => $dirname));
-  }
-  elseif (is_dir($dirname) && is_writable($dirname)) {
-    return TRUE;
-  }
-
-  return FALSE;
+  return file_prepare_directory($dirname, FILE_MODIFY_PERMISSIONS | FILE_CREATE_DIRECTORY);
 }
 
 /**

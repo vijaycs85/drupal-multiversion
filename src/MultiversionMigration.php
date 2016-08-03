@@ -103,18 +103,17 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * {@inheritdoc}
    */
   public function copyFilesToMigrateDirectory(FileStorageInterface $storage) {
-    $scheme = 'migrate://';
-    $entities = $storage->loadMultiple();
-    if ($entities) {
-      foreach ($entities as $entity) {
-        $uri = $entity->getFileUri();
-        $destination = $scheme;
-        if ($target = file_uri_target($uri)) {
-          $destination = $destination . $target;
-        }
-        if (multiversion_prepare_file_destination($destination, \Drupal::service('multiversion.stream_wrapper.migrate'))) {
+    foreach ($storage->loadMultiple() as $entity) {
+      $uri = $entity->getFileUri();
+
+      $target = file_uri_target($uri);
+
+      if ($target !== FALSE) {
+        $destination = 'migrate://' . $target;
+
+        if (multiversion_prepare_file_destination($destination)) {
           // Copy the file to a folder from 'migrate://' directory.
-          file_unmanaged_copy($entity->getFileUri(), $destination, FILE_EXISTS_REPLACE);
+          file_unmanaged_copy($uri, $destination, FILE_EXISTS_REPLACE);
         }
       }
     }
