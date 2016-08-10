@@ -4,11 +4,8 @@ namespace Drupal\Multiversion\Entity\Index;
 
 use Drupal\conflict\ConflictAncestorResolverInterface;
 use Drupal\Core\Entity\RevisionableInterface;
-use Fhaculty\Graph\Vertex;
 use Relaxed\LCA\LowestCommonAncestor;
 use Fhaculty\Graph\Graph;
-use Relaxed\LCA\LcaException;
-use Drupal\Multiversion\Entity\Index\RevisionTreeIndex;
 
 class ComplexLcaResolver implements ConflictAncestorResolverInterface {
 
@@ -34,4 +31,5 @@ class ComplexLcaResolver implements ConflictAncestorResolverInterface {
     $vertices = $graph->getVertices()->getMap();
     return $lca->find($vertices[$revision1->_rev->value], $vertices[$revision2->_rev->value]);
   }
+
 }

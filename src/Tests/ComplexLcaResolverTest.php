@@ -2,11 +2,7 @@
 
 namespace Drupal\multiversion\Tests;
 
-use Drupal\multiversion\Tests\MultiversionWebTestBase;
 use Drupal\simpletest;
-use Fhaculty\Graph\Graph;
-use Relaxed\LCA\LowestCommonAncestor;
-use Relaxed\LCA\LcaException;
 
 /**
  * Test the Integration of LCA library with multiversion module.
@@ -26,6 +22,11 @@ class ComplexLcaResolverTest extends MultiversionWebTestBase {
    * @var \Drupal\multiversion\Entity\Index\RevisionTreeIndex
    */
   protected $tree;
+
+  /**
+   * @var \Drupal\conflict\LcaManager.
+   */
+  protected $conflictLcaManager;
 
   /**
    * {@inheritdoc}
@@ -339,4 +340,5 @@ class ComplexLcaResolverTest extends MultiversionWebTestBase {
     $lca_id = $this->conflictLcaManager->resolveLowestCommonAncestor($revision[4],$revision[8], $graph);
     $this->assertEqual($lca_id->getId(), $revs[2]);
   }
+  
 }

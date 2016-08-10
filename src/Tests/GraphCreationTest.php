@@ -1,7 +1,6 @@
 <?php
 
 namespace Drupal\multiversion\Tests;
-use Fhaculty\Graph\Graph;
 
 /**
  * Test the getGraph method from the RevisionTreeIndex class.
@@ -27,7 +26,6 @@ class GraphCreationTest extends MultiversionWebTestBase {
    */
   protected function setUp() {
     parent::setUp();
-
     $this->tree = $this->container->get('multiversion.entity_index.rev.tree');
   }
 
@@ -351,4 +349,5 @@ class GraphCreationTest extends MultiversionWebTestBase {
       $this->assertEqual($parent->getId(), $revs[4], 'node 21\'s parent is 5');
     }
   }
+
 }
