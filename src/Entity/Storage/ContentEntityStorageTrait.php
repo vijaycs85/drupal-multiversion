@@ -160,6 +160,9 @@ trait ContentEntityStorageTrait {
     if (!$entity->isNew() && !isset($entity->original) && $entity->originalId) {
       $entity->original = $this->loadUnchanged($entity->originalId);
     }
+    elseif (!$entity->isNew() && !isset($entity->original)) {
+      $entity->original = $entity;
+    }
     parent::doPreSave($entity);
   }
 
