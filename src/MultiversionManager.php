@@ -83,6 +83,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     'user',
     'shortcut',
     'contact_message',
+    'content_moderation_state',
     'entity_test_no_id',
     'entity_test_base_field_display',
   );
