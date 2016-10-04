@@ -4,7 +4,9 @@ namespace Drupal\multiversion;
 
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -19,9 +21,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MultiversionMigration implements MultiversionMigrationInterface {
 
   /**
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface
@@ -39,30 +41,51 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   protected $moduleInstaller;
 
   /**
+   * The entity type bundle info.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   */
+  protected $entityTypeBundleInfo;
+
+  /**
+   * The entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, EntityManagerInterface $entity_manager) {
+  public static function create(ContainerInterface $container, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager) {
     return new static(
-      $entity_manager,
+      $entity_type_manager,
+      $entity_field_manager,
       $container->get('entity.definition_update_manager'),
       $container->get('module_handler'),
-      $container->get('module_installer')
+      $container->get('module_installer'),
+      $container->get('entity_type.bundle.info')
     );
   }
 
   /**
    * Constructor.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    * @param \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface $update_manager
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    * @param \Drupal\Core\Extension\ModuleInstallerInterface $module_installer
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    */
-  public function __construct(EntityManagerInterface $entity_manager, EntityDefinitionUpdateManagerInterface $update_manager, ModuleHandlerInterface $module_handler, ModuleInstallerInterface $module_installer) {
-    $this->entityManager = $entity_manager;
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, EntityDefinitionUpdateManagerInterface $update_manager, ModuleHandlerInterface $module_handler, ModuleInstallerInterface $module_installer, EntityTypeBundleInfoInterface $entity_type_bundle_info) {
+    $this->entityTypeManager = $entity_type_manager;
+    $this->entityFieldManager = $entity_field_manager;
     $this->updateManager = $update_manager;
     $this->moduleHandler = $module_handler;
     $this->moduleInstaller = $module_installer;
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
+    
   }
 
   /**
@@ -124,7 +147,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   /**
    * {@inheritdoc}
    */
-  public function emptyOldStorage(EntityTypeInterface $entity_type, EntityStorageInterface $storage) {
+  public function emptyOldStorage(EntityStorageInterface $storage) {
     $entities = $storage->loadMultiple();
     if ($entities) {
       // Purge entities if the storage class is an instance of
@@ -199,9 +222,9 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    */
   public function getFieldMap(EntityTypeInterface $entity_type, $migration_from_tmp = FALSE) {
     $map = array();
-    $bundle_info = $this->entityManager->getBundleInfo($entity_type->id());
+    $bundle_info = $this->entityTypeBundleInfo->getBundleInfo($entity_type->id());
     foreach ($bundle_info as $bundle_id => $bundle_label) {
-      $definitions = $this->entityManager->getFieldDefinitions($entity_type->id(), $bundle_id);
+      $definitions = $this->entityFieldManager->getFieldDefinitions($entity_type->id(), $bundle_id);
       foreach ($definitions as $definition) {
         $name = $definition->getName();
         $type = $definition->getType();
