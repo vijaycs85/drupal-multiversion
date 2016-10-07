@@ -222,9 +222,15 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    */
   public function getFieldMap(EntityTypeInterface $entity_type, $migration_from_tmp = FALSE) {
     $map = array();
-    $bundle_info = $this->entityTypeBundleInfo->getBundleInfo($entity_type->id());
+    // For some reasons it sometimes doesn't work if using the injected service.
+    $entity_type_bundle_info = \Drupal::service('entity_type.bundle.info');
+    $entity_type_bundle_info->clearCachedBundles();
+    $bundle_info = $entity_type_bundle_info->getBundleInfo($entity_type->id());
     foreach ($bundle_info as $bundle_id => $bundle_label) {
-      $definitions = $this->entityFieldManager->getFieldDefinitions($entity_type->id(), $bundle_id);
+      // For some reasons it sometimes doesn't work if using the injected service.
+      $entity_field_manager = \Drupal::service('entity_field.manager');
+      $entity_field_manager->clearCachedFieldDefinitions();
+      $definitions = $entity_field_manager->getFieldDefinitions($entity_type->id(), $bundle_id);
       foreach ($definitions as $definition) {
         $name = $definition->getName();
         $type = $definition->getType();
