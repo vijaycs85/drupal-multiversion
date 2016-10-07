@@ -4,8 +4,6 @@ namespace Drupal\multiversion;
 
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface;
-use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -41,30 +39,14 @@ class MultiversionMigration implements MultiversionMigrationInterface {
   protected $moduleInstaller;
 
   /**
-   * The entity type bundle info.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
-   */
-  protected $entityTypeBundleInfo;
-
-  /**
-   * The entity field manager.
-   *
-   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
-   */
-  protected $entityFieldManager;
-
-  /**
    * {@inheritdoc}
    */
-  public static function create(ContainerInterface $container, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager) {
+  public static function create(ContainerInterface $container, EntityTypeManagerInterface $entity_type_manager) {
     return new static(
       $entity_type_manager,
-      $entity_field_manager,
       $container->get('entity.definition_update_manager'),
       $container->get('module_handler'),
-      $container->get('module_installer'),
-      $container->get('entity_type.bundle.info')
+      $container->get('module_installer')
     );
   }
 
@@ -72,19 +54,15 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * Constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    * @param \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface $update_manager
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    * @param \Drupal\Core\Extension\ModuleInstallerInterface $module_installer
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, EntityDefinitionUpdateManagerInterface $update_manager, ModuleHandlerInterface $module_handler, ModuleInstallerInterface $module_installer, EntityTypeBundleInfoInterface $entity_type_bundle_info) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityDefinitionUpdateManagerInterface $update_manager, ModuleHandlerInterface $module_handler, ModuleInstallerInterface $module_installer) {
     $this->entityTypeManager = $entity_type_manager;
-    $this->entityFieldManager = $entity_field_manager;
     $this->updateManager = $update_manager;
     $this->moduleHandler = $module_handler;
     $this->moduleInstaller = $module_installer;
-    $this->entityTypeBundleInfo = $entity_type_bundle_info;
     
   }
 
@@ -222,12 +200,12 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    */
   public function getFieldMap(EntityTypeInterface $entity_type, $migration_from_tmp = FALSE) {
     $map = array();
-    // For some reasons it sometimes doesn't work if using the injected service.
+    // For some reasons it sometimes doesn't work if injecting the service.
     $entity_type_bundle_info = \Drupal::service('entity_type.bundle.info');
     $entity_type_bundle_info->clearCachedBundles();
     $bundle_info = $entity_type_bundle_info->getBundleInfo($entity_type->id());
     foreach ($bundle_info as $bundle_id => $bundle_label) {
-      // For some reasons it sometimes doesn't work if using the injected service.
+      // For some reasons it sometimes doesn't work if injecting the service.
       $entity_field_manager = \Drupal::service('entity_field.manager');
       $entity_field_manager->clearCachedFieldDefinitions();
       $definitions = $entity_field_manager->getFieldDefinitions($entity_type->id(), $bundle_id);

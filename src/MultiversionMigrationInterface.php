@@ -2,7 +2,6 @@
 
 namespace Drupal\multiversion;
 
-use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -17,9 +16,8 @@ interface MultiversionMigrationInterface {
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_manager
    * @return \Drupal\multiversion\MultiversionMigrationInterface
-   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    */
-  public static function create(ContainerInterface $container, EntityTypeManagerInterface $entity_manager, EntityFieldManagerInterface $entity_field_manager);
+  public static function create(ContainerInterface $container, EntityTypeManagerInterface $entity_manager);
 
   /**
    * @return \Drupal\multiversion\MultiversionMigrationInterface
