@@ -14,7 +14,6 @@ class ViewsUiTest extends BrowserTestBase {
    * {@inheritdoc}
    */
   public static $modules = [
-    'entity_storage_migrate',
     'key_value',
     'multiversion',
     'serialization',

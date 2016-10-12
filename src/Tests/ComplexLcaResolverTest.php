@@ -11,7 +11,7 @@ use Drupal\simpletest;
  */
 class ComplexLcaResolverTest extends MultiversionWebTestBase {
 
-  public static $modules = ['entity_test', 'key_value', 'entity_storage_migrate', 'multiversion', 'conflict'];
+  public static $modules = ['entity_test', 'key_value', 'multiversion', 'conflict'];
 
   /**
    * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface

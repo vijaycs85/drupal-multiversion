@@ -9,7 +9,7 @@ namespace Drupal\multiversion\Tests;
  */
 class GraphCreationTest extends MultiversionWebTestBase {
 
-  public static $modules = ['entity_test', 'key_value', 'entity_storage_migrate', 'multiversion'];
+  public static $modules = ['entity_test', 'key_value', 'multiversion'];
 
   /**
    * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface

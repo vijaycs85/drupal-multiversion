@@ -14,7 +14,6 @@ This module is part of [the content staging suite for D8](https://www.drupal.org
 Multiversion depends on
   * Drupal core's serialization module
   * [Key-value Extensions](https://www.drupal.org/project/key_value)
-  * [Entity Storage Migrate API](https://drupal.org/project/entity_storage_migrate)
   
 ## Uninstall
 
