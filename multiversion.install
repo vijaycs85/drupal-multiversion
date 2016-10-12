@@ -2,7 +2,6 @@
 
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\Core\Database\Database;
-use Drupal\Core\Utility\UpdateException;
 use \Drupal\Core\Database\Driver\mysql\Connection;
 use Drupal\multiversion\MultiversionMigration;
 
