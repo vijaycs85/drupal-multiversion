@@ -18,6 +18,7 @@ function multiversion_entity_type_alter(array &$entity_types) {
     'taxonomy_term',
     'comment',
     'menu_link_content',
+    'block_content',
     'file',
     'media',
     'shortcut',

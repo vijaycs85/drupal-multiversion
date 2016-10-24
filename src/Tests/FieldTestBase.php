@@ -37,18 +37,18 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
       'bundle' => 'menu_link_content',
       'link' => [['uri' => 'user-path:/']],
     ],
+    'shortcut' => [
+      'shortcut_set' => 'default',
+      'title' => 'Llama',
+      'weight' => 0,
+      'link' => [['uri' => 'internal:/admin']],
+    ],
     'file' => [
       'uid' => 1,
       'filename' => 'druplicon.txt',
       'uri' => 'public://druplicon.txt',
       'filemime' => 'text/plain',
       'status' => FILE_STATUS_PERMANENT,
-    ],
-    'shortcut' => [
-      'shortcut_set' => 'default',
-      'title' => 'Llama',
-      'weight' => 0,
-      'link' => [['uri' => 'internal:/admin']],
     ],
   ];
 
