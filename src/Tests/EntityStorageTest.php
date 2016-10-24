@@ -103,6 +103,17 @@ class EntityStorageTest extends MultiversionWebTestBase {
       'revision_table' => 'file_revision',
       'id' => 'fid',
     ],
+    'shortcut' => [
+      'info' => [
+        'shortcut_set' => 'default',
+        'title' => 'Llama',
+        'weight' => 0,
+        'link' => [['uri' => 'internal:/admin']],
+      ],
+      'data_table' => 'shortcut_field_data',
+      'revision_table' => 'shortcut_field_revision',
+      'id' => 'id',
+    ],
   ];
 
   /**

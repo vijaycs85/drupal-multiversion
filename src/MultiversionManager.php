@@ -80,25 +80,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   protected $disabledEntityTypes = [];
 
   /**
-   * Entity types that Multiversion won't support.
-   *
-   * This list will mostly contain edge case entity test types that break
-   * Multiversion's tests in really strange ways.
-   *
-   * @var array
-   * @todo: {@link https://www.drupal.org/node/2597333 Fix these some day.
-   * Some contrib modules might behave the same way?}
-   */
-  protected $entityTypeBlackList = array(
-    'user',
-    'shortcut',
-    'contact_message',
-    'content_moderation_state',
-    'entity_test_no_id',
-    'entity_test_base_field_display',
-  );
-
-  /**
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -178,12 +159,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function isSupportedEntityType(EntityTypeInterface $entity_type, $ignore_status = FALSE) {
-    if ($entity_type->get('multiversion') === FALSE) {
-      return FALSE;
-    }
-    $entity_type_id = $entity_type->id();
-
-    if (in_array($entity_type_id, $this->entityTypeBlackList)) {
+    if ($entity_type->get('multiversion') != TRUE) {
       return FALSE;
     }
 

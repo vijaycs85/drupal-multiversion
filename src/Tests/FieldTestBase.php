@@ -44,6 +44,12 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
       'filemime' => 'text/plain',
       'status' => FILE_STATUS_PERMANENT,
     ],
+    'shortcut' => [
+      'shortcut_set' => 'default',
+      'title' => 'Llama',
+      'weight' => 0,
+      'link' => [['uri' => 'internal:/admin']],
+    ],
   ];
 
   /**
