@@ -23,6 +23,7 @@ function multiversion_entity_type_alter(array &$entity_types) {
     'shortcut',
     'entity_test',
     'entity_test_rev',
+    'entity_test_mul',
     'entity_test_mulrev',
   ];
 
