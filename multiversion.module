@@ -25,6 +25,7 @@ function multiversion_entity_type_alter(array &$entity_types) {
     'entity_test_rev',
     'entity_test_mul',
     'entity_test_mulrev',
+    'content_moderation_state',
   ];
 
   /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
