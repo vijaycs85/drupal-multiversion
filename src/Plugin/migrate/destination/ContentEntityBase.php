@@ -109,4 +109,18 @@ class ContentEntityBase extends EntityContentBase {
     return $this->save($entity, $old_destination_id_values);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function getDefinitionFromEntity($key) {
+    $entity_type_id = $this->storage->getEntityTypeId();
+    /** @var \Drupal\Core\Field\FieldStorageDefinitionInterface[] $definitions */
+    $definitions = $this->entityManager->getBaseFieldDefinitions($entity_type_id);
+    $field_definition = $definitions[$key];
+
+    return [
+      'type' => $field_definition->getType(),
+    ] + $field_definition->getSettings();
+  }
+
 }
