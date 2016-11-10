@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Psr\Log\LogLevel;
 
 /**
@@ -12,6 +13,36 @@ function multiversion_drush_command() {
     'bootstrap' => DRUSH_BOOTSTRAP_NONE,
     'description' => 'Uninstall Multiversion.',
     'aliases' => array('mun'),
+  );
+
+  $items['multiversion-enable-entity-type'] = array(
+    'bootstrap' => DRUSH_BOOTSTRAP_NONE,
+    'description' => 'Enable entity types (make them multiversionable).',
+    'arguments' => array(
+      'entity_types' => dt('The list of entity types, comma or space separated.'),
+    ),
+    'examples' => array(
+      'drush enable-entity-type my_et' => 'Makes my_et entity type multiversionable.',
+      'drush enable-entity-type my_et my_et2' => 'Makes my_et and my_et2 entity types multiversionable.',
+      'drush met my_et' => 'Makes my_et entity type multiversionable.',
+      'drush met my_et my_et2' => 'Makes my_et and my_et2 entity types multiversionable.',
+    ),
+    'aliases' => array('met'),
+  );
+
+  $items['multiversion-disable-entity-type'] = array(
+    'bootstrap' => DRUSH_BOOTSTRAP_NONE,
+    'description' => 'Disable entity types (make them non-multiversionable).',
+    'arguments' => array(
+      'entity_types' => dt('The list of entity types, comma or space separated.'),
+    ),
+    'examples' => array(
+      'drush disable-entity-type my_et' => 'Makes my_et entity type non-multiversionable.',
+      'drush disable-entity-type my_et1 my_et2' => 'Makes my_et and my_et2 entity types non-multiversionable.',
+      'drush mdt my_et' => 'Makes my_et entity type non-multiversionable.',
+      'drush mdt my_et1 my_et2' => 'Makes my_et and my_et2 entity types non-multiversionable.',
+    ),
+    'aliases' => array('mdt'),
   );
 
   return $items;
@@ -56,11 +87,90 @@ function drush_multiversion_uninstall() {
 
     drush_log('*** ' . dt('The uninstall process can take a few minutes, it depends by the number of entities on the site. Please be patient.'), LogLevel::WARNING);
 
-    \Drupal::service('multiversion.manager')->disableEntityTypes();
-    drush_module_uninstall(['multiversion']);
+    try {
+      \Drupal::service('multiversion.manager')->disableEntityTypes();
+      drush_module_uninstall(['multiversion']);
+    }
+    catch (Exception $e) {
+      drush_log($e->getMessage(), LogLevel::ERROR);
+    }
 
     // Inform the user of final status.
     drush_log(dt('!extension was successfully uninstalled.', array('!extension' => $extension)), LogLevel::INFO);
   }
 
+}
+
+/**
+ * Implements drush_hook_COMMAND().
+ */
+function drush_multiversion_enable_entity_type() {
+  $args = pm_parse_arguments(func_get_args());
+  if (empty($args)) {
+    drush_log(dt('Entity types list argument is missing.'), LogLevel::ERROR);
+  }
+  elseif ($entity_types = _drush_multiversion_get_entity_types($args)) {
+    $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      if (!in_array($entity_type_id, $enabled_entity_types)) {
+        $enabled_entity_types[] = $entity_type_id;
+      }
+    }
+    \Drupal::configFactory()
+      ->getEditable('multiversion.settings')
+      ->set('enabled_entity_types', $enabled_entity_types)
+      ->save();
+    try {
+      \Drupal::service('multiversion.manager')->enableEntityTypes($entity_types);
+    }
+    catch (Exception $e) {
+      drush_log($e->getMessage(), LogLevel::ERROR);
+    }
+  }
+}
+
+/**
+ * Implements drush_hook_COMMAND().
+ */
+function drush_multiversion_disable_entity_type() {
+  $args = pm_parse_arguments(func_get_args());
+  if (empty($args)) {
+    drush_log(dt('Entity types list argument is missing.'), LogLevel::ERROR);
+  }
+  elseif ($entity_types = _drush_multiversion_get_entity_types($args)) {
+    $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      if (($key = array_search($entity_type_id, $enabled_entity_types)) !== FALSE) {
+        unset($enabled_entity_types[$key]);
+      }
+    }
+    \Drupal::configFactory()
+      ->getEditable('multiversion.settings')
+      ->set('enabled_entity_types', $enabled_entity_types)
+      ->save();
+    try {
+      \Drupal::service('multiversion.manager')->disableEntityTypes($entity_types);
+    }
+    catch (Exception $e) {
+      drush_log($e->getMessage(), LogLevel::ERROR);
+    }
+  }
+}
+
+function _drush_multiversion_get_entity_types($entity_type_ids) {
+  $entity_types = [];
+  $manager = \Drupal::entityTypeManager();
+  try {
+    foreach ($entity_type_ids as $id) {
+      $entity_type = $manager->getStorage($id)->getEntityType();
+      if ($entity_type instanceof ContentEntityTypeInterface) {
+        $entity_types[$id] = $entity_type;
+      }
+    }
+  }
+  catch (Exception $e) {
+    drush_log($e->getMessage(), LogLevel::ERROR);
+  }
+
+  return $entity_types;
 }

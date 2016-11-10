@@ -73,13 +73,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   protected $lastSequenceId;
 
   /**
-   * Entity types that Multiversion support but are disabled.
-   *
-   * @var array
-   */
-  protected $disabledEntityTypes = [];
-
-  /**
    * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -159,7 +152,8 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function isSupportedEntityType(EntityTypeInterface $entity_type, $ignore_status = FALSE) {
-    if ($entity_type->get('multiversion') != TRUE) {
+    $supported_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
+    if (!in_array($entity_type->id(), $supported_entity_types)) {
       return FALSE;
     }
 
@@ -183,8 +177,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function isEnabledEntityType(EntityTypeInterface $entity_type) {
-    if ($this->isSupportedEntityType($entity_type)
-      && !in_array($entity_type->id(), $this->disabledEntityTypes)) {
+    if ($this->isSupportedEntityType($entity_type)) {
       // Check if the whole migration is done.
       if ($this->state->get('multiversion.migration_done', FALSE)) {
         return TRUE;
@@ -214,8 +207,8 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    *
    * @todo Ensure nothing breaks if the migration is run twice.
    */
-  public function enableEntityTypes() {
-    $entity_types = $this->getSupportedEntityTypes();
+  public function enableEntityTypes($entity_types_to_enable = NULL) {
+    $entity_types = ($entity_types_to_enable !== NULL) ? $entity_types_to_enable : $this->getSupportedEntityTypes();
     $migration = $this->createMigration();
     $migration->installDependencies();
     $has_data = $this->prepareContentForMigration($entity_types, $migration);
@@ -236,7 +229,19 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $migration->applyNewStorage();
 
     // Definitions will now be updated. So fetch the new ones.
-    $entity_types = $this->getSupportedEntityTypes();
+    if ($entity_types_to_enable === NULL) {
+      $entity_types_ids = array_keys($entity_types);
+      $entity_types = [];
+      $supported_enitity_types = $this->getSupportedEntityTypes();
+      foreach ($entity_types_ids as $entity_type_id) {
+        if (isset($supported_enitity_types[$entity_type_id])) {
+          $entity_types[$entity_type_id] = $supported_enitity_types[$entity_type_id];
+        }
+      }
+    }
+    else {
+      $entity_types = $this->getSupportedEntityTypes();
+    }
 
     // Temporarily disable the maintenance of the {comment_entity_statistics} table.
     $this->state->set('comment.maintain_entity_statistics', FALSE);
@@ -278,8 +283,8 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   /**
    * {@inheritdoc}
    */
-  public function disableEntityTypes() {
-    $entity_types = $this->getSupportedEntityTypes();
+  public function disableEntityTypes($entity_types_to_disable = NULL) {
+    $entity_types = ($entity_types_to_disable !== NULL) ? $entity_types_to_disable : $this->getSupportedEntityTypes();
     $migration = $this->createMigration();
     $migration->installDependencies();
     $has_data = $this->prepareContentForMigration($entity_types, $migration);
@@ -308,10 +313,10 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     }
 
     // Disable all enabled entity types.
-    $enabled_entity_types = array_keys($this->getEnabledEntityTypes());
-    foreach ($enabled_entity_types as $entity_type_id) {
-      $this->disabledEntityTypes[] = $entity_type_id;
-    }
+    \Drupal::configFactory()
+      ->getEditable('multiversion.settings')
+      ->set('enabled_entity_types', [])
+      ->save();
 
     self::migrationIsActive(TRUE);
     $migration->applyNewStorage();
@@ -321,8 +326,16 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     \Drupal::state()->resetCache();
 
     // Definitions will now be updated. So fetch the new ones.
-    $entity_types = $this->getSupportedEntityTypes();
-    foreach ($entity_types as $entity_type_id => $entity_type) {
+    if ($entity_types_to_disable === NULL) {
+      $updated_entity_types = [];
+      foreach ($entity_types as $entity_type_id => $entity_type) {
+        $updated_entity_types[$entity_type_id] = $this->entityTypeManager->getStorage($entity_type_id)->getEntityType();
+      }
+    }
+    else {
+      $updated_entity_types = $this->getSupportedEntityTypes();
+    }
+    foreach ($updated_entity_types as $entity_type_id => $entity_type) {
       // Drop unique key from uuid on each entity type.
       $base_table = $entity_type->getBaseTable();
       $uuid_key = $entity_type->getKey('uuid');

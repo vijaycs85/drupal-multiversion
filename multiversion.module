@@ -13,33 +13,8 @@ use Drupal\views\ViewExecutable;
  * @param \Drupal\Core\Entity\EntityTypeInterface[] $entity_types
  */
 function multiversion_entity_type_alter(array &$entity_types) {
-  $entity_types_supported_by_default = [
-    'node',
-    'taxonomy_term',
-    'comment',
-    'menu_link_content',
-    'block_content',
-    'file',
-    'media',
-    'shortcut',
-    'entity_test',
-    'entity_test_rev',
-    'entity_test_mul',
-    'entity_test_mulrev',
-    'content_moderation_state',
-    'replication_log',
-  ];
-
   /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
   $manager = \Drupal::service('multiversion.manager');
-
-  foreach ($entity_types as $entity_type) {
-    if (in_array($entity_type->id(), $entity_types_supported_by_default)
-      && !$manager->isEnabledEntityType($entity_type)) {
-      $entity_type->set('multiversion', TRUE);
-    }
-  }
-
   foreach ($entity_types as $entity_type) {
     if ($manager->isEnabledEntityType($entity_type)) {
       // Make all content entity types revisionable.
