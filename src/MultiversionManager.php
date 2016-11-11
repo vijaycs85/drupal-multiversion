@@ -229,25 +229,22 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $migration->applyNewStorage();
 
     // Definitions will now be updated. So fetch the new ones.
+    // Definitions will now be updated. So fetch the new ones.
     if ($entity_types_to_enable !== NULL) {
-      $entity_types_ids = array_keys($entity_types);
-      $entity_types = [];
-      $supported_enitity_types = $this->getSupportedEntityTypes();
-      foreach ($entity_types_ids as $entity_type_id) {
-        if (isset($supported_enitity_types[$entity_type_id])) {
-          $entity_types[$entity_type_id] = $supported_enitity_types[$entity_type_id];
-        }
+      $updated_entity_types = [];
+      foreach ($entity_types as $entity_type_id => $entity_type) {
+        $updated_entity_types[$entity_type_id] = $this->entityTypeManager->getStorage($entity_type_id)->getEntityType();
       }
     }
     else {
-      $entity_types = $this->getSupportedEntityTypes();
+      $updated_entity_types = $this->getSupportedEntityTypes();
     }
 
     // Temporarily disable the maintenance of the {comment_entity_statistics} table.
     $this->state->set('comment.maintain_entity_statistics', FALSE);
     \Drupal::state()->resetCache();
 
-    foreach ($entity_types as $entity_type_id => $entity_type) {
+    foreach ($updated_entity_types as $entity_type_id => $entity_type) {
       // Migrate from the temporary storage to the new shiny home.
       if ($has_data[$entity_type_id]) {
         $migration->migrateContentFromTemp($entity_type);
@@ -289,24 +286,26 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $migration->installDependencies();
     $has_data = $this->prepareContentForMigration($entity_types, $migration);
 
-    // Delete all content of workspace type.
-    $storage = $this->entityTypeManager->getStorage('workspace');
-    $this->emptyOldStorage($storage, $migration);
+    if ($entity_types_to_disable === NULL) {
+      // Delete all content of workspace type.
+      $storage = $this->entityTypeManager->getStorage('workspace');
+      $this->emptyOldStorage($storage, $migration);
 
-    // Uninstall field storage definitions provided by multiversion.
-    $this->entityTypeManager->clearCachedDefinitions();
-    $update_manager = \Drupal::entityDefinitionUpdateManager();
-    foreach ($this->entityTypeManager->getDefinitions() as $entity_type) {
-      if ($entity_type->isSubclassOf(FieldableEntityInterface::CLASS)) {
-        $entity_type_id = $entity_type->id();
-        $revision_key = $entity_type->getKey('revision');
-        /** @var \Drupal\Core\Entity\FieldableEntityStorageInterface $storage */
-        $storage = $this->entityTypeManager->getStorage($entity_type_id);
-        foreach ($this->entityFieldManager->getFieldStorageDefinitions($entity_type_id) as $storage_definition) {
-          // @todo We need to trigger field purging here.
-          //   See https://www.drupal.org/node/2282119.
-          if ($storage_definition->getProvider() == 'multiversion' && !$storage->countFieldData($storage_definition, TRUE) && $storage_definition->getName() != $revision_key) {
-            $update_manager->uninstallFieldStorageDefinition($storage_definition);
+      // Uninstall field storage definitions provided by multiversion.
+      $this->entityTypeManager->clearCachedDefinitions();
+      $update_manager = \Drupal::entityDefinitionUpdateManager();
+      foreach ($this->entityTypeManager->getDefinitions() as $entity_type) {
+        if ($entity_type->isSubclassOf(FieldableEntityInterface::CLASS)) {
+          $entity_type_id = $entity_type->id();
+          $revision_key = $entity_type->getKey('revision');
+          /** @var \Drupal\Core\Entity\FieldableEntityStorageInterface $storage */
+          $storage = $this->entityTypeManager->getStorage($entity_type_id);
+          foreach ($this->entityFieldManager->getFieldStorageDefinitions($entity_type_id) as $storage_definition) {
+            // @todo We need to trigger field purging here.
+            //   See https://www.drupal.org/node/2282119.
+            if ($storage_definition->getProvider() == 'multiversion' && !$storage->countFieldData($storage_definition, TRUE) && $storage_definition->getName() != $revision_key) {
+              $update_manager->uninstallFieldStorageDefinition($storage_definition);
+            }
           }
         }
       }
