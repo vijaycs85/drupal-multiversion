@@ -229,7 +229,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $migration->applyNewStorage();
 
     // Definitions will now be updated. So fetch the new ones.
-    if ($entity_types_to_enable === NULL) {
+    if ($entity_types_to_enable !== NULL) {
       $entity_types_ids = array_keys($entity_types);
       $entity_types = [];
       $supported_enitity_types = $this->getSupportedEntityTypes();
@@ -312,12 +312,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       }
     }
 
-    // Disable all enabled entity types.
-    \Drupal::configFactory()
-      ->getEditable('multiversion.settings')
-      ->set('enabled_entity_types', [])
-      ->save();
-
     self::migrationIsActive(TRUE);
     $migration->applyNewStorage();
 
@@ -326,7 +320,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     \Drupal::state()->resetCache();
 
     // Definitions will now be updated. So fetch the new ones.
-    if ($entity_types_to_disable === NULL) {
+    if ($entity_types_to_disable !== NULL) {
       $updated_entity_types = [];
       foreach ($entity_types as $entity_type_id => $entity_type) {
         $updated_entity_types[$entity_type_id] = $this->entityTypeManager->getStorage($entity_type_id)->getEntityType();

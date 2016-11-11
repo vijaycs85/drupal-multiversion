@@ -6,7 +6,7 @@ enabled_entity_types:
   - block_content
   - file
   - media
-  - shortcut
+#  - shortcut
   - entity_test
   - entity_test_rev
   - entity_test_mul
