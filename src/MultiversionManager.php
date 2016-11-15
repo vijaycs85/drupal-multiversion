@@ -209,6 +209,17 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    */
   public function enableEntityTypes($entity_types_to_enable = NULL) {
     $entity_types = ($entity_types_to_enable !== NULL) ? $entity_types_to_enable : $this->getSupportedEntityTypes();
+    $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      if (!in_array($entity_type_id, $enabled_entity_types)) {
+        $enabled_entity_types[] = $entity_type_id;
+      }
+    }
+    \Drupal::configFactory()
+      ->getEditable('multiversion.settings')
+      ->set('enabled_entity_types', $enabled_entity_types)
+      ->save();
+
     $migration = $this->createMigration();
     $migration->installDependencies();
     $has_data = $this->prepareContentForMigration($entity_types, $migration);
@@ -228,7 +239,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     self::migrationIsActive(TRUE);
     $migration->applyNewStorage();
 
-    // Definitions will now be updated. So fetch the new ones.
     // Definitions will now be updated. So fetch the new ones.
     if ($entity_types_to_enable !== NULL) {
       $updated_entity_types = [];
@@ -311,6 +321,20 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       }
     }
 
+    $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      if (($key = array_search($entity_type_id, $enabled_entity_types)) !== FALSE) {
+        unset($enabled_entity_types[$key]);
+      }
+    }
+    if ($entity_types_to_disable === NULL) {
+      $enabled_entity_types = [];
+    }
+    \Drupal::configFactory()
+      ->getEditable('multiversion.settings')
+      ->set('enabled_entity_types', $enabled_entity_types)
+      ->save();
+
     self::migrationIsActive(TRUE);
     $migration->applyNewStorage();
 
@@ -319,14 +343,9 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     \Drupal::state()->resetCache();
 
     // Definitions will now be updated. So fetch the new ones.
-    if ($entity_types_to_disable !== NULL) {
-      $updated_entity_types = [];
-      foreach ($entity_types as $entity_type_id => $entity_type) {
-        $updated_entity_types[$entity_type_id] = $this->entityTypeManager->getStorage($entity_type_id)->getEntityType();
-      }
-    }
-    else {
-      $updated_entity_types = $this->getSupportedEntityTypes();
+    $updated_entity_types = [];
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      $updated_entity_types[$entity_type_id] = $this->entityTypeManager->getStorage($entity_type_id)->getEntityType();
     }
     foreach ($updated_entity_types as $entity_type_id => $entity_type) {
       // Drop unique key from uuid on each entity type.

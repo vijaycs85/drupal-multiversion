@@ -110,16 +110,6 @@ function drush_multiversion_enable_entity_type() {
     drush_log(dt('Entity types list argument is missing.'), LogLevel::ERROR);
   }
   elseif ($entity_types = _drush_multiversion_get_entity_types($args)) {
-    $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
-    foreach ($entity_types as $entity_type_id => $entity_type) {
-      if (!in_array($entity_type_id, $enabled_entity_types)) {
-        $enabled_entity_types[] = $entity_type_id;
-      }
-    }
-    \Drupal::configFactory()
-      ->getEditable('multiversion.settings')
-      ->set('enabled_entity_types', $enabled_entity_types)
-      ->save();
     try {
       \Drupal::service('multiversion.manager')->enableEntityTypes($entity_types);
     }
@@ -138,16 +128,6 @@ function drush_multiversion_disable_entity_type() {
     drush_log(dt('Entity types list argument is missing.'), LogLevel::ERROR);
   }
   elseif ($entity_types = _drush_multiversion_get_entity_types($args)) {
-    $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
-    foreach ($entity_types as $entity_type_id => $entity_type) {
-      if (($key = array_search($entity_type_id, $enabled_entity_types)) !== FALSE) {
-        unset($enabled_entity_types[$key]);
-      }
-    }
-    \Drupal::configFactory()
-      ->getEditable('multiversion.settings')
-      ->set('enabled_entity_types', $enabled_entity_types)
-      ->save();
     try {
       \Drupal::service('multiversion.manager')->disableEntityTypes($entity_types);
     }
