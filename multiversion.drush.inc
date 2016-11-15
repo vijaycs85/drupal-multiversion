@@ -110,6 +110,9 @@ function drush_multiversion_enable_entity_type() {
     drush_log(dt('Entity types list argument is missing.'), LogLevel::ERROR);
   }
   elseif ($entity_types = _drush_multiversion_get_entity_types($args)) {
+    if(!drush_confirm(dt('Do you really want to continue?'))) {
+      return drush_user_abort();
+    }
     try {
       \Drupal::service('multiversion.manager')->enableEntityTypes($entity_types);
     }
@@ -128,6 +131,9 @@ function drush_multiversion_disable_entity_type() {
     drush_log(dt('Entity types list argument is missing.'), LogLevel::ERROR);
   }
   elseif ($entity_types = _drush_multiversion_get_entity_types($args)) {
+    if(!drush_confirm(dt('Do you really want to continue?'))) {
+      return drush_user_abort();
+    }
     try {
       \Drupal::service('multiversion.manager')->disableEntityTypes($entity_types);
     }
