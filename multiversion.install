@@ -193,7 +193,7 @@ function multiversion_update_8005() {
   $changed_entity_types = array_keys($update_manager->getChangeSummary());
   $last_installed_schema_repository = \Drupal::service('entity.last_installed_schema.repository');
   $enabled_entity_types = [];
-  // Loop trough all changes, if it's a change for an entity type and the last
+  // Loop through all changes, if it's a change for an entity type and the last
   // installed field storage schema contains the 'workspace' field, add this
   // entity as enabled.
   foreach ($changed_entity_types as $entity_type_id) {
