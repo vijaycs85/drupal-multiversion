@@ -25,7 +25,7 @@ class BlockStorage extends ConfigEntityStorage {
       list($provider, $uuid) = explode(':', $plugin_id);
       if ($provider && $provider === 'block_content' && $uuid) {
         $storage = $entity_type_manager->getStorage('block_content');
-        $loaded_entity = $storage->loadByProperties(['uuid' => $uuid]);
+        $loaded_entity = $storage->loadByProperties(['uuid' => $uuid, 'workspace' => multiversion_get_active_workspace_id()]);
         $loaded_entity = reset($loaded_entity);
         if ($loaded_entity instanceof ContentEntityInterface) {
           $entities[$id]->addCacheableDependency($loaded_entity);
