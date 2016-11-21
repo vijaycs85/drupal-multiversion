@@ -25,11 +25,12 @@ class BlockStorage extends ConfigEntityStorage {
       list($provider, $uuid) = explode(':', $plugin_id);
       if ($provider && $provider === 'block_content' && $uuid) {
         $storage = $entity_type_manager->getStorage('block_content');
-        $loaded_entity = $storage->loadByProperties(['uuid' => $uuid, 'workspace' => multiversion_get_active_workspace_id()]);
+        $active_workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
+        $loaded_entity = $storage->loadByProperties(['uuid' => $uuid, 'workspace' => $active_workspace->id()]);
         $loaded_entity = reset($loaded_entity);
         if ($loaded_entity instanceof ContentEntityInterface) {
           $entities[$id]->addCacheableDependency($loaded_entity);
-          $entities[$id]->addCacheableDependency(\Drupal::service('workspace.manager')->getActiveWorkspace());
+          $entities[$id]->addCacheableDependency($active_workspace);
         }
         else {
           unset($entities[$id]);

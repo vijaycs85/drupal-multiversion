@@ -34,7 +34,7 @@ trait ContentEntityStorageTrait {
     $query = parent::buildQuery($ids, $revision_id);
 
     // Prevent to modify the query before entity type updates.
-    if ($ids === NULL) {
+    if (strpos($this->entityType->getStorageClass(), 'Drupal\multiversion\Entity\Storage') === FALSE) {
       return $query;
     }
 
