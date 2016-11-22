@@ -51,7 +51,7 @@ services:
       - [setContainer, ['@service_container']]
   workspace.manager:
     class: Drupal\multiversion\Workspace\WorkspaceManager
-    arguments: ['@request_stack', '@entity.manager', '@current_user', '@logger.channel.workspace']
+    arguments: ['@request_stack', '@entity.manager', '@current_user', '@logger.channel.workspace', '@plugin.manager.block']
     tags:
       - { name: service_collector, tag: workspace_negotiator, call: addNegotiator }
   workspace.conflict_tracker:

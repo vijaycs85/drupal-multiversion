@@ -2,6 +2,7 @@
 
 namespace Drupal\multiversion\Workspace;
 
+use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -44,17 +45,24 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   protected $logger;
 
   /**
+   * @var \Drupal\Core\Block\BlockManagerInterface
+   */
+  protected $block_manager;
+
+  /**
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    * @param \Drupal\Core\Session\AccountProxyInterface $current_user
    * @param \Psr\Log\LoggerInterface $logger
+   * @param \Drupal\Core\Block\BlockManagerInterface $block_manager
    */
-  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager, AccountProxyInterface $current_user, LoggerInterface $logger = NULL) {
+  public function __construct(RequestStack $request_stack, EntityManagerInterface $entity_manager, AccountProxyInterface $current_user, LoggerInterface $logger = NULL, BlockManagerInterface $block_manager) {
     $this->requestStack = $request_stack;
     $this->entityManager = $entity_manager;
     $this->currentUser = $current_user;
     $this->logger = $logger ?: new NullLogger();
+    $this->block_manager = $block_manager;
   }
 
   /**
@@ -126,6 +134,9 @@ class WorkspaceManager implements WorkspaceManagerInterface {
         break;
       }
     }
+
+    // Clear block cached definitions.
+    $this->block_manager->clearCachedDefinitions();
 
     return $this;
   }
