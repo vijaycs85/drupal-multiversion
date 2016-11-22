@@ -15,7 +15,13 @@ Multiversion depends on
   * Drupal core's serialization module
   * [Key-value Extensions](https://www.drupal.org/project/key_value)
   
-## Uninstall
+### Enable/Disable entity types
+
+To enable or disable entity types (to make multiversionable/non-multiversionable) use these Drush commands:
+  * To enable entity types use the `multiversion-enable-entity-types` command or the `met` alias for Drush.
+  * To disable entity types use the `multiversion-disable-entity-types` command or the `mdt` alias for Drush.
+  
+### Uninstall
 
 Multiversion can't be uninstalled as other modules because it modifies the entity storage.
 
