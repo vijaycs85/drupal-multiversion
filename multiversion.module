@@ -15,7 +15,6 @@ use Drupal\views\ViewExecutable;
 function multiversion_entity_type_alter(array &$entity_types) {
   /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
   $manager = \Drupal::service('multiversion.manager');
-
   foreach ($entity_types as $entity_type) {
     if ($manager->isEnabledEntityType($entity_type)) {
       // Make all content entity types revisionable.

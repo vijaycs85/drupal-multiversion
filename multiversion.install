@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\Core\Database\Database;
 use \Drupal\Core\Database\Driver\mysql\Connection;
@@ -174,4 +175,49 @@ function multiversion_update_8004() {
       \Drupal::logger('multiversion')->error($e->getMessage());
     }
   }
+}
+
+/**
+ * Necessary updates when making Multiversion opt-in.
+ *
+ * To make Multiversion opt-in we introduced a configuration object where we
+ * keep the information of the enabled entity types. In this update we check
+ * which entity types have been changed and need updates, if the last installed
+ * field storage schema for the changed entity type contain the 'workspace'
+ * field - a field provided by multiversion, then we know that this entity has
+ * been already enabled as multiversionable and we add it as enabled in the new
+ * configuration object.
+ */
+function multiversion_update_8005() {
+  $update_manager = \Drupal::entityDefinitionUpdateManager();
+  $changed_entity_types = array_keys($update_manager->getChangeSummary());
+  $last_installed_schema_repository = \Drupal::service('entity.last_installed_schema.repository');
+  $enabled_entity_types = [];
+  // Loop through all changes, if it's a change for an entity type and the last
+  // installed field storage schema contains the 'workspace' field, add this
+  // entity as enabled.
+  foreach ($changed_entity_types as $entity_type_id) {
+    if ($update_manager->getEntityType($entity_type_id)) {
+      $last_field_storage_definition = $last_installed_schema_repository->getLastInstalledFieldStorageDefinitions($entity_type_id);
+      if (isset($last_field_storage_definition['workspace'])) {
+        $enabled_entity_types[] = $entity_type_id;
+      }
+    }
+  }
+  // To the enabled entity types list, add testing and replication log entity
+  // types.
+  $enabled_entity_types = array_merge(
+    $enabled_entity_types,
+    [
+      'entity_test',
+      'entity_test_rev',
+      'entity_test_mul',
+      'entity_test_mulrev',
+      'replication_log',
+    ]
+  );
+  \Drupal::configFactory()
+    ->getEditable('multiversion.settings')
+    ->set('enabled_entity_types', $enabled_entity_types)
+    ->save();
 }

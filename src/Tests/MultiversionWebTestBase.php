@@ -66,6 +66,7 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     'block_content',
     'menu_link_content',
     'file',
+    'shortcut',
   ];
 
   /**

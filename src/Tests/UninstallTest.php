@@ -47,6 +47,12 @@ class UninstallTest extends WebTestBase {
       'bundle' => 'menu_link_content',
       'link' => [['uri' => 'user-path:/']],
     ],
+    'shortcut' => [
+      'shortcut_set' => 'default',
+      'title' => 'Llama',
+      'weight' => 0,
+      'link' => [['uri' => 'internal:/admin']],
+    ],
   ];
 
   /**
@@ -58,6 +64,7 @@ class UninstallTest extends WebTestBase {
     'menu_link_content',
     'block_content',
     'taxonomy',
+    'shortcut',
   ];
 
   /**
