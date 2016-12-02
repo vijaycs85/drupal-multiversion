@@ -18,31 +18,34 @@ function multiversion_install() {
   $manager->enableEntityTypes();
 
   $entity_type_manager = \Drupal::entityTypeManager();
-  /** @var \Drupal\block\Entity\Block[] $blocks */
-  $blocks = $entity_type_manager->getStorage('block')->loadMultiple();
-  foreach ($blocks as $block) {
-    $plugin_id = $block->getPluginId();
-    if (substr_count($plugin_id, ':') !== 1) {
-      continue;
-    }
-    list($provider,) = explode(':', $plugin_id, 2);
-    if ($provider === 'block_content') {
-      $settings = [
-        'plugin' => "$plugin_id:ws1",
-        'label' => $block->label(),
-        'theme' => $block->getTheme(),
-        'region' => $block->getRegion(),
-        'visibility' => $block->getVisibility(),
-        'weight' => $block->getWeight(),
-      ];
-      $values = $settings;
-      $values['settings'] = $settings;
-      $values['id'] = get_unique_machine_name($block->id(), array_keys($blocks));
-      $entity_type_manager
-        ->getStorage('block')
-        ->create($values)
-        ->save();
-      $block->delete();
+  $definitions = $entity_type_manager->getDefinitions();
+  if (in_array('block', $definitions)) {
+    /** @var \Drupal\block\Entity\Block[] $blocks */
+    $blocks = $entity_type_manager->getStorage('block')->loadMultiple();
+    foreach ($blocks as $block) {
+      $plugin_id = $block->getPluginId();
+      if (substr_count($plugin_id, ':') !== 1) {
+        continue;
+      }
+      list($provider,) = explode(':', $plugin_id, 2);
+      if ($provider === 'block_content') {
+        $settings = [
+          'plugin' => "$plugin_id:ws1",
+          'label' => $block->label(),
+          'theme' => $block->getTheme(),
+          'region' => $block->getRegion(),
+          'visibility' => $block->getVisibility(),
+          'weight' => $block->getWeight(),
+        ];
+        $values = $settings;
+        $values['settings'] = $settings;
+        $values['id'] = get_unique_machine_name($block->id(), array_keys($blocks));
+        $entity_type_manager
+          ->getStorage('block')
+          ->create($values)
+          ->save();
+        $block->delete();
+      }
     }
   }
 }
