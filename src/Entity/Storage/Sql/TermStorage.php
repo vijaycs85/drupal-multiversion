@@ -34,7 +34,7 @@ class TermStorage extends CoreTermStorage implements ContentEntityStorageInterfa
         $query = $this->database->select('taxonomy_term_field_data', 't');
         $query->join('taxonomy_term_hierarchy', 'h', 'h.tid = t.tid');
         $result = $query
-          ->addTag('term_access')
+          ->addTag('taxonomy_term_access')
           ->fields('t')
           ->fields('h', array('parent'))
           ->condition('t.vid', $vid)
