@@ -221,3 +221,81 @@ function multiversion_update_8005() {
     ->set('enabled_entity_types', $enabled_entity_types)
     ->save();
 }
+
+/**
+ *
+ */
+function multiversion_update_8006() {
+  $connection = Database::getConnection();
+  if ($connection instanceof Connection) {
+    $schema = $connection->schema();
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $manager = \Drupal::service('multiversion.manager');
+
+    // Find all supported entities.
+    $entity_types = $manager->getSupportedEntityTypes();
+
+    // Loop through each one.
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      $id_key = $entity_type->getKey('id');
+
+      /** @var \Drupal\Core\Entity\Sql\SqlContentEntityStorage $storage */
+      $storage = $entity_type_manager->getStorage($entity_type_id);
+
+      // Get the tables name used for base table and revision table.
+      $table_base = ($entity_type->isTranslatable()) ? $entity_type->getDataTable() : $entity_type->getBaseTable();
+      $table_revision = ($entity_type->isTranslatable()) ? $entity_type->getRevisionDataTable() : $entity_type->getRevisionTable();
+
+      // Block content definition doesn't include the revision field table.
+      // So get it.
+      $tables = $entity_type_manager->getStorage($entity_type_id)
+        ->getTableMapping()
+        ->getTableNames();
+
+      if (!$table_revision && in_array($entity_type_id . '_field_revision', $tables)) {
+        $table_revision = $entity_type_id . '_field_revision';
+      }
+
+      /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping */
+      $table_mapping = $storage->getTableMapping();
+      if ($schema->tableExists($table_base)) {
+        $table_base_results = $connection->select($table_base)
+          ->fields($table_base)
+          ->execute()->fetchAll();
+
+//        $connection->truncate($table_revision)->execute();
+        $table_updated = FALSE;
+        if (in_array($table_revision, $table_mapping->getTableNames())) {
+          $table_revision_fields = $table_mapping->getFieldNames($table_revision);
+          $entity_field_manager = \Drupal::service('entity_field.manager');
+          $fields = $entity_field_manager->getBaseFieldDefinitions($entity_type_id);
+          foreach ($fields as $field_name => $field) {
+            if (in_array($field_name, $table_revision_fields)) {
+              if (!$schema->fieldExists($table_revision, $field_name)) {
+                $storage_definition = $field->getFieldStorageDefinition($field->getName(), $entity_type_id);
+                \Drupal::service('field_storage_definition.listener')->onFieldStorageDefinitionCreate($storage_definition);
+                $table_updated = TRUE;
+              }
+            }
+          }
+
+          if ($table_updated) {
+            foreach ($table_base_results as $result) {
+              $data = (array) $result;
+              foreach ($data as $field_name => $value) {
+                if (!in_array($field_name, $table_revision_fields)) {
+                  unset($data[$field_name]);
+                }
+              }
+              // Add the value to the new column.
+              $connection->update($table_revision)
+                ->fields($data)
+                ->condition($id_key, $result->{$id_key}, '=')
+                ->execute();
+            }
+          }
+        }
+      }
+    }
+  }
+}
