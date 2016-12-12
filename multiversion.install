@@ -259,39 +259,44 @@ function multiversion_update_8006() {
       /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping */
       $table_mapping = $storage->getTableMapping();
       if ($schema->tableExists($table_base)) {
+        // Get data from base table.
         $table_base_results = $connection->select($table_base)
           ->fields($table_base)
           ->execute()->fetchAll();
 
-//        $connection->truncate($table_revision)->execute();
-        $table_updated = FALSE;
         if (in_array($table_revision, $table_mapping->getTableNames())) {
           $table_revision_fields = $table_mapping->getFieldNames($table_revision);
           $entity_field_manager = \Drupal::service('entity_field.manager');
           $fields = $entity_field_manager->getBaseFieldDefinitions($entity_type_id);
+          $created_fields = [];
+          // Loop through all the fields, if the field exists in the new
+          // revision table mapping and it doesn't exist in the database,
+          // create the new field.
           foreach ($fields as $field_name => $field) {
             if (in_array($field_name, $table_revision_fields)) {
               if (!$schema->fieldExists($table_revision, $field_name)) {
                 $storage_definition = $field->getFieldStorageDefinition($field->getName(), $entity_type_id);
                 \Drupal::service('field_storage_definition.listener')->onFieldStorageDefinitionCreate($storage_definition);
-                $table_updated = TRUE;
+                $created_fields[] = $field_name;
               }
             }
           }
-
-          if ($table_updated) {
+          // If the revision table has been updated (new field has been added),
+          // complete new fields with data from base table.
+          if (!empty($created_fields)) {
             foreach ($table_base_results as $result) {
               $data = (array) $result;
               foreach ($data as $field_name => $value) {
-                if (!in_array($field_name, $table_revision_fields)) {
+                if (!in_array($field_name, $created_fields)) {
                   unset($data[$field_name]);
                 }
               }
-              // Add the value to the new column.
-              $connection->update($table_revision)
-                ->fields($data)
-                ->condition($id_key, $result->{$id_key}, '=')
-                ->execute();
+              if (isset($result->{$id_key}) && isset($result->{$revision_key})) {
+                $connection->update($table_revision)
+                  ->fields($data)
+                  ->condition($id_key, $result->{$id_key}, '=')
+                  ->execute();
+              }
             }
           }
         }
