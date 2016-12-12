@@ -225,7 +225,7 @@ function multiversion_update_8005() {
 /**
  *
  */
-function multiversion_update_8006() {
+function multiversion_update_8007() {
   $connection = Database::getConnection();
   if ($connection instanceof Connection) {
     $schema = $connection->schema();
@@ -238,6 +238,7 @@ function multiversion_update_8006() {
     // Loop through each one.
     foreach ($entity_types as $entity_type_id => $entity_type) {
       $id_key = $entity_type->getKey('id');
+      $revision_key = $entity_type->getKey('revision');
 
       /** @var \Drupal\Core\Entity\Sql\SqlContentEntityStorage $storage */
       $storage = $entity_type_manager->getStorage($entity_type_id);
@@ -248,55 +249,67 @@ function multiversion_update_8006() {
 
       // Block content definition doesn't include the revision field table.
       // So get it.
-      $tables = $entity_type_manager->getStorage($entity_type_id)
-        ->getTableMapping()
-        ->getTableNames();
+      /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping */
+      $table_mapping = $storage->getTableMapping();
+      $tables = $table_mapping->getTableNames();
 
       if (!$table_revision && in_array($entity_type_id . '_field_revision', $tables)) {
         $table_revision = $entity_type_id . '_field_revision';
       }
 
-      /** @var \Drupal\Core\Entity\Sql\TableMappingInterface $table_mapping */
-      $table_mapping = $storage->getTableMapping();
       if ($schema->tableExists($table_base)) {
         // Get data from base table.
         $table_base_results = $connection->select($table_base)
           ->fields($table_base)
           ->execute()->fetchAll();
 
-        if (in_array($table_revision, $table_mapping->getTableNames())) {
+        // Get data from revision table.
+        $table_revision_results = $connection->select($table_revision)
+          ->fields($table_revision)
+          ->execute()->fetchAll();
+
+        if (in_array($table_revision, $tables)) {
           $table_revision_fields = $table_mapping->getFieldNames($table_revision);
           $entity_field_manager = \Drupal::service('entity_field.manager');
           $fields = $entity_field_manager->getBaseFieldDefinitions($entity_type_id);
-          $created_fields = [];
+          $new_field_storage_definitions = [];
           // Loop through all the fields, if the field exists in the new
           // revision table mapping and it doesn't exist in the database,
           // create the new field.
           foreach ($fields as $field_name => $field) {
-            if (in_array($field_name, $table_revision_fields)) {
-              if (!$schema->fieldExists($table_revision, $field_name)) {
-                $storage_definition = $field->getFieldStorageDefinition($field->getName(), $entity_type_id);
-                \Drupal::service('field_storage_definition.listener')->onFieldStorageDefinitionCreate($storage_definition);
-                $created_fields[] = $field_name;
-              }
+            if (in_array($field_name, $table_revision_fields) && !$schema->fieldExists($table_revision, $field_name)) {
+              $new_field_storage_definitions[] = $field->getFieldStorageDefinition($field->getName(), $entity_type_id);
             }
           }
+
+          if (!empty($new_field_storage_definitions)) {
+            // Remove all data from revision table before adding new fields.
+            $connection->truncate($table_revision)->execute();
+            foreach ($new_field_storage_definitions as $storage_definition) {
+              \Drupal::service('field_storage_definition.listener')->onFieldStorageDefinitionCreate($storage_definition);
+            }
+          }
+
           // If the revision table has been updated (new field has been added),
           // complete new fields with data from base table.
-          if (!empty($created_fields)) {
+          if (!empty($new_field_storage_definitions)) {
+            $table_base_results_keyed = [];
             foreach ($table_base_results as $result) {
+              if (isset($result->{$id_key}) && isset($result->{$revision_key})) {
+                $data = (array) $result;
+                $table_base_results_keyed[$result->{$id_key}] = $data;
+              }
+            }
+            foreach ($table_revision_results as $result) {
               $data = (array) $result;
-              foreach ($data as $field_name => $value) {
-                if (!in_array($field_name, $created_fields)) {
-                  unset($data[$field_name]);
+              foreach ($table_revision_fields as $field_name) {
+                if (!isset($data[$field_name]) && isset($table_base_results_keyed[$result->{$id_key}][$field_name])) {
+                  $data[$field_name] = $table_base_results_keyed[$result->{$id_key}][$field_name];
                 }
               }
-              if (isset($result->{$id_key}) && isset($result->{$revision_key})) {
-                $connection->update($table_revision)
-                  ->fields($data)
-                  ->condition($id_key, $result->{$id_key}, '=')
-                  ->execute();
-              }
+              $connection->insert($table_revision)
+                ->fields($data)
+                ->execute();
             }
           }
         }
