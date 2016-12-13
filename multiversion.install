@@ -225,7 +225,7 @@ function multiversion_update_8005() {
 /**
  *
  */
-function multiversion_update_8007() {
+function multiversion_update_8008() {
   $connection = Database::getConnection();
   if ($connection instanceof Connection) {
     $schema = $connection->schema();
@@ -238,7 +238,6 @@ function multiversion_update_8007() {
     // Loop through each one.
     foreach ($entity_types as $entity_type_id => $entity_type) {
       $id_key = $entity_type->getKey('id');
-      $revision_key = $entity_type->getKey('revision');
 
       /** @var \Drupal\Core\Entity\Sql\SqlContentEntityStorage $storage */
       $storage = $entity_type_manager->getStorage($entity_type_id);
@@ -295,9 +294,20 @@ function multiversion_update_8007() {
           if (!empty($new_field_storage_definitions)) {
             $table_base_results_keyed = [];
             foreach ($table_base_results as $result) {
-              if (isset($result->{$id_key}) && isset($result->{$revision_key})) {
+              if (isset($result->{$id_key})) {
                 $data = (array) $result;
                 $table_base_results_keyed[$result->{$id_key}] = $data;
+
+                // Add data for fields with multiple columns, like link__title,
+                // link__description, ...
+                foreach ($data as $field_column_name => $value) {
+                  if ($field_name = strstr($field_column_name, '__', TRUE)) {
+                    if (in_array($field_name, $table_revision_fields) && !in_array($field_column_name, $table_revision_fields)) {
+                      $table_base_results_keyed[$result->{$id_key}][$field_column_name] = $data[$field_column_name];
+                      $table_revision_fields[] = $field_column_name;
+                    }
+                  }
+                }
               }
             }
             foreach ($table_revision_results as $result) {
