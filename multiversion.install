@@ -223,9 +223,16 @@ function multiversion_update_8005() {
 }
 
 /**
- *
+ * Clear caches due to behavior change.
  */
-function multiversion_update_8008() {
+function multiversion_update_8006() {
+  // Empty update to cause a cache rebuild.
+}
+
+/**
+ * Create missing revisionable fields in the revision table.
+ */
+function multiversion_update_8007() {
   $connection = Database::getConnection();
   if ($connection instanceof Connection) {
     $schema = $connection->schema();
@@ -310,6 +317,7 @@ function multiversion_update_8008() {
                 }
               }
             }
+            // For the new created revisionable fields take data from base table.
             foreach ($table_revision_results as $result) {
               $data = (array) $result;
               foreach ($table_revision_fields as $field_name) {
@@ -317,6 +325,7 @@ function multiversion_update_8008() {
                   $data[$field_name] = $table_base_results_keyed[$result->{$id_key}][$field_name];
                 }
               }
+              // Save the information in the revision table.
               $connection->insert($table_revision)
                 ->fields($data)
                 ->execute();
