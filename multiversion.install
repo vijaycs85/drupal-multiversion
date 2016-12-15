@@ -147,13 +147,13 @@ function multiversion_update_8004() {
     $entity_type = $storage->getEntityType();
     $database = \Drupal::database();
     try {
-      $entity_manager = \Drupal::entityManager();
+      $entity_type_manager = \Drupal::entityTypeManager();
       // Create a new migration and migrate user entities to the temporary storage.
-      $migration = MultiversionMigration::create(\Drupal::getContainer(), $entity_manager);
+      $migration = MultiversionMigration::create(\Drupal::getContainer(), $entity_type_manager);
       $migration->installDependencies();
       $migration->migrateContentToTemp($entity_type);
       // Remove all data from the old storage.
-      $migration->emptyOldStorage($entity_type, $storage);
+      $migration->emptyOldStorage($storage);
 
       // Delete revision tables that after applying updates doesn't get deleted.
       $tables_to_delete = ['user_revision__roles', 'user_revision__user_picture'];
