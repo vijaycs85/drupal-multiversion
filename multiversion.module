@@ -176,6 +176,9 @@ function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface
       $entity_type->getKey('revision'),
       $entity_type->getKey('uuid'),
       $entity_type->getKey('bundle'),
+      'workspace',
+      '_deleted',
+      '_rev',
     ];
     if ($entity_type->id() == 'comment') {
       $exclude_fields[] = 'comment_type';
