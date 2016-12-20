@@ -170,18 +170,18 @@ function multiversion_field_info_alter(&$info) {
 function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
   /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
   $manager = \Drupal::service('multiversion.manager');
-  $need_update = array('taxonomy_term', 'comment', 'menu_link_content');
-  if ($manager->isEnabledEntityType($entity_type) && in_array($entity_type->id(), $need_update)) {
-    $exclude_fields = array();
-    $exclude = array('id', 'uuid', 'revision_id', 'language', 'bundle');
-    if ($entity_type->id() == 'taxonomy_term') {
-      $exclude_fields = array_merge($exclude, array('tid', 'vid'));
-    }
+  if ($manager->isEnabledEntityType($entity_type)) {
+    $exclude_fields = [
+      $entity_type->getKey('id'),
+      $entity_type->getKey('revision'),
+      $entity_type->getKey('uuid'),
+      $entity_type->getKey('bundle'),
+      'workspace',
+      '_deleted',
+      '_rev',
+    ];
     if ($entity_type->id() == 'comment') {
-      $exclude_fields = array_merge($exclude, array('cid','comment_type'));
-    }
-    if ($entity_type->id() == 'menu_link_content') {
-      $exclude_fields = array_merge($exclude, array());
+      $exclude_fields[] = 'comment_type';
     }
     foreach ($fields as $key => $field) {
       if (!in_array($key, $exclude_fields)) {
@@ -352,7 +352,6 @@ function multiversion_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $f
     $form['revision']['#disabled'] = TRUE;
   }
 }
-
 
 /**
  * Prepares a file destination directory.
