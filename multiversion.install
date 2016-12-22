@@ -213,6 +213,7 @@ function multiversion_update_8005() {
       'entity_test_rev',
       'entity_test_mul',
       'entity_test_mulrev',
+      'entity_test_local',
       'replication_log',
     ]
   );

@@ -11,5 +11,6 @@ enabled_entity_types:
   - entity_test_rev
   - entity_test_mul
   - entity_test_mulrev
+  - entity_test_local
   - content_moderation_state
   - replication_log
