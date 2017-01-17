@@ -84,7 +84,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    *
    * @param array $tree
    *   An associative array containing information about tree.
-   * @param array $rev_ids
+   * @param array $revision_ids
    *   An array to store all revision ID.
    */
   protected function storeNodesId($tree, &$revision_ids) {
@@ -203,19 +203,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    * {@inheritdoc}
    */
   public static function sortRevisions(array $a, array $b) {
-    $a_deleted = ($a['#rev_info']['status'] == 'deleted') ? TRUE : FALSE;
-    $b_deleted = ($b['#rev_info']['status'] == 'deleted') ? TRUE : FALSE;
-
-    // The goal is to sort winning revision candidates from low to high. The
-    // criteria are:
-    // 1. Non-deleted always win over deleted
-    // 2. Higher ASCII sort on revision hash wins
-    if ($a_deleted && !$b_deleted) {
-      return 1;
-    }
-    elseif (!$a_deleted && $b_deleted) {
-      return -1;
-    }
+    // Higher ASCII sort on revision hash wins.
     return ($a['#rev'] < $b['#rev']) ? 1 : -1;
   }
 
