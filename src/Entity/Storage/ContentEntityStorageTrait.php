@@ -289,22 +289,22 @@ trait ContentEntityStorageTrait {
       // Enforce new revision if any module messed with it in a hook.
       $entity->setNewRevision();
 
-      // Decide whether or not this is the default revision.
-      if (!$entity->isNew()) {
-        $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
-        $index_factory = \Drupal::service('multiversion.entity_index.factory');
-        /** @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $tree */
-        $tree = $index_factory->get('multiversion.entity_index.rev.tree', $workspace);
-        $default_rev = $tree->getDefaultRevision($entity->uuid());
-
-        if ($entity->_rev->value == $default_rev) {
-          $entity->isDefaultRevision(TRUE);
-        }
-        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
-        else {
-          $entity->isDefaultRevision(FALSE);
-        }
-      }
+//      // Decide whether or not this is the default revision.
+//      if (!$entity->isNew()) {
+//        $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
+//        $index_factory = \Drupal::service('multiversion.entity_index.factory');
+//        /** @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $tree */
+//        $tree = $index_factory->get('multiversion.entity_index.rev.tree', $workspace);
+//        $default_rev = $tree->getDefaultRevision($entity->uuid());
+//
+//        if ($entity->_rev->value == $default_rev) {
+//          $entity->isDefaultRevision(TRUE);
+//        }
+//        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
+//        else {
+//          $entity->isDefaultRevision(FALSE);
+//        }
+//      }
     }
 
     return parent::doSave($id, $entity);
