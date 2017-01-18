@@ -289,7 +289,7 @@ trait ContentEntityStorageTrait {
       // Enforce new revision if any module messed with it in a hook.
       $entity->setNewRevision();
 
-//      // Decide whether or not this is the default revision.
+      // Decide whether or not this is the default revision.
 //      if (!$entity->isNew()) {
 //        $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
 //        $index_factory = \Drupal::service('multiversion.entity_index.factory');
