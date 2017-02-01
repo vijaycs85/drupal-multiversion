@@ -8,6 +8,17 @@ use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
 
 /**
+ * Implements hook_module_implements_alter().
+ */
+function multiversion_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'entity_type_alter') {
+    $group = $implementations['multiversion'];
+    unset($implementations['multiversion']);
+    $implementations = ['multiversion' => $group] + $implementations;
+  }
+}
+
+/**
  * Implements hook_entity_type_alter().
  *
  * @param \Drupal\Core\Entity\EntityTypeInterface[] $entity_types
