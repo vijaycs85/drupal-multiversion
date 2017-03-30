@@ -264,7 +264,7 @@ function multiversion_update_8007() {
         $table_revision = $entity_type_id . '_field_revision';
       }
 
-      if ($schema->tableExists($table_base)) {
+      if ($schema->tableExists($table_base) && $table_revision) {
         // Get data from base table.
         $table_base_results = $connection->select($table_base)
           ->fields($table_base)
