@@ -263,6 +263,9 @@ function multiversion_update_8007() {
       if (!$table_revision && in_array($entity_type_id . '_field_revision', $tables)) {
         $table_revision = $entity_type_id . '_field_revision';
       }
+      elseif (!$table_revision && in_array($entity_type_id . '_revision', $tables)) {
+        $table_revision = $entity_type_id . '_revision';
+      }
 
       if ($schema->tableExists($table_base) && $table_revision) {
         // Get data from base table.
