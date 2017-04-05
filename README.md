@@ -25,9 +25,9 @@ To enable or disable entity types (to make multiversionable/non-multiversionable
 
 Multiversion can't be uninstalled as other modules because it modifies the entity storage.
 
-To unistall Multiversion use the `multiversion-uninstall` command or the `mun` alias for Drush.
+To uninstall Multiversion use the `multiversion-uninstall` command or the `mun` alias for Drush.
 
 ## Presentations
 
-- https://austin2014.drupal.org/session/content-staging-drupal-8
-- https://amsterdam2014.drupal.org/session/content-staging-drupal-8-continued
+- https://austin2014.drupal.org/session/content-staging-drupal-8.html
+- https://amsterdam2014.drupal.org/session/content-staging-drupal-8-continued.html
