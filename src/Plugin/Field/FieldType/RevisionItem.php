@@ -56,15 +56,15 @@ class RevisionItem extends FieldItemBase {
    * {@inheritdoc}
    */
   public static function schema(FieldStorageDefinitionInterface $field_definition) {
-    return array(
-      'columns' => array(
-        'value' => array(
+    return [
+      'columns' => [
+        'value' => [
           'type' => 'varchar',
           'length' => 128,
           'not null' => TRUE,
-        ),
-      ),
-    );
+        ],
+      ],
+    ];
   }
 
   /**
@@ -72,15 +72,15 @@ class RevisionItem extends FieldItemBase {
    */
   public function applyDefaultValue($notify = TRUE) {
     $this->setValue(
-      array(
+      [
         'value' => '0-00000000000000000000000000000000',
         'new_edit' => TRUE,
-        'revisions' => array(),
+        'revisions' => [],
         // We don't have an opinion on the default value and will leave that up
         // to the logic in the property class to decide.
         // @see \Drupal\multiversion\IsStub::getValue()
         'is_stub' => NULL,
-      ),
+      ],
       $notify);
     return $this;
   }
@@ -93,12 +93,12 @@ class RevisionItem extends FieldItemBase {
     $hash = md5(rand());
     $token = "$i-$hash";
 
-    return array(
+    return [
       'value' => $token,
       'new_edit' => TRUE,
-      'revisions' => array($hash, md5(rand()), md5(rand())),
+      'revisions' => [$hash, md5(rand()), md5(rand())],
       'is_stub' => FALSE,
-    );
+    ];
   }
 
 }

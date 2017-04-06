@@ -20,7 +20,7 @@ class WorkspaceReferenceItem extends EntityReferenceItem {
   public function applyDefaultValue($notify = TRUE) {
     /** @var \Drupal\multiversion\Entity\WorkspaceInterface $workspace */
     $workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
-    $this->setValue(array('target_id' => $workspace->id()), $notify);
+    $this->setValue(['target_id' => $workspace->id()], $notify);
     return $this;
   }
 }

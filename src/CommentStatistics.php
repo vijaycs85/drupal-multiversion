@@ -45,7 +45,7 @@ class CommentStatistics extends CoreCommentStatistics {
       if ($count > 0) {
         // Comments exist.
         $last_reply = $this->database->select('comment_field_data', 'c')
-          ->fields('c', array('cid', 'name', 'changed', 'uid'))
+          ->fields('c', ['cid', 'name', 'changed', 'uid'])
           ->condition('c.entity_id', $comment->getCommentedEntityId())
           ->condition('c.entity_type', $comment->getCommentedEntityTypeId())
           ->condition('c.field_name', $comment->getFieldName())
@@ -58,18 +58,18 @@ class CommentStatistics extends CoreCommentStatistics {
           ->fetchObject();
         // Use merge here because entity could be created before comment field.
         $this->database->merge('comment_entity_statistics')
-          ->fields(array(
+          ->fields([
             'cid' => $last_reply->cid,
             'comment_count' => $count,
             'last_comment_timestamp' => $last_reply->changed,
             'last_comment_name' => $last_reply->uid ? '' : $last_reply->name,
             'last_comment_uid' => $last_reply->uid,
-          ))
-          ->keys(array(
+          ])
+          ->keys([
             'entity_id' => $comment->getCommentedEntityId(),
             'entity_type' => $comment->getCommentedEntityTypeId(),
             'field_name' => $comment->getFieldName(),
-          ))
+          ])
           ->execute();
       }
       else {
@@ -86,7 +86,7 @@ class CommentStatistics extends CoreCommentStatistics {
           $last_comment_uid = $this->currentUser->id();
         }
         $this->database->update('comment_entity_statistics')
-          ->fields(array(
+          ->fields([
             'cid' => 0,
             'comment_count' => 0,
             // Use the created date of the entity if it's set, or default to
@@ -94,7 +94,7 @@ class CommentStatistics extends CoreCommentStatistics {
             'last_comment_timestamp' => ($entity instanceof EntityChangedInterface) ? $entity->getChangedTimeAcrossTranslations() : REQUEST_TIME,
             'last_comment_name' => '',
             'last_comment_uid' => $last_comment_uid,
-          ))
+          ])
           ->condition('entity_id', $comment->getCommentedEntityId())
           ->condition('entity_type', $comment->getCommentedEntityTypeId())
           ->condition('field_name', $comment->getFieldName())

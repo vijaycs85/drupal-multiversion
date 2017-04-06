@@ -31,7 +31,7 @@ class WorkspaceManager implements WorkspaceManagerInterface {
   /**
    * @var array
    */
-  protected $negotiators = array();
+  protected $negotiators = [];
 
   /**
    * @var array
@@ -142,7 +142,7 @@ class WorkspaceManager implements WorkspaceManagerInterface {
       krsort($this->negotiators);
       // Merge nested negotiators from $this->negotiators into
       // $this->sortedNegotiators.
-      $this->sortedNegotiators = array();
+      $this->sortedNegotiators = [];
       foreach ($this->negotiators as $builders) {
         $this->sortedNegotiators = array_merge($this->sortedNegotiators, $builders);
       }

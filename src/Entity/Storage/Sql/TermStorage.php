@@ -27,16 +27,16 @@ class TermStorage extends CoreTermStorage implements ContentEntityStorageInterfa
       // We cache trees, so it's not CPU-intensive to call on a term and its
       // children, too.
       if (!isset($this->treeChildren[$vid])) {
-        $this->treeChildren[$vid] = array();
-        $this->treeParents[$vid] = array();
-        $this->treeTerms[$vid] = array();
+        $this->treeChildren[$vid] = [];
+        $this->treeParents[$vid] = [];
+        $this->treeTerms[$vid] = [];
         $active_workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
         $query = $this->database->select('taxonomy_term_field_data', 't');
         $query->join('taxonomy_term_hierarchy', 'h', 'h.tid = t.tid');
         $result = $query
           ->addTag('taxonomy_term_access')
           ->fields('t')
-          ->fields('h', array('parent'))
+          ->fields('h', ['parent'])
           ->condition('t.vid', $vid)
           ->condition('t.default_langcode', 1)
           ->condition('t._deleted', 0)
@@ -53,17 +53,17 @@ class TermStorage extends CoreTermStorage implements ContentEntityStorageInterfa
 
       // Load full entities, if necessary. The entity controller statically
       // caches the results.
-      $term_entities = array();
+      $term_entities = [];
       if ($load_entities) {
         $term_entities = $this->loadMultiple(array_keys($this->treeTerms[$vid]));
       }
 
       $max_depth = (!isset($max_depth)) ? count($this->treeChildren[$vid]) : $max_depth;
-      $tree = array();
+      $tree = [];
 
       // Keeps track of the parents we have to process, the last entry is used
       // for the next processing step.
-      $process_parents = array();
+      $process_parents = [];
       $process_parents[] = $parent;
 
       // Loops over the parent terms and adds its children to the tree array.
@@ -125,7 +125,7 @@ class TermStorage extends CoreTermStorage implements ContentEntityStorageInterfa
   public function delete(array $entities) {
     $this->deleteEntities($entities);
     foreach ($entities as $entity) {
-      $this->updateParentHierarchy(array($entity->id()));
+      $this->updateParentHierarchy([$entity->id()]);
     }
   }
 
@@ -138,7 +138,7 @@ class TermStorage extends CoreTermStorage implements ContentEntityStorageInterfa
   public function updateParentHierarchy($tids) {
     $this->database->update('taxonomy_term_hierarchy')
       ->condition('parent', $tids)
-      ->fields(array('parent' => 0))
+      ->fields(['parent' => 0])
       ->execute();
   }
 

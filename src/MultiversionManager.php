@@ -402,7 +402,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // - normalized entity (without revision info field)
     // - attachments (@todo: {@link https://www.drupal.org/node/2597341
     // Address this property.})
-    return ($index + 1) . '-' . md5($this->termToBinary(array($deleted, 0, $old_rev, $normalized_entity, array())));
+    return ($index + 1) . '-' . md5($this->termToBinary([$deleted, 0, $old_rev, $normalized_entity, []]));
   }
 
   protected function termToBinary(array $term) {

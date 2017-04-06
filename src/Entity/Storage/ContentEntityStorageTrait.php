@@ -50,7 +50,7 @@ trait ContentEntityStorageTrait {
       $revision_data_table = $this->getRevisionDataTable();
       $revision_data_alias = 'revision_data';
       if ($revision_id) {
-        $query->join($revision_data_table, $revision_data_alias, "$revision_data_alias.{$this->revisionKey} = revision.{$this->revisionKey} AND $revision_data_alias.{$this->revisionKey} = :revisionId", array(':revisionId' => $revision_id));
+        $query->join($revision_data_table, $revision_data_alias, "$revision_data_alias.{$this->revisionKey} = revision.{$this->revisionKey} AND $revision_data_alias.{$this->revisionKey} = :revisionId", [':revisionId' => $revision_id]);
       }
       else {
         $query->join($revision_data_table, $revision_data_alias, "$revision_data_alias.{$this->revisionKey} = revision.{$this->revisionKey}");
@@ -106,7 +106,7 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function loadDeleted($id) {
-    $entities = $this->loadMultipleDeleted(array($id));
+    $entities = $this->loadMultipleDeleted([$id]);
     return isset($entities[$id]) ? $entities[$id] : NULL;
   }
 

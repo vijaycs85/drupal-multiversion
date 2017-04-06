@@ -82,83 +82,83 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     $entity = $storage->load(1);
     $this->assertEqual($entity->getRevisionId(), 5, 'Default revision has been set correctly.');
 
-    $expected_tree = array(
-      array(
+    $expected_tree = [
+      [
         '#type' => 'rev',
         '#uuid' => $uuid,
         '#rev' => $revs[0],
-        '#rev_info' => array(
+        '#rev_info' => [
           'status' => 'available',
           'default' => FALSE,
           'open_rev' => FALSE,
           'conflict' => FALSE,
-        ),
-        'children' => array(
-          array(
+        ],
+        'children' => [
+          [
             '#type' => 'rev',
             '#uuid' => $uuid,
             '#rev' => $revs[1],
-            '#rev_info' => array(
+            '#rev_info' => [
               'status' => 'available',
               'default' => FALSE,
               'open_rev' => FALSE,
               'conflict' => FALSE,
-            ),
-            'children' => array(
-              array(
+            ],
+            'children' => [
+              [
                 '#type' => 'rev',
                 '#uuid' => $uuid,
                 '#rev' => $revs[2],
-                '#rev_info' => array(
+                '#rev_info' => [
                   'status' => 'available',
                   'default' => FALSE,
                   'open_rev' => TRUE,
                   'conflict' => TRUE,
-                ),
-                'children' => array(),
-              ),
-              array(
+                ],
+                'children' => [],
+              ],
+              [
                 '#type' => 'rev',
                 '#uuid' => $uuid,
                 '#rev' => $revs[3],
-                '#rev_info' => array(
+                '#rev_info' => [
                   'status' => 'available',
                   'default' => FALSE,
                   'open_rev' => FALSE,
                   'conflict' => FALSE,
-                ),
-                'children' => array(
-                  array(
+                ],
+                'children' => [
+                  [
                     '#type' => 'rev',
                     '#uuid' => $uuid,
                     '#rev' => $revs[4],
-                    '#rev_info' => array(
+                    '#rev_info' => [
                       'status' => 'available',
                       'default' => TRUE,
                       'open_rev' => TRUE,
                       'conflict' => FALSE,
-                    ),
-                    'children' => array(),
-                  )
-                )
-              )
-            )
-          ),
-          array(
+                    ],
+                    'children' => [],
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
             '#type' => 'rev',
             '#uuid' => $uuid,
             '#rev' => $revs[5],
-            '#rev_info' => array(
+            '#rev_info' => [
               'status' => 'available',
               'default' => FALSE,
               'open_rev' => TRUE,
               'conflict' => TRUE,
-            ),
-            'children' => array(),
-          )
-        )
-      )
-    );
+            ],
+            'children' => [],
+          ]
+        ]
+      ]
+    ];
     // Sort the expected tree according to the algorithm.
     RevisionTreeIndex::sortTree($expected_tree);
 
@@ -261,83 +261,83 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     $entity = $storage->loadDeleted(1);
     $this->assertEqual($entity->getRevisionId(), 5, 'Default revision has been set correctly.');
 
-    $expected_tree = array(
-      array(
+    $expected_tree = [
+      [
         '#type' => 'rev',
         '#uuid' => $uuid,
         '#rev' => $revs[0],
-        '#rev_info' => array(
+        '#rev_info' => [
           'status' => 'available',
           'default' => FALSE,
           'open_rev' => FALSE,
           'conflict' => FALSE,
-        ),
-        'children' => array(
-          array(
+        ],
+        'children' => [
+          [
             '#type' => 'rev',
             '#uuid' => $uuid,
             '#rev' => $revs[1],
-            '#rev_info' => array(
+            '#rev_info' => [
               'status' => 'deleted',
               'default' => FALSE,
               'open_rev' => FALSE,
               'conflict' => FALSE,
-            ),
-            'children' => array(
-              array(
+            ],
+            'children' => [
+              [
                 '#type' => 'rev',
                 '#uuid' => $uuid,
                 '#rev' => $revs[2],
-                '#rev_info' => array(
+                '#rev_info' => [
                   'status' => 'available',
                   'default' => TRUE,
                   'open_rev' => TRUE,
                   'conflict' => FALSE,
-                ),
-                'children' => array(),
-              ),
-              array(
+                ],
+                'children' => [],
+              ],
+              [
                 '#type' => 'rev',
                 '#uuid' => $uuid,
                 '#rev' => $revs[3],
-                '#rev_info' => array(
+                '#rev_info' => [
                   'status' => 'deleted',
                   'default' => FALSE,
                   'open_rev' => FALSE,
                   'conflict' => FALSE,
-                ),
-                'children' => array(
-                  array(
+                ],
+                'children' => [
+                  [
                     '#type' => 'rev',
                     '#uuid' => $uuid,
                     '#rev' => $revs[4],
-                    '#rev_info' => array(
+                    '#rev_info' => [
                       'status' => 'deleted',
                       'default' => FALSE,
                       'open_rev' => TRUE,
                       'conflict' => FALSE,
-                    ),
-                    'children' => array(),
-                  )
-                )
-              )
-            )
-          ),
-          array(
+                    ],
+                    'children' => [],
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
             '#type' => 'rev',
             '#uuid' => $uuid,
             '#rev' => $revs[5],
-            '#rev_info' => array(
+            '#rev_info' => [
               'status' => 'available',
               'default' => FALSE,
               'open_rev' => TRUE,
               'conflict' => TRUE,
-            ),
-            'children' => array(),
-          )
-        )
-      )
-    );
+            ],
+            'children' => [],
+          ]
+        ]
+      ]
+    ];
     // Sort the expected tree according to the algorithm.
     RevisionTreeIndex::sortTree($expected_tree);
 

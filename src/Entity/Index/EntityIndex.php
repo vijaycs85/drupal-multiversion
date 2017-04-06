@@ -50,8 +50,8 @@ class EntityIndex implements EntityIndexInterface {
    * {@inheritdoc}
    */
   public function get($key) {
-    $values = $this->getMultiple(array($key));
-    return isset($values[$key]) ? $values[$key] : array();
+    $values = $this->getMultiple([$key]);
+    return isset($values[$key]) ? $values[$key] : [];
   }
 
   /**
@@ -75,7 +75,7 @@ class EntityIndex implements EntityIndexInterface {
    * {@inheritdoc}
    */
   public function add(EntityInterface $entity) {
-    $this->addMultiple(array($entity));
+    $this->addMultiple([$entity]);
   }
 
   /**
@@ -136,7 +136,7 @@ class EntityIndex implements EntityIndexInterface {
       $status = $entity->_deleted->value ? 'deleted' : 'available';
     }
 
-    return array(
+    return [
       'entity_type_id' => $entity->getEntityTypeId(),
       'entity_id' => $is_new ? 0 : $entity->id(),
       'revision_id' => $revision_id,
@@ -144,7 +144,7 @@ class EntityIndex implements EntityIndexInterface {
       'rev' => $entity->_rev->value,
       'is_stub' => $entity->_rev->is_stub,
       'status' => $status,
-    );
+    ];
   }
 
   /**

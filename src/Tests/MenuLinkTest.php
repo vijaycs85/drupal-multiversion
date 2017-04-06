@@ -36,11 +36,11 @@ class MenuLinkTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array(
+  public static $modules = [
     'multiversion',
     'menu_link_content',
     'block',
-  );
+  ];
 
   /**
    * {@inheritdoc}
@@ -48,7 +48,7 @@ class MenuLinkTest extends WebTestBase {
   protected function setUp() {
     parent::setUp();
     $this->workspaceManager = \Drupal::service('workspace.manager');
-    $web_user = $this->drupalCreateUser(array('administer menu', 'administer workspaces'));
+    $web_user = $this->drupalCreateUser(['administer menu', 'administer workspaces']);
     $this->drupalLogin($web_user);
     $this->drupalPlaceBlock('system_menu_block:main');
 

@@ -37,7 +37,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   /**
    * @var array
    */
-  protected $cache = array();
+  protected $cache = [];
 
   /**
    * @param \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $key_value_factory
@@ -72,7 +72,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   public function getGraph($uuid) {
     $tree = $this->getTree($uuid);
     $graph = new Graph();
-    $rev_ids = array();
+    $rev_ids = [];
     $this->storeNodesId($tree, $rev_ids);
     $vertices = $this->generateVertices($graph, $rev_ids);
     $this->generateEdges($vertices, $tree);
@@ -138,7 +138,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   /**
    * {@inheritdoc}
    */
-  public function updateTree(ContentEntityInterface $entity, array $branch = array()) {
+  public function updateTree(ContentEntityInterface $entity, array $branch = []) {
     if ($entity->getEntityType()->get('workspace') === FALSE) {
       $this->keyValueStore($entity->uuid(), 0)->setMultiple($branch);
     }
@@ -275,7 +275,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    * @todo: {@link https://www.drupal.org/node/2597430 Implement
    * 'deleted_conflicts'.}
    */
-  protected static function doBuildTree($uuid, $revs, $revs_info, $parse = 0, &$tree = array(), &$open_revs = array(), &$conflicts = array()) {
+  protected static function doBuildTree($uuid, $revs, $revs_info, $parse = 0, &$tree = [], &$open_revs = [], &$conflicts = []) {
     foreach ($revs as $rev => $parent_revs) {
       foreach ($parent_revs as $parent_rev) {
         if ($rev == 0) {
@@ -292,18 +292,18 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
 
           // Build an element structure compatible with Drupal's Render API.
           $i = count($tree);
-          $tree[$i] = array(
+          $tree[$i] = [
             '#type' => 'rev',
             '#uuid' => $uuid,
             '#rev' => $rev,
-            '#rev_info' => array(
+            '#rev_info' => [
               'status' => isset($revs_info["$uuid:$rev"]['status']) ? $revs_info["$uuid:$rev"]['status'] : 'missing',
               'default' => FALSE,
               'open_rev' => FALSE,
               'conflict' => FALSE,
-            ),
-            'children' => array(),
-          );
+            ],
+            'children' => [],
+          ];
 
           // Recurse down through the children.
           self::doBuildTree($uuid, $revs, $revs_info, $rev, $tree[$i]['children'], $open_revs, $conflicts);
@@ -341,7 +341,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
       self::sortTree($tree);
 
       // Find the branch of the default revision.
-      $default_branch = array();
+      $default_branch = [];
       $rev = $default_rev['#rev'];
       while ($rev != 0) {
         if (isset($revs_info["$uuid:$rev"])) {
@@ -350,13 +350,13 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
         // Only the first parent gets included in the default branch.
         $rev = $revs[$rev][0];
       }
-      return array(
+      return [
         'tree' => $tree,
         'default_rev' => $default_rev,
         'default_branch' => array_reverse($default_branch),
         'open_revs' => $open_revs,
         'conflicts' => $conflicts,
-      );
+      ];
     }
   }
 

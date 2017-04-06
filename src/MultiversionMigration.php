@@ -199,7 +199,7 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * @return array
    */
   public function getFieldMap(EntityTypeInterface $entity_type, $migration_from_tmp = FALSE) {
-    $map = array();
+    $map = [];
     // For some reasons it sometimes doesn't work if injecting the service.
     $entity_type_bundle_info = \Drupal::service('entity_type.bundle.info');
     $entity_type_bundle_info->clearCachedBundles();
@@ -243,9 +243,9 @@ class MultiversionMigration implements MultiversionMigrationInterface {
     // a migration like this.
     $connection_info = Database::getConnectionInfo('default');
     foreach ($connection_info as $target => $value) {
-      $connection_info[$target]['prefix'] = array(
+      $connection_info[$target]['prefix'] = [
         'default' => $value['prefix']['default'],
-      );
+      ];
     }
     Database::addConnectionInfo('migrate', 'default', $connection_info['default']);
 

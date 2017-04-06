@@ -100,7 +100,7 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
   $manager = \Drupal::service('multiversion.manager');
 
   if ($manager->isEnabledEntityType($entity_type)) {
-    $fields = array();
+    $fields = [];
 
     // @todo: Alter the entity label field to make it revisionable.
 
@@ -217,15 +217,15 @@ function multiversion_views_data_alter(array &$data) {
     }
     // Add a new filter that filters content by current active workspace.
     if (isset($data[$key]['workspace'])) {
-      $data[$key]['current_workspace'] = array(
+      $data[$key]['current_workspace'] = [
         'title' => t('Current workspace'),
         'help' => t('Filters content by current active workspace.'),
-        'filter' => array(
+        'filter' => [
           'field' => 'workspace',
           'id' => 'current_workspace',
           'label' => t('Current workspace'),
-        ),
-      );
+        ],
+      ];
       // Unset the 'Workspace reference' filter because users are not allowed to
       // filter by a specific workspace, other than current active workspace.
       // To filter by current active workspace will be used the 'Current workspace'
@@ -252,7 +252,7 @@ function multiversion_views_post_execute(ViewExecutable $view) {
     $manager = \Drupal::service('multiversion.manager');
     $storage = \Drupal::entityTypeManager()->getStorage($content_type);
     if ($manager->isEnabledEntityType($storage->getEntityType())) {
-      $ids = array();
+      $ids = [];
       foreach ($view->result as $index => $row) {
         if (empty($row->_entity) && !empty($row->{$base_field})) {
           $ids[$index] = $row->{$base_field};
@@ -282,7 +282,7 @@ function multiversion_views_post_execute(ViewExecutable $view) {
  */
 function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
   // Add a new filter for default core views, it will filter deleted content.
-  $views_ids = array(
+  $views_ids = [
     'content',
     'frontpage',
     'comments_recent',
@@ -291,14 +291,14 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
     'glossary',
     'archive',
     'block_content',
-  );
+  ];
   if (in_array($view->id(), $views_ids)) {
     $base_table = $view->storage->get('base_table');
-    $view->query->where[1]['conditions'][] = array(
+    $view->query->where[1]['conditions'][] = [
       'field' => $base_table . '._deleted',
       'value' => FALSE,
       'operator' => '=',
-    );
+    ];
   }
 }
 
@@ -308,7 +308,7 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
 function multiversion_element_info_alter(array &$types) {
   foreach ($types as &$type) {
     if (!isset($type['#pre_render'])) {
-      $type['#pre_render'] = array();
+      $type['#pre_render'] = [];
     }
     $type['#pre_render'][] = 'multiversion_element_pre_render';
   }

@@ -82,7 +82,7 @@ class ContentEntityBase extends EntityContentBase {
   /**
    * {@inheritdoc}
    */
-  public function import(Row $row, array $old_destination_id_values = array()) {
+  public function import(Row $row, array $old_destination_id_values = []) {
     $this->rollbackAction = MigrateIdMapInterface::ROLLBACK_DELETE;
     $entity = $this->getEntity($row, $old_destination_id_values);
     if (!$entity) {

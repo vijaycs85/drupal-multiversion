@@ -67,19 +67,19 @@ abstract class SourcePluginBase extends CoreSourcePluginBase implements Containe
    * {@inheritdoc}
    */
   public function getIds() {
-    return array(
-      $this->entityIdKey => array(
+    return [
+      $this->entityIdKey => [
         'type' => 'integer',
         'alias' => 'base',
-      ),
-    );
+      ],
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
   public function fields() {
-    return array();
+    return [];
   }
 
   /**

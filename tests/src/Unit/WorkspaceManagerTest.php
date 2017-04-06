@@ -131,11 +131,11 @@ class WorkspaceManagerTest extends UnitTestCase {
       $this->entities[] = $entity;
     }
 
-    $this->workspaceNegotiators[] = array($this->getMock('Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator'));
+    $this->workspaceNegotiators[] = [$this->getMock('Drupal\multiversion\Workspace\DefaultWorkspaceNegotiator')];
     $session_workspace_negotiator = $this->getMockBuilder('Drupal\multiversion\Workspace\SessionWorkspaceNegotiator')
       ->disableOriginalConstructor()
       ->getMock();
-    $this->workspaceNegotiators[] = array($session_workspace_negotiator);
+    $this->workspaceNegotiators[] = [$session_workspace_negotiator];
   }
 
   /**
@@ -177,7 +177,7 @@ class WorkspaceManagerTest extends UnitTestCase {
    * Tests the loadMultiple() method.
    */
   public function testLoadMultiple() {
-    $ids = array(1,2);
+    $ids = [1,2];
     $storage = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
     $storage->expects($this->once())
       ->method('loadMultiple')
@@ -290,7 +290,7 @@ class WorkspaceManagerTest extends UnitTestCase {
       krsort($negotiators_value);
       // Merge nested negotiators from $negotiators_value into
       // $sorted_negotiators_value.
-      $sorted_negotiators_value = array();
+      $sorted_negotiators_value = [];
       foreach ($negotiators_value as $builders) {
         $sorted_negotiators_value = array_merge($sorted_negotiators_value, $builders);
       }

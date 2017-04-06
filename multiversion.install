@@ -38,10 +38,10 @@ function multiversion_update_8001() {
     $entities = $manager->getSupportedEntityTypes();
 
     // Field can't be NOT NULL on an table with existing data.
-    $field = array(
+    $field = [
       'type' => 'int',
       'unsigned' => TRUE,
-    );
+    ];
 
     // Loop through each one.
     foreach ($entities as $entity_type => $entity) {
@@ -65,13 +65,13 @@ function multiversion_update_8001() {
         $table_revision = $entity_type . '_field_revision';
       }
 
-      $results = array();
+      $results = [];
       // Pull data from the old table.
       $old_data_table = $entity_type . '__workspace';
 
       if ($schema->tableExists($old_data_table)){
         $results = $connection->select($old_data_table)
-          ->fields($old_data_table, array('entity_id', 'workspace_target_id'))
+          ->fields($old_data_table, ['entity_id', 'workspace_target_id'])
           ->execute()->fetchAll();
       }
 
@@ -84,7 +84,7 @@ function multiversion_update_8001() {
         foreach ($results as $result) {
           // Add the value to the new column.
           $connection->update($table_base)
-            ->fields(array('workspace' => $result->workspace_target_id))
+            ->fields(['workspace' => $result->workspace_target_id])
             ->condition($field_id, $result->entity_id, '=')
             ->execute();
         }
@@ -95,17 +95,17 @@ function multiversion_update_8001() {
         $schema->dropTable($old_data_table);
       }
 
-      $results = array();
+      $results = [];
       // Pull data from old table.
       $old_revision_table = $entity_type . '_revision__workspace';
 
       if ($schema->tableExists($old_revision_table)) {
         $results = $connection->select($old_revision_table)
-          ->fields($old_revision_table, array(
+          ->fields($old_revision_table, [
             'entity_id,',
             'revision_id',
             'workspace_target_id'
-          ))
+          ])
           ->execute();
       }
 
@@ -118,7 +118,7 @@ function multiversion_update_8001() {
         foreach ($results as $result) {
           // Add data to the revision table.
           $connection->update($table_revision)
-            ->fields(array('workspace' => $result->workspace_target_id))
+            ->fields(['workspace' => $result->workspace_target_id])
             ->condition($field_id, $result->entity_id, '=')
             ->condition($field_revision, $result->revision_id)
             ->execute();

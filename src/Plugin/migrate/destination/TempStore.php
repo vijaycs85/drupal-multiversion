@@ -84,29 +84,29 @@ class TempStore extends DestinationBase implements ContainerFactoryPluginInterfa
   /**
    * {@inheritdoc}
    */
-  public function import(Row $row, array $old_destination_id_values = array()) {
+  public function import(Row $row, array $old_destination_id_values = []) {
     $source = $row->getSource();
     $this->tempStore->setWithExpire($source['uuid'], $source, $this->expire);
-    return array($this->entityIdKey => $source[$this->entityIdKey]);
+    return [$this->entityIdKey => $source[$this->entityIdKey]];
   }
 
   /**
    * {@inheritdoc}
    */
   public function getIds() {
-    return array(
-      $this->entityIdKey => array(
+    return [
+      $this->entityIdKey => [
         'type' => 'integer',
         'alias' => 'base',
-      ),
-    );
+      ],
+    ];
   }
 
   /**
    * {@inheritdoc}
    */
   public function fields(MigrationInterface $migration = NULL) {
-    return array();
+    return [];
   }
 
 }

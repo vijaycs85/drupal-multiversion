@@ -24,7 +24,7 @@ class MenuTreeStorage extends CoreMenuTreeStorage {
   /**
    * {@inheritdoc}
    */
-  public function __construct(Connection $connection, CacheBackendInterface $menu_cache_backend, CacheTagsInvalidatorInterface $cache_tags_invalidator, $table, array $options = array()) {
+  public function __construct(Connection $connection, CacheBackendInterface $menu_cache_backend, CacheTagsInvalidatorInterface $cache_tags_invalidator, $table, array $options = []) {
     $this->connection = $connection;
     $this->cacheTagsInvalidator = $cache_tags_invalidator;
     $this->table = $table;
