@@ -264,14 +264,25 @@ trait ContentEntityStorageTrait {
     // A list of all known revisions can be passed in to let the current host
     // know about the revision history, for conflict handling etc. A list of
     // revisions are always passed in during replication.
-    else {
-      $revisions = $entity->_rev->revisions;
-      for ($c = 0; $c < count($revisions); ++$c) {
-        $p = $c + 1;
-        $rev = $i-- . '-' . $revisions[$c];
-        $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
-        $branch[$rev] = [$parent_rev];
-      }
+//    elseif ($revisions = $entity->_rev->revisions) {
+//      $rev_count = count($revisions);
+//      if ($i <= $rev_count) {
+//        for ($c = 0; $c < $rev_count; ++$c) {
+//          $p = $c + 1;
+//          $rev = $i-- . '-' . $revisions[$c];
+//          $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
+//          $branch[$rev] = [$parent_rev];
+//        }
+//      }
+//    }
+    // Here we have the case when we have a new entity that already has a
+    // revision hash.
+    elseif ($i > 0 && $entity->isNew()) {
+      $parent_rev = 0;
+      list(, $hash) = explode('-', $rev);
+      $entity->_rev->value = $rev;
+      $entity->_rev->revisions = [$hash];
+      $branch[$rev] = [$parent_rev];
     }
     return $branch;
   }
@@ -291,19 +302,19 @@ trait ContentEntityStorageTrait {
 
       // Decide whether or not this is the default revision.
       if (!$entity->isNew()) {
-        $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
-        $index_factory = \Drupal::service('multiversion.entity_index.factory');
-        /** @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $tree */
-        $tree = $index_factory->get('multiversion.entity_index.rev.tree', $workspace);
-        $default_rev = $tree->getDefaultRevision($entity->uuid());
+//        $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
+//        $index_factory = \Drupal::service('multiversion.entity_index.factory');
+//        /** @var \Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface $tree */
+//        $tree = $index_factory->get('multiversion.entity_index.rev.tree', $workspace);
+//        $default_rev = $tree->getDefaultRevision($entity->uuid());
 
-        if ($entity->_rev->value == $default_rev) {
+//        if ($entity->_rev->value == $default_rev) {
           $entity->isDefaultRevision(TRUE);
-        }
-        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
-        else {
-          $entity->isDefaultRevision(FALSE);
-        }
+//        }
+//        // @todo: {@link https://www.drupal.org/node/2597538 Needs test.}
+//        else {
+//          $entity->isDefaultRevision(FALSE);
+//        }
       }
     }
 
