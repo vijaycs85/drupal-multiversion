@@ -264,26 +264,23 @@ trait ContentEntityStorageTrait {
     // A list of all known revisions can be passed in to let the current host
     // know about the revision history, for conflict handling etc. A list of
     // revisions are always passed in during replication.
-//    elseif ($revisions = $entity->_rev->revisions) {
-//      $rev_count = count($revisions);
-//      if ($i <= $rev_count) {
-//        for ($c = 0; $c < $rev_count; ++$c) {
-//          $p = $c + 1;
-//          $rev = $i-- . '-' . $revisions[$c];
-//          $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
-//          $branch[$rev] = [$parent_rev];
-//        }
-//      }
-//    }
-    // Here we have the case when we have a new entity that already has a
-    // revision hash.
-    elseif ($i > 0 && $entity->isNew()) {
-      $parent_rev = 0;
-      list(, $hash) = explode('-', $rev);
-      $entity->_rev->value = $rev;
-      $entity->_rev->revisions = [$hash];
-      $branch[$rev] = [$parent_rev];
+    elseif ($revisions = $entity->_rev->revisions) {
+      for ($c = 0; $c < count($revisions); ++$c) {
+        $p = $c + 1;
+        $rev = $i-- . '-' . $revisions[$c];
+        $parent_rev = isset($revisions[$p]) ? $i . '-' . $revisions[$p] : 0;
+        $branch[$rev] = [$parent_rev];
+      }
     }
+//    // Here we have the case when we have a new entity that already has a
+//    // revision hash.
+//    elseif ($i > 0 && $entity->isNew()) {
+//      $parent_rev = 0;
+//      list(, $hash) = explode('-', $rev);
+//      $entity->_rev->value = $rev;
+//      $entity->_rev->revisions = [$hash];
+//      $branch[$rev] = [$parent_rev];
+//    }
     return $branch;
   }
 

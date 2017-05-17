@@ -18,10 +18,6 @@ class RevisionsProperty extends TypedData {
    * {@inheritdoc}
    */
   public function getValue($langcode = NULL) {
-    if (!empty($this->value)) {
-      return $this->value;
-    }
-
     /** @var \Drupal\Core\Entity\ContentEntityInterface $entity */
     $entity = $this->getRoot()->getValue();
 
@@ -30,16 +26,25 @@ class RevisionsProperty extends TypedData {
       ->get('multiversion.entity_index.rev.tree', $workspace)
       ->getDefaultBranch($entity->uuid());
 
+    $values = [];
     if (empty($branch) && !$entity->_rev->is_stub && !$entity->isNew()) {
       list($i, $hash) = explode('-', $entity->_rev->value);
-      $this->value = [$hash];
+      $values = [$hash];
     }
     else {
       // We want children first and parent last.
       foreach (array_reverse($branch) as $rev => $status) {
         list($i, $hash) = explode('-', $rev);
-        $this->value[] = $hash;
+        $values[] = $hash;
       }
+    }
+
+    if (empty($this->value)) {
+      $this->value = [];
+    }
+
+    if (!empty($values)) {
+      $this->value = array_values(array_unique(array_merge($this->value, $values), SORT_REGULAR));
     }
 
     return $this->value;
