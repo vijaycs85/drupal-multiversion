@@ -344,9 +344,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
       $default_branch = [];
       $rev = $default_rev['#rev'];
       while ($rev != 0) {
-        if (isset($revs_info["$uuid:$rev"])) {
-          $default_branch[$rev] = $revs_info["$uuid:$rev"]['status'];
-        }
+        $default_branch[$rev] = isset($revs_info["$uuid:$rev"]['status']) ? $revs_info["$uuid:$rev"]['status'] : 'missing';
         // Only the first parent gets included in the default branch.
         $rev = $revs[$rev][0];
       }
