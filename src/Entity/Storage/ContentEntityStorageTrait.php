@@ -232,7 +232,12 @@ trait ContentEntityStorageTrait {
     // accurately build revision trees of all universally known revisions.
     $branch = [];
     $rev = $entity->_rev->value;
+    $revisions = $entity->_rev->revisions;
     list($i) = explode('-', $rev);
+    $count_revisions = count($revisions);
+    if ($count_revisions > $i) {
+      $i = $count_revisions;
+    }
 
     // This is a regular local save operation and a new revision token should be
     // generated. The new_edit property will be set to FALSE during replication
@@ -265,7 +270,6 @@ trait ContentEntityStorageTrait {
     // know about the revision history, for conflict handling etc. A list of
     // revisions are always passed in during replication.
     else {
-      $revisions = $entity->_rev->revisions;
       for ($c = 0; $c < count($revisions); ++$c) {
         $p = $c + 1;
         $rev = $i-- . '-' . $revisions[$c];
