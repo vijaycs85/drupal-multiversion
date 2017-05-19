@@ -8,3 +8,5 @@ dependencies:
   - serialization
   - conflict
   - system (>=8.1.0)
+test_dependencies:
+  - paragraphs

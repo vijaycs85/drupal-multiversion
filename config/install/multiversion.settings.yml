@@ -14,3 +14,4 @@ enabled_entity_types:
   - entity_test_local
   - content_moderation_state
   - replication_log
+  - paragraph

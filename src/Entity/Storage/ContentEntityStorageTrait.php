@@ -21,10 +21,31 @@ trait ContentEntityStorageTrait {
   protected $workspaceId = NULL;
 
   /**
+   * @var  \Drupal\Core\Entity\EntityStorageInterface
+   */
+  protected $originalStorage;
+
+  /**
    * {@inheritdoc}
    */
   public function getQueryServiceName() {
     return 'multiversion.entity.query.sql';
+  }
+
+  /**
+   * Get original entity type storage handler (not the multiversion one).
+   *
+   * @param string $type
+   *   Entity type.
+   *
+   * @return \Drupal\Core\Entity\EntityStorageInterface
+   *   Original entity type storage handler.
+   */
+  protected function getOriginalStorage($type) {
+    if ($this->originalStorage == NULL) {
+      $this->originalStorage = $this->entityManager->getHandler($type, 'original_storage');
+    }
+    return $this->originalStorage;
   }
 
   /**
@@ -116,6 +137,13 @@ trait ContentEntityStorageTrait {
   public function loadMultipleDeleted(array $ids = NULL) {
     $this->isDeleted = TRUE;
     return parent::loadMultiple($ids);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function saveWithoutForcingNewRevision(EntityInterface $entity) {
+    $this->getOriginalStorage($entity->getEntityTypeId())->save($entity);
   }
 
   /**
