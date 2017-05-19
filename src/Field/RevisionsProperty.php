@@ -43,8 +43,14 @@ class RevisionsProperty extends TypedData {
       $this->value = [];
     }
 
-    if (!empty($values)) {
-      $this->value = array_values(array_unique(array_merge($this->value, $values), SORT_REGULAR));
+    $count_value = count($this->value);
+    $count_branch = count($values);
+    if ($count_value == 0 && $count_branch == 0) {
+      return [];
+    }
+    elseif ($count_value == 0 && $count_branch > 0
+      || (count(array_intersect($values, $this->value)) == $count_value)) {
+      $this->value = $values;
     }
 
     return $this->value;
