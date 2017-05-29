@@ -39,8 +39,31 @@ class EntityReferenceRevisionsItem extends ContribEntityReferenceRevisionsItem {
         $needs_save = TRUE;
       }
       if ($needs_save) {
+        // Delete the paragraph when the host entity is deleted.
         if ($host->_deleted->value == TRUE) {
           $this->entity->delete();
+        }
+        // We need special handling for entities with paragraphs fields during
+        // replication (when $host->_rev->new_edit is FALSE).
+        elseif ($host->_rev->new_edit == FALSE) {
+          /** @var \Drupal\multiversion\MultiversionManagerInterface $multiversion_manager */
+          $multiversion_manager = \Drupal::service('multiversion.manager');
+          $entity_type = $this->entity->getEnityType();
+          if ($multiversion_manager->isEnabledEntityType($entity_type)) {
+            /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
+            $entity_type_manager = \Drupal::service('entity_type.manager');
+            /** @var \Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface $storage */
+            $storage = $entity_type_manager->getStorage($this->entity->getEntityTypeId());
+            $entities = $storage->loadByProperties(['uuid' => $this->entity->uuid()]);
+            $entity = reset($entities);
+            if ($entity) {
+              $parent_id = $this->entity->getEntityType()->get('entity_revision_parent_id_field');
+              $entity->set($parent_id, $this->entity->id());
+              $entity->setNewRevision(FALSE);
+              $this->entity = $entity;
+            }
+            $storage->saveWithoutForcingNewRevision($this->entity);
+          }
         }
         else {
           $this->entity->save();
