@@ -48,7 +48,7 @@ class EntityReferenceRevisionsItem extends ContribEntityReferenceRevisionsItem {
         elseif ($host->_rev->new_edit == FALSE) {
           /** @var \Drupal\multiversion\MultiversionManagerInterface $multiversion_manager */
           $multiversion_manager = \Drupal::service('multiversion.manager');
-          $entity_type = $this->entity->getEnityType();
+          $entity_type = $this->entity->getEntityType();
           if ($multiversion_manager->isEnabledEntityType($entity_type)) {
             /** @var \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager */
             $entity_type_manager = \Drupal::service('entity_type.manager');
