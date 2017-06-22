@@ -11,3 +11,4 @@ projects:
       type: git
       branch: 8.x-1.x
       url: "https://github.com/drupaldeploy/drupal-conflict.git"
+  paragraphs: 1.x
