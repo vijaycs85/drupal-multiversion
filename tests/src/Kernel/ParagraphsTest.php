@@ -44,6 +44,7 @@ class ParagraphsTest extends KernelTestBase {
     'node',
     'multiversion',
     'entity_reference_revisions',
+    'file',
   ];
 
   /**
@@ -155,7 +156,7 @@ class ParagraphsTest extends KernelTestBase {
     // Create stub paragraph with same uuid as real paragraph.
     $paragraph_stub_in_node = $this->paragraphStorage->create([
       'type' => 'test_paragraph_type',
-      'uuid' => $paragraph->uuid,
+      'uuid' => $paragraph->uuid(),
     ]);
     $paragraph_stub_in_node->_rev->is_stub = TRUE;
 
