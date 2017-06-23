@@ -10,6 +10,7 @@ use Drupal\multiversion\Entity\Workspace;
  * Test for paragraphs integration.
  *
  * @requires module paragraphs
+ * @requires module entity_reference_revisions
  * @group multiversion
  */
 class ParagraphsTest extends KernelTestBase {
