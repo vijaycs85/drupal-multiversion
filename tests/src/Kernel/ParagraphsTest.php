@@ -137,7 +137,7 @@ class ParagraphsTest extends KernelTestBase {
     $paragraph_real->save();
 
     $this->assertEquals($paragraph_real->id(), $paragraph_stub_entity_id);
-    $this->assertRevNumber($paragraph_real, 1);
+    $this->assertRevNumber($paragraph_real, 2);
   }
 
   /**
