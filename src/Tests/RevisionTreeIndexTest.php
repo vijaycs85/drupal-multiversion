@@ -35,7 +35,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
   }
 
   public function testWithoutDelete() {
-    $storage = $this->entityManager->getStorage('entity_test');
+    $storage = $this->entityManager->getStorage('entity_test_rev');
     $entity = $storage->create();
     $uuid = $entity->uuid();
 
@@ -197,7 +197,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
   }
 
   public function testWithDelete() {
-    $storage = $this->entityManager->getStorage('entity_test');
+    $storage = $this->entityManager->getStorage('entity_test_rev');
     $entity = $storage->create();
     $uuid = $entity->uuid();
 
