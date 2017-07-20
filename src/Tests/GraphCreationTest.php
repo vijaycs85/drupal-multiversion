@@ -85,7 +85,7 @@ class GraphCreationTest extends MultiversionWebTestBase {
     $revs[] = $entity->_rev->value;
 
     $entity = $storage->load(1);
-    $this->assertEqual($entity->getRevisionId(), 6, 'Default revision has been set correctly.');
+    $this->assertEqual($entity->getRevisionId(), 5, 'Default revision has been set correctly.');
 
     // Creating graph from the revision tree.
     $graph = $this->tree->getGraph($uuid);
