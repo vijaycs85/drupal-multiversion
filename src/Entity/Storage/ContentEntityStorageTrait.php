@@ -263,14 +263,8 @@ trait ContentEntityStorageTrait {
     $revisions = $entity->_rev->revisions;
     list($i) = explode('-', $rev);
     $count_revisions = count($revisions);
-    if ($id = $entity->id()) {
-      $latest_revision = $this->load($id);
-      if ($latest_revision) {
-        $max_id = $latest_revision->getRevisionId();
-      }
-    }
-    if ($count_revisions > $i && isset($max_id)) {
-      $i = $count_revisions > $max_id ? $count_revisions : $max_id;
+    if ($count_revisions > $i && $entity->isNew()) {
+      $i = $count_revisions + 1;
     }
 
     // This is a regular local save operation and a new revision token should be

@@ -35,7 +35,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
   }
 
   public function testWithoutDelete() {
-    $storage = $this->entityManager->getStorage('entity_test_rev');
+    $storage = $this->entityManager->getStorage('entity_test');
     $entity = $storage->create();
     $uuid = $entity->uuid();
 
@@ -80,7 +80,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     $revs[] = $entity->_rev->value;
 
     $entity = $storage->load(1);
-    $this->assertEqual($entity->getRevisionId(), 6, 'Default revision has been set correctly.');
+    $this->assertEqual($entity->getRevisionId(), 5, 'Default revision has been set correctly.');
 
     $expected_tree = [
       [
@@ -134,9 +134,9 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
                     '#rev' => $revs[4],
                     '#rev_info' => [
                       'status' => 'available',
-                      'default' => FALSE,
+                      'default' => TRUE,
                       'open_rev' => TRUE,
-                      'conflict' => TRUE,
+                      'conflict' => FALSE,
                     ],
                     'children' => [],
                   ]
@@ -150,9 +150,9 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
             '#rev' => $revs[5],
             '#rev_info' => [
               'status' => 'available',
-              'default' => TRUE,
+              'default' => FALSE,
               'open_rev' => TRUE,
-              'conflict' => FALSE,
+              'conflict' => TRUE,
             ],
             'children' => [],
           ]
@@ -166,17 +166,19 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     $this->assertEqual($tree, $expected_tree, 'Tree was correctly parsed.');
 
     $default_rev = $this->tree->getDefaultRevision($uuid);
-    $this->assertEqual($default_rev, $revs[5], 'Default revision is correct.');
+    $this->assertEqual($default_rev, $revs[4], 'Default revision is correct.');
 
     $expected_default_branch = [
       $revs[0] => 'available',
-      $revs[5] => 'available',
+      $revs[1] => 'available',
+      $revs[3] => 'available',
+      $revs[4] => 'available',
     ];
     $default_branch = $this->tree->getDefaultBranch($uuid);
     $this->assertEqual($default_branch, $expected_default_branch, 'Default branch is correct.');
 
     $count = $this->tree->countRevs($uuid);
-    $this->assertEqual($count, 2, 'Number of revisions is correct.');
+    $this->assertEqual($count, 4, 'Number of revisions is correct.');
 
     $expected_open_revision = [
       $revs[2] => 'available',
@@ -188,14 +190,14 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
 
     $expected_conflicts = [
       $revs[2] => 'available',
-      $revs[4] => 'available',
+      $revs[5] => 'available',
     ];
     $conflicts = $this->tree->getConflicts($uuid);
     $this->assertEqual($conflicts, $expected_conflicts, 'Conflicts are correct');
   }
 
   public function testWithDelete() {
-    $storage = $this->entityManager->getStorage('entity_test_rev');
+    $storage = $this->entityManager->getStorage('entity_test');
     $entity = $storage->create();
     $uuid = $entity->uuid();
 
@@ -256,6 +258,9 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     $entity->save();
     $revs[] = $entity->_rev->value;
 
+    $entity = $storage->loadDeleted(1);
+    $this->assertEqual($entity->getRevisionId(), 5, 'Default revision has been set correctly.');
+
     $expected_tree = [
       [
         '#type' => 'rev',
@@ -285,9 +290,9 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
                 '#rev' => $revs[2],
                 '#rev_info' => [
                   'status' => 'available',
-                  'default' => FALSE,
+                  'default' => TRUE,
                   'open_rev' => TRUE,
-                  'conflict' => TRUE,
+                  'conflict' => FALSE,
                 ],
                 'children' => [],
               ],
@@ -324,9 +329,9 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
             '#rev' => $revs[5],
             '#rev_info' => [
               'status' => 'available',
-              'default' => TRUE,
+              'default' => FALSE,
               'open_rev' => TRUE,
-              'conflict' => FALSE,
+              'conflict' => TRUE,
             ],
             'children' => [],
           ]
@@ -340,17 +345,18 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     $this->assertEqual($tree, $expected_tree, 'Tree was correctly parsed.');
 
     $default_rev = $this->tree->getDefaultRevision($uuid);
-    $this->assertEqual($default_rev, $revs[5], 'Default revision is correct.');
+    $this->assertEqual($default_rev, $revs[2], 'Default revision is correct.');
 
     $expected_default_branch = [
       $revs[0] => 'available',
-      $revs[5] => 'available',
+      $revs[1] => 'deleted',
+      $revs[2] => 'available',
     ];
     $default_branch = $this->tree->getDefaultBranch($uuid);
     $this->assertEqual($default_branch, $expected_default_branch, 'Default branch is correct.');
 
     $count = $this->tree->countRevs($uuid);
-    $this->assertEqual($count, 2, 'Number of revisions is correct.');
+    $this->assertEqual($count, 3, 'Number of revisions is correct.');
 
     $expected_open_revision = [
       $revs[2] => 'available',
@@ -361,7 +367,7 @@ class RevisionTreeIndexTest extends MultiversionWebTestBase {
     $this->assertEqual($open_revisions, $expected_open_revision, 'Open revisions are correct.');
 
     $expected_conflicts = [
-      $revs[2] => 'available',
+      $revs[5] => 'available',
     ];
     $conflicts = $this->tree->getConflicts($uuid);
     $this->assertEqual($conflicts, $expected_conflicts, 'Conflicts are correct');
