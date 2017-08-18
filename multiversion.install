@@ -340,3 +340,26 @@ function multiversion_update_8007() {
     }
   }
 }
+
+/**
+ * Make langcode primary key in base data table and base revision table.
+ */
+function multiversion_update_8101() {
+  $schema = Database::getConnection()->schema();
+  $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
+  /** @var ContentEntityTypeInterface $entity_type */
+  foreach ($entity_types as $entity_type) {
+    if ($entity_type->id() === 'file') {
+      continue;
+    }
+    // Get the tables name used for base table and revision table.
+    $table_base = ($entity_type->isTranslatable()) ? $entity_type->getDataTable() : $entity_type->getBaseTable();
+    $table_revision = ($entity_type->isTranslatable()) ? $entity_type->getRevisionDataTable() : $entity_type->getRevisionTable();
+
+    $schema->dropPrimaryKey($table_base);
+    $schema->dropPrimaryKey($table_revision);
+    //  $schema->dropIndex('history', 'langcode');
+    $schema->addPrimaryKey($table_base, [$entity_type->getKey('id'), 'langcode']);
+    $schema->addPrimaryKey($table_revision, [$entity_type->getKey('revision'), 'langcode']);
+  }
+}
