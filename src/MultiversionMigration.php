@@ -91,7 +91,10 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       'id' => $id,
       'label' => '',
       'process' => $this->getFieldMap($entity_type),
-      'source' => ['plugin' => 'multiversion'],
+      'source' => [
+        'plugin' => 'multiversion',
+        'translations' => TRUE,
+      ],
       'destination' => ['plugin' => 'tempstore'],
     ];
     $migration = \Drupal::service('plugin.manager.migration')
@@ -162,7 +165,10 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       'label' => '',
       'process' => $this->getFieldMap($entity_type, TRUE),
       'source' => ['plugin' => 'tempstore'],
-      'destination' => ['plugin' => 'multiversion'],
+      'destination' => [
+        'plugin' => 'multiversion',
+        'translations' => TRUE,
+      ],
     ];
     $migration = \Drupal::service('plugin.manager.migration')
       ->createStubMigration($values);
