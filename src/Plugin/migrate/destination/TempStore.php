@@ -41,6 +41,14 @@ class TempStore extends DestinationBase implements ContainerFactoryPluginInterfa
   protected $entityIdKey;
 
   /**
+   * @var string
+   */
+  private $entityLanguageKey;
+
+  /** @var \Drupal\Core\Entity\EntityManagerInterface  */
+  private $entityManager;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration = NULL) {
@@ -74,10 +82,12 @@ class TempStore extends DestinationBase implements ContainerFactoryPluginInterfa
     parent::__construct($configuration, $plugin_id, $plugin_definition, $migration);
 
     list($entity_type_id) = explode('__', $migration->id());
-    $entity_type = $entity_manager->getDefinition($entity_type_id);
+    $this->entityManager = $entity_manager;
+    $entity_type = $this->entityManager->getDefinition($entity_type_id);
 
     $this->entityTypeId = $entity_type_id;
     $this->entityIdKey = $entity_type->getKey('id');
+    $this->entityLanguageKey = $entity_type->getKey('langcode');
     $this->tempStore = $temp_store_factory->get('multiversion_migration_' . $this->entityTypeId);
   }
 
@@ -87,19 +97,34 @@ class TempStore extends DestinationBase implements ContainerFactoryPluginInterfa
   public function import(Row $row, array $old_destination_id_values = []) {
     $source = $row->getSource();
     $this->tempStore->setWithExpire($source['uuid'], $source, $this->expire);
-    return [$this->entityIdKey => $source[$this->entityIdKey]];
+    $return = [$this->entityIdKey => $source[$this->entityIdKey]];
+    if ($this->entityLanguageKey) {
+      $return[$this->entityLanguageKey] = $source[$this->entityLanguageKey];
+    }
+    return $return;
+  }
+
+  /**
+   * Get whether this destination is for translations.
+   *
+   * @return bool
+   *   Whether this destination is for translations.
+   */
+  protected function isTranslationDestination() {
+    return !empty($this->configuration['translations']);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getIds() {
-    return [
-      $this->entityIdKey => [
-        'type' => 'integer',
-        'alias' => 'base',
-      ],
-    ];
+    $ids[$this->entityIdKey] = $this->getDefinitionFromEntity($this->entityIdKey);
+
+    if ($this->isTranslationDestination() && $this->entityLanguageKey) {
+      $ids[$this->entityLanguageKey] = $this->getDefinitionFromEntity($this->entityLanguageKey);
+    }
+
+    return $ids;
   }
 
   /**
@@ -107,6 +132,33 @@ class TempStore extends DestinationBase implements ContainerFactoryPluginInterfa
    */
   public function fields(MigrationInterface $migration = NULL) {
     return [];
+  }
+
+  /**
+   * Gets the field definition from a specific entity base field.
+   *
+   * The method takes the field ID as an argument and returns the field storage
+   * definition to be used in getIds() by querying the destination entity base
+   * field definition.
+   *
+   * @param string $key
+   *   The field ID key.
+   *
+   * @return array
+   *   An associative array with a structure that contains the field type, keyed
+   *   as 'type', together with field storage settings as they are returned by
+   *   FieldStorageDefinitionInterface::getSettings().
+   *
+   * @see \Drupal\Core\Field\FieldStorageDefinitionInterface::getSettings()
+   */
+  protected function getDefinitionFromEntity($key) {
+    /** @var \Drupal\Core\Field\FieldStorageDefinitionInterface[] $definitions */
+    $definitions = $this->entityManager->getBaseFieldDefinitions($this->entityTypeId);
+    $field_definition = $definitions[$key];
+
+    return [
+        'type' => $field_definition->getType(),
+      ] + $field_definition->getSettings();
   }
 
 }
