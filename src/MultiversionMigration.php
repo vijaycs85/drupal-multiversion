@@ -211,21 +211,10 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       $definitions = $entity_field_manager->getFieldDefinitions($entity_type->id(), $bundle_id);
       foreach ($definitions as $definition) {
         $name = $definition->getName();
-        $type = $definition->getType();
-        $text_types = ['text', 'text_long', 'text_with_summary'];
-        if ($migration_from_tmp && in_array($type, $text_types)) {
-          // Add a custom process plugin for text fields.
-          $map[$name] = [
-            'plugin' => 'text_field_process',
-            'source' => $name,
-          ];
-        }
-        else {
-          // We don't want our own fields to be part of the migration mapping or
-          // they would get assigned NULL instead of default values.
-          if (!in_array($name, ['workspace', '_deleted', '_rev'])) {
-            $map[$name] = $name;
-          }
+        // We don't want our own fields to be part of the migration mapping or
+        // they would get assigned NULL instead of default values.
+        if (!in_array($name, ['workspace', '_deleted', '_rev'])) {
+          $map[$name] = $name;
         }
       }
     }
