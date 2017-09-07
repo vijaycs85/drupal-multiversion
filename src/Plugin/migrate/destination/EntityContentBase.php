@@ -7,7 +7,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\Password\PasswordInterface;
 use Drupal\migrate\MigrateException;
-use Drupal\migrate\Plugin\migrate\destination\EntityContentBase;
+use Drupal\migrate\Plugin\migrate\destination\EntityContentBase as CoreEntityContentBase;
 use Drupal\migrate\Plugin\MigrateIdMapInterface;
 use Drupal\migrate\Plugin\MigrationInterface;
 use Drupal\migrate\Row;
@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   id = "multiversion"
  * )
  */
-class ContentEntityBase extends EntityContentBase {
+class EntityContentBase extends CoreEntityContentBase {
 
   /**
    * The password service class.
@@ -101,12 +101,17 @@ class ContentEntityBase extends EntityContentBase {
             file_unmanaged_move($destinations['uri'], $destination, FILE_EXISTS_REPLACE);
           }
 
-          // @todo Should this sitll set the destination if the move fails?
+          // @todo Should this still set the destination if the move fails?
           $entity->uri->setValue($destination);
         }
       }
     }
-    return $this->save($entity, $old_destination_id_values);
+
+    $ids = $this->save($entity, $old_destination_id_values);
+    if ($this->isTranslationDestination()) {
+      $ids[] = $entity->language()->getId();
+    }
+    return $ids;
   }
 
   /**

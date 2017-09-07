@@ -9,7 +9,7 @@ namespace Drupal\multiversion\Plugin\migrate\source;
  *   id = "multiversion"
  * )
  */
-class ContentEntityBase extends SourcePluginBase {
+class EntityContentBase extends SourcePluginBase {
 
   /**
    * {@inheritdoc}
