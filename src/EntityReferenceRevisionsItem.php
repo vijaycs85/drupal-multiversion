@@ -21,6 +21,12 @@ class EntityReferenceRevisionsItem extends ContribEntityReferenceRevisionsItem {
    * @see \Drupal\entity_reference_revisions\Plugin\Field\FieldType\EntityReferenceRevisionsItem::preSave()
    */
   public function preSave() {
+    if (!$this->parentIsEnabledEntityType()) {
+      // Call source class method if parent entity isn't supported by Multiversion.
+      parent::preSave();
+      return;
+    }
+
     $has_new = $this->hasNewEntity();
 
     // If it is a new entity, parent will save it.
@@ -94,6 +100,12 @@ class EntityReferenceRevisionsItem extends ContribEntityReferenceRevisionsItem {
       return;
     }
 
+    if (!$this->parentIsEnabledEntityType()) {
+      // Call source class method if parent entity isn't supported by Multiversion.
+      parent::postSave($update);
+      return;
+    }
+
     $entity = $this->entity;
     $parent_entity = $this->getEntity();
 
@@ -139,6 +151,22 @@ class EntityReferenceRevisionsItem extends ContribEntityReferenceRevisionsItem {
         $storage->saveWithoutForcingNewRevision($entity);
       }
     }
+  }
+
+  /**
+   * Checks whether parent entity is supported by Multiversion or not.
+   *
+   * @return bool
+   *   TRUE if parent entity is supported by Multiversion, FALSE otherwise.
+   */
+  protected function parentIsEnabledEntityType() {
+    $parent_entity = $this->getEntity();
+    $parent_entity_type = $parent_entity->getEntityType();
+    if (\Drupal::service('multiversion.manager')->isEnabledEntityType($parent_entity_type)) {
+      return TRUE;
+    }
+
+    return FALSE;
   }
 
 }
