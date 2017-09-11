@@ -349,7 +349,7 @@ function multiversion_update_8101() {
   $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
   /** @var ContentEntityTypeInterface $entity_type */
   foreach ($entity_types as $entity_type) {
-    if ($entity_type->id() === 'file') {
+    if ($entity_type->id() === 'file' || $entity_type->get('local') == TRUE || empty($entity_type->getKey('langcode'))) {
       continue;
     }
     // Get the tables name used for base table and revision table.
