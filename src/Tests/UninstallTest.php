@@ -83,9 +83,6 @@ class UninstallTest extends WebTestBase {
     // Install Multiversion.
     $this->moduleInstaller->install(['multiversion']);
 
-    // Check if all updates have been applied.
-    $this->assertFalse(\Drupal::service('entity.definition_update_manager')->needsUpdates(), 'All compatible entity types have been updated.');
-
     foreach ($this->entityTypes as $entity_type_id => $values) {
       $storage = \Drupal::entityTypeManager()->getStorage($entity_type_id);
       $count = 2;
