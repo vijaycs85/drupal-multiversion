@@ -15,6 +15,7 @@ use Drupal\multiversion\Entity\Workspace;
  */
 class ParagraphsTest extends KernelTestBase {
 
+  protected $strictConfigSchema = FALSE;
 
   /**
    * The paragraph entity storage.
