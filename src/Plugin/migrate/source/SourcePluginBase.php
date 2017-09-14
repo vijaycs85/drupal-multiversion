@@ -26,6 +26,11 @@ abstract class SourcePluginBase extends CoreSourcePluginBase implements Containe
   protected $entityIdKey;
 
   /**
+   * @var string
+   */
+  private $entityLanguageKey;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition, MigrationInterface $migration = NULL) {
@@ -61,18 +66,47 @@ abstract class SourcePluginBase extends CoreSourcePluginBase implements Containe
 
     $this->entityTypeId = $entity_type_id;
     $this->entityIdKey = $entity_type->getKey('id');
+    $this->entityLanguageKey = $entity_type->getKey('langcode');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getIds() {
+    $ids[$this->entityIdKey] = $this->getDefinitionFromEntity($this->entityIdKey);
+
+    if ($this->entityLanguageKey) {
+      $ids[$this->entityLanguageKey] = $this->getDefinitionFromEntity($this->entityLanguageKey);
+    }
+
+    return $ids;
+  }
+
+  /**
+   * Gets the field definition from a specific entity base field.
+   *
+   * The method takes the field ID as an argument and returns the field storage
+   * definition to be used in getIds() by querying the destination entity base
+   * field definition.
+   *
+   * @param string $key
+   *   The field ID key.
+   *
+   * @return array
+   *   An associative array with a structure that contains the field type, keyed
+   *   as 'type', together with field storage settings as they are returned by
+   *   FieldStorageDefinitionInterface::getSettings().
+   *
+   * @see \Drupal\Core\Field\FieldStorageDefinitionInterface::getSettings()
+   */
+  protected function getDefinitionFromEntity($key) {
+    /** @var \Drupal\Core\Field\FieldStorageDefinitionInterface[] $definitions */
+    $definitions = $this->entityManager->getBaseFieldDefinitions($this->entityTypeId);
+    $field_definition = $definitions[$key];
+
     return [
-      $this->entityIdKey => [
-        'type' => 'integer',
-        'alias' => 'base',
-      ],
-    ];
+        'type' => $field_definition->getType(),
+      ] + $field_definition->getSettings();
   }
 
   /**

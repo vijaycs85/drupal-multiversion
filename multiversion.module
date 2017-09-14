@@ -140,7 +140,7 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setLabel(t('Deleted flag'))
       ->setDescription(t('Indicates if the entity is flagged as deleted or not.'))
       ->setRevisionable(TRUE)
-      ->setTranslatable(TRUE)
+      ->setTranslatable(FALSE)
       ->setDefaultValue(FALSE)
       ->setCardinality(1);
 
@@ -148,7 +148,7 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setLabel(t('Revision token'))
       ->setDescription(t('The token for this entity revision.'))
       ->setRevisionable(TRUE)
-      ->setTranslatable(TRUE)
+      ->setTranslatable(FALSE)
       ->setCardinality(1)
       ->setReadOnly(TRUE);
 

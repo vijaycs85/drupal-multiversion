@@ -91,8 +91,14 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       'id' => $id,
       'label' => '',
       'process' => $this->getFieldMap($entity_type),
-      'source' => ['plugin' => 'multiversion'],
-      'destination' => ['plugin' => 'tempstore'],
+      'source' => [
+        'plugin' => 'multiversion',
+        'translations' => TRUE,
+      ],
+      'destination' => [
+        'plugin' => 'tempstore',
+        'translations' => TRUE,
+        ],
     ];
     $migration = \Drupal::service('plugin.manager.migration')
       ->createStubMigration($values);
@@ -145,9 +151,6 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * {@inheritdoc}
    */
   public function applyNewStorage() {
-    // The first call is for making entity types revisionable, the second call
-    // is for adding required fields.
-    $this->updateManager->applyUpdates();
     $this->updateManager->applyUpdates();
     return $this;
   }
@@ -164,8 +167,14 @@ class MultiversionMigration implements MultiversionMigrationInterface {
       'id' => $id,
       'label' => '',
       'process' => $this->getFieldMap($entity_type, TRUE),
-      'source' => ['plugin' => 'tempstore'],
-      'destination' => ['plugin' => 'multiversion'],
+      'source' => [
+        'plugin' => 'tempstore',
+        'translations' => TRUE,
+        ],
+      'destination' => [
+        'plugin' => 'multiversion',
+        'translations' => TRUE,
+      ],
     ];
     $migration = \Drupal::service('plugin.manager.migration')
       ->createStubMigration($values);

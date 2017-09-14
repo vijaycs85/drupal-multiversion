@@ -62,7 +62,36 @@ class TempStore extends SourcePluginBase {
    */
   protected function initializeIterator() {
     $values = $this->tempStore->getAll();
-    return new \ArrayIterator($values);
+    $result = new \ArrayIterator($values);
+    // Suppress errors (for PHP 5).
+    @$result->uksort([$this, 'sortKeys']);
+    return $result;
+  }
+
+  /**
+   * Sorts values by default language, translations in default language will be
+   * always first. This will make sure that translations in non-default
+   * languages will be saved after the translation in default language.
+   *
+   * @param string $a
+   * @param string $b
+   *
+   * @return int
+   */
+  public static function sortKeys(string $a, string $b) {
+    $default_language_id = \Drupal::languageManager()->getDefaultLanguage()->getId();
+    $a_contains_default_language_id = strpos($a, '.' . $default_language_id);
+    $b_contains_default_language_id = strpos($b, '.' . $default_language_id);
+
+    if ($a_contains_default_language_id !== FALSE && $b_contains_default_language_id === FALSE) {
+      return -1;
+    }
+    elseif ($a_contains_default_language_id === FALSE && $b_contains_default_language_id !== FALSE) {
+      return 1;
+    }
+    else {
+      return 0;
+    }
   }
 
 }
