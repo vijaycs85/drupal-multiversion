@@ -63,7 +63,8 @@ class TempStore extends SourcePluginBase {
   protected function initializeIterator() {
     $values = $this->tempStore->getAll();
     $result = new \ArrayIterator($values);
-    $result->uksort([$this, 'sortKeys']);
+    // Suppress errors (for PHP 5).
+    @$result->uksort([$this, 'sortKeys']);
     return $result;
   }
 
