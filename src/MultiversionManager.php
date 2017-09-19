@@ -440,25 +440,32 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
         unset($entity_types[$entity_type_id]);
       }
 
-      // Migrate content to temporary storage. And empty the old storage.
+      // Migrate content to temporary storage.
       if ($has_data[$entity_type_id]) {
-        $this->emptyOldStorage($storage, $migration);
+        if ($storage->getEntityTypeId() === 'file') {
+          $migration->copyFilesToMigrateDirectory($storage);
+        }
+        $migration->migrateContentToTemp($storage->getEntityType());
+      }
+    }
+
+    // Empty old storages. Do this just after migrating all entities to
+    // temporary storage because deleting some entity types could delete
+    // referenced entities (E.g.: deleting poll entities will also delete
+    // poll_choice).
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      if ($has_data[$entity_type_id] === TRUE) {
+        /** @var \Drupal\Core\Entity\EntityStorageInterface $storage */
+        $storage = $this->entityTypeManager->getStorage($entity_type_id);
+
+        // Because of the way the Entity API treats entity definition updates we
+        // need to ensure each storage is empty before we can apply the new
+        // definition.
+        $migration->emptyOldStorage($storage);
       }
     }
 
     return $has_data;
-  }
-
-  protected function emptyOldStorage(EntityStorageInterface $storage, MultiversionMigrationInterface $migration) {
-    if ($storage->getEntityTypeId() === 'file') {
-      $migration->copyFilesToMigrateDirectory($storage);
-    }
-    $migration->migrateContentToTemp($storage->getEntityType());
-
-    // Because of the way the Entity API treats entity definition updates we
-    // need to ensure each storage is empty before we can apply the new
-    // definition.
-    $migration->emptyOldStorage($storage);
   }
 
 }
