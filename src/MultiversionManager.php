@@ -301,10 +301,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $has_data = $this->prepareContentForMigration($entity_types, $migration);
 
     if ($entity_types_to_disable === NULL) {
-      // Delete all content of workspace type.
-      $storage = $this->entityTypeManager->getStorage('workspace');
-      $this->emptyOldStorage($storage, $migration);
-
       // Uninstall field storage definitions provided by multiversion.
       $this->entityTypeManager->clearCachedDefinitions();
       $update_manager = \Drupal::entityDefinitionUpdateManager();
