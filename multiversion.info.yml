@@ -11,3 +11,4 @@ dependencies:
 test_dependencies:
   - paragraphs
   - entity_reference_revisions
+  - poll
