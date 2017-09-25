@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\multiversion\Entity\WorkspaceInterface;
@@ -69,6 +70,10 @@ function multiversion_entity_type_alter(array &$entity_types) {
 
         case 'media':
           $entity_type->setHandlerClass('storage', "$namespace\\MediaStorage");
+          break;
+
+        case 'poll':
+          $entity_type->setHandlerClass('storage', "$namespace\\PollStorage");
           break;
 
         default:
@@ -295,6 +300,8 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
     'glossary',
     'archive',
     'block_content',
+    'poll_admin',
+    'poll_list',
   ];
   if (in_array($view->id(), $views_ids)) {
     $base_table = $view->storage->get('base_table');

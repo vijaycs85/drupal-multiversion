@@ -53,7 +53,13 @@ trait EntityReferenceFieldTrait {
       }
       // Make sure the parent knows we are updating this property so it can
       // react properly.
-      $this->target_id = $this->entity->id();
+      if (empty($this->entity) && !empty($record['entity_id'])) {
+        $id = $record['entity_id'];
+      }
+      else {
+        $id = $this->entity->id();
+      }
+      $this->target_id = $id;
     }
     if (!$this->isEmpty() && $this->target_id === NULL) {
       $this->target_id = $this->entity->id();
