@@ -1,7 +1,7 @@
 <?php
 
 use Drupal\Core\Cache\Cache;
-use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Database\Query\AlterableInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\multiversion\Entity\WorkspaceInterface;
@@ -310,6 +310,22 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
       'value' => FALSE,
       'operator' => '=',
     ];
+  }
+}
+
+/**
+ * Implements hook_query_TAG_alter().
+ */
+function multiversion_query_entity_query_alter(AlterableInterface $query) {
+  $entity_type = $query->getMetaData('entity_type');
+  $tables = $query->getTables();
+  if ($entity_type && in_array($entity_type . '_field_data', array_keys($tables))) {
+    $enabled = \Drupal::state()->get('multiversion.migration_done.' . $query->getMetaData('entity_type'), FALSE);
+    if ($enabled) {
+      $active_workspace_id = \Drupal::service('workspace.manager')->getActiveWorkspace()->id();
+      $alias = $tables[$entity_type . '_field_data']['alias'];
+      $query->condition("$alias.workspace", $active_workspace_id);
+    }
   }
 }
 
