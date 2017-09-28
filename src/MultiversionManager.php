@@ -213,16 +213,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    */
   public function enableEntityTypes($entity_types_to_enable = NULL) {
     $entity_types = ($entity_types_to_enable !== NULL) ? $entity_types_to_enable : $this->getSupportedEntityTypes();
-    $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
-    foreach ($entity_types as $entity_type_id => $entity_type) {
-      if (!in_array($entity_type_id, $enabled_entity_types)) {
-        $enabled_entity_types[] = $entity_type_id;
-      }
-    }
-    \Drupal::configFactory()
-      ->getEditable('multiversion.settings')
-      ->set('enabled_entity_types', $enabled_entity_types)
-      ->save();
 
     $migration = $this->createMigration();
     $migration->installDependencies();
@@ -270,6 +260,17 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       // actual content was migrated.
       $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
     }
+
+    $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      if (!in_array($entity_type_id, $enabled_entity_types)) {
+        $enabled_entity_types[] = $entity_type_id;
+      }
+    }
+    \Drupal::configFactory()
+      ->getEditable('multiversion.settings')
+      ->set('enabled_entity_types', $enabled_entity_types)
+      ->save();
 
     // Enable the the maintenance of entity statistics for comments.
     $this->state->set('comment.maintain_entity_statistics', TRUE);
