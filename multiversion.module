@@ -196,6 +196,7 @@ function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface
       $entity_type->getKey('revision'),
       $entity_type->getKey('uuid'),
       $entity_type->getKey('bundle'),
+      $entity_type->getKey('langcode'),
       'workspace',
       '_deleted',
       '_rev',

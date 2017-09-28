@@ -15,8 +15,15 @@ class EntityContentBase extends SourcePluginBase {
    * {@inheritdoc}
    */
   protected function initializeIterator() {
-    $storage = $this->entityManager->getStorage($this->entityTypeId);
-    $entities = $storage->loadMultiple();
+    // At this point Multiversion is obviously installed and the new storage
+    // handler is already active. But since the new schema isn't applied yet
+    // and the new handler doesn't know how to load from the old schema, we have
+    // to initialize the previously installed storage handler and use that to
+    // load the entities.
+    $last_definition = $this->entityManager->getLastInstalledDefinition($this->entityTypeId);
+    $storage_class = $last_definition->getStorageClass();
+    $last_storage = $this->entityManager->createHandlerInstance($storage_class, $last_definition);
+    $entities = $last_storage->loadMultiple();
 
     $results = [];
     foreach ($entities as $entity_id => $entity) {
@@ -47,7 +54,6 @@ class EntityContentBase extends SourcePluginBase {
     }
 
     // Make sure we don't migrate deleted entities.
-    $storage_class = $storage->getEntityType()->getStorageClass();
     if (strpos($storage_class, 'Drupal\multiversion\Entity\Storage') !== FALSE) {
       foreach ($results as $key => $value) {
         if (isset($value['_deleted']) && $value['_deleted'] == 1) {
