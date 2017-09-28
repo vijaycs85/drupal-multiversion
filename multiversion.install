@@ -384,11 +384,10 @@ function multiversion_update_8102() {
  * Enable poll and poll_choices.
  */
 function multiversion_update_8103() {
-  /** @var \Drupal\Core\Entity\EntityLastInstalledSchemaRepositoryInterface $last_schema */
-  $last_schema = \Drupal::service('entity.last_installed_schema.repository');
+  $manager = \Drupal::entityTypeManager();
   $entity_types = [];
   foreach (['poll_choice', 'poll'] as $id) {
-    $entity_type = $last_schema->getLastInstalledDefinition($id);
+    $entity_type = $manager->getStorage($id)->getEntityType();
     if ($entity_type instanceof ContentEntityTypeInterface) {
       $entity_types[$id] = $entity_type;
     }

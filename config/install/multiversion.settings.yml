@@ -15,3 +15,5 @@ enabled_entity_types:
   - content_moderation_state
   - replication_log
   - paragraph
+  - poll
+  - poll_choice
