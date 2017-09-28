@@ -386,7 +386,7 @@ function multiversion_update_8102() {
 function multiversion_update_8103() {
   $manager = \Drupal::entityTypeManager();
   $entity_types = [];
-  foreach (['poll_choice', 'poll'] as $id) {
+  foreach (['poll', 'poll_choice'] as $id) {
     $entity_type = $manager->getStorage($id)->getEntityType();
     if ($entity_type instanceof ContentEntityTypeInterface) {
       $entity_types[$id] = $entity_type;
