@@ -45,10 +45,12 @@ trait QueryTrait {
 
   public function prepare() {
     parent::prepare();
+    $entity_type = $this->entityManager->getDefinition($this->entityTypeId);
+    $enabled = \Drupal::state()->get('multiversion.migration_done.' . $this->getEntityTypeId(), FALSE);
     // Add necessary conditions just when the storage class is defined by the
     // Multiversion module. This is needed when uninstalling Multiversion.
-    if (!is_subclass_of($this->entityType->getStorageClass(), 'Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface')) {
-      $revision_key = $this->entityType->getKey('revision');
+    if (!is_subclass_of($entity_type, 'Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface') && $enabled) {
+      $revision_key = $entity_type->getKey('revision');
       $revision_query = FALSE;
       foreach ($this->condition->conditions() as $condition) {
         if ($condition['field'] == $revision_key) {
