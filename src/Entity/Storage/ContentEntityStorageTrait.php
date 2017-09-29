@@ -53,10 +53,9 @@ trait ContentEntityStorageTrait {
    */
   protected function buildQuery($ids, $revision_id = FALSE) {
     $query = parent::buildQuery($ids, $revision_id);
-    $enabled = \Drupal::state()->get('multiversion.migration_done.' . $this->getEntityTypeId(), FALSE);
 
     // Prevent to modify the query before entity type updates.
-    if (!is_subclass_of($this->entityType->getStorageClass(), 'Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface') || !$enabled) {
+    if (!is_subclass_of($this->entityType->getStorageClass(), 'Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface')) {
       return $query;
     }
 
