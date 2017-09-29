@@ -182,14 +182,10 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    */
   public function isEnabledEntityType(EntityTypeInterface $entity_type) {
     if ($this->isSupportedEntityType($entity_type)) {
-      // Check if the whole migration is done.
-      if ($this->state->get('multiversion.migration_done', FALSE)) {
-        return TRUE;
-      }
       // Check if the migration for this particular entity type is done or if
       // the migration is still active.
       $done = $this->state->get('multiversion.migration_done.' . $entity_type->id(), FALSE);
-      return ($done || self::migrationIsActive());
+      return $done;
     }
   }
 
