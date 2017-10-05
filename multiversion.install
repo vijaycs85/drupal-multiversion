@@ -392,7 +392,7 @@ function multiversion_update_8103() {
       $entity_types[$id] = $entity_type;
     }
   }
-  if (!empty($entity_type)) {
+  if (!empty($entity_types)) {
     \Drupal::service('multiversion.manager')->enableEntityTypes($entity_types);
   }
 }
