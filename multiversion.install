@@ -370,11 +370,14 @@ function multiversion_update_8102() {
   $entity_types = \Drupal::service('multiversion.manager')->getSupportedEntityTypes();
   $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
   foreach ($entity_types as $entity_type_id => $entity_type) {
-    foreach (['_deleted', '_rev'] as $field_name) {
-      $field_storage_definition = $entity_definition_update_manager->getFieldStorageDefinition($field_name, $entity_type_id);
-      if ($field_storage_definition) {
-        $field_storage_definition->setTranslatable(FALSE);
-        $entity_definition_update_manager->updateFieldStorageDefinition($field_storage_definition);
+    $enabled = \Drupal::state()->get('multiversion.migration_done.' . $entity_type_id, FALSE);
+    if ($enabled) {
+      foreach (['_deleted', '_rev'] as $field_name) {
+        $field_storage_definition = $entity_definition_update_manager->getFieldStorageDefinition($field_name, $entity_type_id);
+        if ($field_storage_definition) {
+          $field_storage_definition->setTranslatable(FALSE);
+          $entity_definition_update_manager->updateFieldStorageDefinition($field_storage_definition);
+        }
       }
     }
   }
