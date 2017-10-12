@@ -318,14 +318,21 @@ function multiversion_views_query_alter(ViewExecutable $view, QueryPluginBase $q
  * Implements hook_query_TAG_alter().
  */
 function multiversion_query_entity_query_alter(AlterableInterface $query) {
-  $entity_type = $query->getMetaData('entity_type');
-  $tables = $query->getTables();
-  if ($entity_type && in_array($entity_type . '_field_data', array_keys($tables))) {
-    $enabled = \Drupal::state()->get('multiversion.migration_done.' . $query->getMetaData('entity_type'), FALSE);
-    if ($enabled) {
-      $active_workspace_id = \Drupal::service('workspace.manager')->getActiveWorkspace()->id();
-      $alias = $tables[$entity_type . '_field_data']['alias'];
-      $query->condition("$alias.workspace", $active_workspace_id);
+  $entity_type_id = $query->getMetaData('entity_type');
+  if ($entity_type_id &&\Drupal::state()->get('multiversion.migration_done.' . $entity_type_id, FALSE)) {
+    $entity_type = \Drupal::entityTypeManager()->getDefinition($entity_type_id);
+    $revision_key = $entity_type->getKey('revision');
+    $data_table = $entity_type->getDataTable();
+    if ($data_table) {
+      $query->join(
+        $data_table,
+        NULL,
+        'base_table.' . $revision_key . '=' . $entity_type->getDataTable() . '.' . $revision_key
+      );
+      $active_workspace_id = \Drupal::service('workspace.manager')
+        ->getActiveWorkspace()
+        ->id();
+      $query->condition($data_table . '.workspace', $active_workspace_id);
     }
   }
 }
