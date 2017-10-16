@@ -1,4 +1,5 @@
-enabled_entity_types:
+#Entity types supported by multiversion.
+supported_entity_types:
   - node
   - taxonomy_term
   - comment
@@ -17,3 +18,6 @@ enabled_entity_types:
   - paragraph
   - poll
   - poll_choice
+#Entity types enabled by Multiversion. When Multiversion is installed it will enable all supported entity types if they
+#exist (if the module that provides the entity type is enabled).
+enabled_entity_types:

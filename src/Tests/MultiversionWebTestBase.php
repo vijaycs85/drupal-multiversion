@@ -75,13 +75,16 @@ abstract class MultiversionWebTestBase extends WebTestBase {
   protected function setUp() {
     parent::setUp();
 
+    $this->entityTypeManager = $this->container->get('entity_type.manager');
+    $shortcut_et = $this->entityTypeManager->getStorage('shortcut')->getEntityType();
+    \Drupal::service('multiversion.manager')->enableEntityTypes(['shortcut' => $shortcut_et]);
+
     $this->uuidIndex = $this->container->get('multiversion.entity_index.uuid');
     $this->revIndex = $this->container->get('multiversion.entity_index.rev');
     $this->revTree = $this->container->get('multiversion.entity_index.rev.tree');
 
     $this->multiversionManager = $this->container->get('multiversion.manager');
     $this->workspaceManager = $this->container->get('workspace.manager');
-    $this->entityTypeManager = $this->container->get('entity_type.manager');
     $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
 
     // Create Basic page and Article node types.
