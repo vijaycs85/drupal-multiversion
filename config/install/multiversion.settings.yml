@@ -20,4 +20,4 @@ supported_entity_types:
   - poll_choice
 #Entity types enabled by Multiversion. When Multiversion is installed it will enable all supported entity types if they
 #exist (if the module that provides the entity type is enabled).
-enabled_entity_types:
+enabled_entity_types: {  }
