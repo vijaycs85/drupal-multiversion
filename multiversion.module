@@ -105,7 +105,7 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
   /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
   $manager = \Drupal::service('multiversion.manager');
 
-  if ($manager->isEnabledEntityType($entity_type)) {
+  if ($manager->allowToAlter($entity_type)) {
     $fields = [];
 
     // @todo: Alter the entity label field to make it revisionable.

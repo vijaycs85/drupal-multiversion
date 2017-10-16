@@ -194,6 +194,10 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function allowToAlter(EntityTypeInterface $entity_type) {
+    $supported_entity_types = \Drupal::config('multiversion.settings')->get('supported_entity_types') ?: [];
+    if (!in_array($entity_type->id(), $supported_entity_types)) {
+      return FALSE;
+    }
     return ($this->isEnabledEntityType($entity_type) || self::migrationIsActive());
   }
 
