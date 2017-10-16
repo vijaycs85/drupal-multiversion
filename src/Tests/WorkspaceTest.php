@@ -29,9 +29,6 @@ class WorkspaceTest extends MultiversionWebTestBase {
 
     $entity = Workspace::load($entity->id());
     $this->assertEqual($machine_name, $entity->get('machine_name')->value, 'Workspace entity was loaded by ID.');
-
-    $entity = $this->entityManager->loadEntityByUuid('workspace', $entity->uuid());
-    $this->assertEqual($machine_name, $entity->get('machine_name')->value, 'Workspace entity was loaded by UUID.');
     $this->assertEqual($machine_name, $entity->label(), 'Label method returns the workspace name.');
 
     $created = $entity->getStartTime();

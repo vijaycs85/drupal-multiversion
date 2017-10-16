@@ -29,7 +29,7 @@ class RevisionFieldTest extends FieldTestBase {
 
   public function testFieldOperations() {
     foreach ($this->entityTypes as $entity_type_id => $values) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
+      $storage = $this->entityTypeManager->getStorage($entity_type_id);
       $entity = $this->createTestEntity($storage, $values);
 
       // Test normal save operations.

@@ -4,7 +4,7 @@ namespace Drupal\multiversion\Entity\Query;
 
 /**
  * @property $entityTypeId
- * @property $entityManager
+ * @property $entityTypeManager
  * @property $condition
  */
 trait QueryTrait {
@@ -45,7 +45,7 @@ trait QueryTrait {
 
   public function prepare() {
     parent::prepare();
-    $entity_type = $this->entityManager->getDefinition($this->entityTypeId);
+    $entity_type = $this->entityTypeManager->getDefinition($this->entityTypeId);
     $enabled = \Drupal::state()->get('multiversion.migration_done.' . $this->getEntityTypeId(), FALSE);
     // Add necessary conditions just when the storage class is defined by the
     // Multiversion module. This is needed when uninstalling Multiversion.

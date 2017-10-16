@@ -89,7 +89,7 @@ abstract class FieldTestBase extends MultiversionWebTestBase {
 
   public function testFieldBasics() {
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
+      $storage = $this->entityTypeManager->getStorage($entity_type_id);
       $entity = $storage->create($info);
       $this->assertTrue(is_a($entity->{$this->fieldName}, $this->itemListClass), "Field item list implements correct interface on created $entity_type_id.");
       $count = $entity->{$this->fieldName}->count();

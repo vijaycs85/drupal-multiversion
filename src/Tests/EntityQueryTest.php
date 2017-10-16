@@ -68,8 +68,8 @@ class EntityQueryTest extends MultiversionWebTestBase {
         file_put_contents($info['uri'], 'Hello world!');
         $this->assertTrue($info['uri'], t('The test file has been created.'));
       }
-      $entity_type = $this->entityManager->getDefinition($entity_type_id);
-      $entity = $this->entityManager->getStorage($entity_type_id)->create($info);
+      $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
+      $entity = $this->entityTypeManager->getStorage($entity_type_id)->create($info);
       $entity->save();
 
       // For user entity type we expect to have three entities: anonymous, root
