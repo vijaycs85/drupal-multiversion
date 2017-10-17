@@ -90,7 +90,7 @@ function multiversion_entity_type_alter(array &$entity_types) {
     }
   }
 
-  if (isset($entity_types['block_content']) && $manager->isEnabledEntityType($entity_types['block_content'])) {
+  if (isset($entity_types['block_content']) && $manager->allowToAlter($entity_types['block_content'])) {
     $entity_types['block']->setHandlerClass('storage', 'Drupal\multiversion\Entity\Storage\Sql\BlockStorage');
   }
 }
@@ -190,7 +190,7 @@ function multiversion_field_info_alter(&$info) {
 function multiversion_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
   /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
   $manager = \Drupal::service('multiversion.manager');
-  if ($manager->isEnabledEntityType($entity_type)) {
+  if ($manager->allowToAlter($entity_type)) {
     $exclude_fields = [
       $entity_type->getKey('id'),
       $entity_type->getKey('revision'),
@@ -261,7 +261,7 @@ function multiversion_views_post_execute(ViewExecutable $view) {
   if (is_array($view->result) && $content_type = reset($content_type_info)) {
     $manager = \Drupal::service('multiversion.manager');
     $storage = \Drupal::entityTypeManager()->getStorage($content_type);
-    if ($manager->isEnabledEntityType($storage->getEntityType())) {
+    if ($manager->allowToAlter($storage->getEntityType())) {
       $ids = [];
       foreach ($view->result as $index => $row) {
         if (empty($row->_entity) && !empty($row->{$base_field})) {
