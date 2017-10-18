@@ -323,16 +323,14 @@ function multiversion_query_entity_query_alter(AlterableInterface $query) {
   if ($entity_type_id && \Drupal::service('multiversion.manager')->isEnabledEntityType($entity_type)) {
     $revision_key = $entity_type->getKey('revision');
     $data_table = $entity_type->getDataTable();
-    if ($data_table) {
+    $active_workspace_id = \Drupal::service('workspace.manager')->getActiveWorkspace();
+    if ($data_table && $active_workspace_id instanceof WorkspaceInterface) {
       $query->join(
         $data_table,
         NULL,
         'base_table.' . $revision_key . '=' . $entity_type->getDataTable() . '.' . $revision_key
       );
-      $active_workspace_id = \Drupal::service('workspace.manager')
-        ->getActiveWorkspace()
-        ->id();
-      $query->condition($data_table . '.workspace', $active_workspace_id);
+      $query->condition($data_table . '.workspace', $active_workspace_id->id());
     }
   }
 }
