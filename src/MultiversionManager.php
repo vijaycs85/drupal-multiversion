@@ -94,7 +94,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   }
 
   /**
-   * Static method maintaining the migration status.
+   * Static method maintaining the enable migration status.
    *
    * This method needs to be static because in some strange situations Drupal
    * might create multiple instances of this manager. Is this only an issue
@@ -103,7 +103,18 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * @param boolean $status
    * @return boolean
    */
-  public static function migrationIsActive($status = NULL) {
+  public static function enableMigrationIsActive($status = NULL) {
+    static $cache = FALSE;
+    if ($status !== NULL) {
+      $cache = $status;
+    }
+    return $cache;
+  }
+
+  /**
+   * Static method maintaining the disable migration status.
+   */
+  public static function disableMigrationIsActive($status = NULL) {
     static $cache = FALSE;
     if ($status !== NULL) {
       $cache = $status;
@@ -195,10 +206,10 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    */
   public function allowToAlter(EntityTypeInterface $entity_type) {
     $supported_entity_types = \Drupal::config('multiversion.settings')->get('supported_entity_types') ?: [];
-    if (!in_array($entity_type->id(), $supported_entity_types)) {
+    if (!in_array($entity_type->id(), $supported_entity_types) || self::disableMigrationIsActive()) {
       return FALSE;
     }
-    return ($this->isEnabledEntityType($entity_type) || self::migrationIsActive());
+    return ($this->isEnabledEntityType($entity_type) || self::enableMigrationIsActive());
   }
 
   /**
@@ -246,7 +257,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       $this->cache->invalidate($cid);
     }
 
-    self::migrationIsActive(TRUE);
+    self::enableMigrationIsActive(TRUE);
     $migration->applyNewStorage();
 
     // Definitions will now be updated. So fetch the new ones.
@@ -293,7 +304,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
     // Clean up after us.
     $migration->uninstallDependencies();
-    self::migrationIsActive(FALSE);
+    self::enableMigrationIsActive(FALSE);
 
     // Mark the whole migration as done. Any entity types installed after this
     // will not need a migration since they will be created directly on top of
@@ -356,7 +367,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       ->set('enabled_entity_types', $enabled_entity_types)
       ->save();
 
-    self::migrationIsActive(TRUE);
+    self::disableMigrationIsActive(TRUE);
     $migration->applyNewStorage();
 
     // Temporarily disable the maintenance of the {comment_entity_statistics} table.
@@ -389,7 +400,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
     // Clean up after us.
     $migration->uninstallDependencies();
-    self::migrationIsActive(FALSE);
+    self::disableMigrationIsActive(FALSE);
 
     $this->state->delete('multiversion.migration_done');
 
