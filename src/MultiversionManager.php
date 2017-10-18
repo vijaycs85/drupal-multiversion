@@ -337,7 +337,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       $this->entityTypeManager->clearCachedDefinitions();
       $update_manager = \Drupal::entityDefinitionUpdateManager();
       foreach ($this->entityTypeManager->getDefinitions() as $entity_type) {
-        if ($entity_type->entityClassImplements(FieldableEntityInterface::CLASS)) {
+        if ($entity_type->isSubclassOf(FieldableEntityInterface::CLASS)) {
           $entity_type_id = $entity_type->id();
           $revision_key = $entity_type->getKey('revision');
           /** @var \Drupal\Core\Entity\FieldableEntityStorageInterface $storage */
