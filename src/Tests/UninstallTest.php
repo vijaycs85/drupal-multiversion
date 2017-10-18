@@ -80,11 +80,8 @@ class UninstallTest extends WebTestBase {
   }
 
   public function testDisableWithExistingContent() {
-    /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
-    $manager = \Drupal::getContainer()->get('multiversion.manager');
     // Install Multiversion.
     $this->moduleInstaller->install(['multiversion']);
-    $manager->enableEntityTypes();
 
     foreach ($this->entityTypes as $entity_type_id => $values) {
       $storage = \Drupal::entityTypeManager()->getStorage($entity_type_id);
@@ -94,6 +91,8 @@ class UninstallTest extends WebTestBase {
       }
       $count_before[$entity_type_id] = $count;
     }
+    /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
+    $manager = \Drupal::getContainer()->get('multiversion.manager');
     // Disable entity types.
     $manager->disableEntityTypes();
     // Uninstall Multiversion.

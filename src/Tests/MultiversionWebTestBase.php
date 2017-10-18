@@ -76,9 +76,6 @@ abstract class MultiversionWebTestBase extends WebTestBase {
     parent::setUp();
 
     $this->entityTypeManager = $this->container->get('entity_type.manager');
-    $shortcut_et = $this->entityTypeManager->getStorage('shortcut')->getEntityType();
-    \Drupal::service('multiversion.manager')->enableEntityTypes(['shortcut' => $shortcut_et]);
-
     $this->uuidIndex = $this->container->get('multiversion.entity_index.uuid');
     $this->revIndex = $this->container->get('multiversion.entity_index.rev');
     $this->revTree = $this->container->get('multiversion.entity_index.rev.tree');
