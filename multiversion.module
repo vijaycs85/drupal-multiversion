@@ -447,3 +447,25 @@ function multiversion_menu_links_discovered_alter(&$links) {
     }
   }
 }
+
+/**
+ * Implements hook_modules_installed().
+ */
+function multiversion_modules_installed($modules) {
+  // Enable entity types provided by installed modules and supported by
+  // Multiversion.
+  $entity_type_manager = \Drupal::entityTypeManager();
+  $supported_entity_types = \Drupal::configFactory()
+    ->getEditable('multiversion.settings')
+    ->get('enabled_entity_types');
+  $entities_to_enable = [];
+  foreach ($supported_entity_types as $entity_type_id) {
+    $entity_type = $entity_type_manager->getDefinition($entity_type_id, FALSE);
+    if (!empty($entity_type) && in_array($entity_type->getProvider(), $modules)) {
+      $entities_to_enable[$entity_type_id] = $entity_type;
+    }
+  }
+  if (!empty($entities_to_enable)) {
+    \Drupal::service('multiversion.manager')->enableEntityTypes($entities_to_enable);
+  }
+}
