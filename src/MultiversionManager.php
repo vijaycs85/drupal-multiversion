@@ -94,16 +94,27 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   }
 
   /**
-   * Static method maintaining the migration status.
+   * Static method maintaining the enable migration status.
    *
-   * This method neededs to be static because in some strange situations Drupal
+   * This method needs to be static because in some strange situations Drupal
    * might create multiple instances of this manager. Is this only an issue
    * during tests perhaps?
    *
    * @param boolean $status
    * @return boolean
    */
-  public static function migrationIsActive($status = NULL) {
+  public static function enableMigrationIsActive($status = NULL) {
+    static $cache = FALSE;
+    if ($status !== NULL) {
+      $cache = $status;
+    }
+    return $cache;
+  }
+
+  /**
+   * Static method maintaining the disable migration status.
+   */
+  public static function disableMigrationIsActive($status = NULL) {
     static $cache = FALSE;
     if ($status !== NULL) {
       $cache = $status;
@@ -151,8 +162,8 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   /**
    * {@inheritdoc}
    */
-  public function isSupportedEntityType(EntityTypeInterface $entity_type, $ignore_status = FALSE) {
-    $supported_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
+  public function isSupportedEntityType(EntityTypeInterface $entity_type) {
+    $supported_entity_types = \Drupal::config('multiversion.settings')->get('supported_entity_types') ?: [];
     if (empty($supported_entity_types)) {
       return FALSE;
     }
@@ -182,11 +193,23 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    */
   public function isEnabledEntityType(EntityTypeInterface $entity_type) {
     if ($this->isSupportedEntityType($entity_type)) {
-      // Check if the migration for this particular entity type is done or if
-      // the migration is still active.
-      $done = $this->state->get('multiversion.migration_done.' . $entity_type->id(), FALSE);
-      return ($done || self::migrationIsActive());
+      $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
+      if (in_array($entity_type->id(), $enabled_entity_types)) {
+        return TRUE;
+      }
     }
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function allowToAlter(EntityTypeInterface $entity_type) {
+    $supported_entity_types = \Drupal::config('multiversion.settings')->get('supported_entity_types') ?: [];
+    if (!in_array($entity_type->id(), $supported_entity_types) || self::disableMigrationIsActive()) {
+      return FALSE;
+    }
+    return ($this->isEnabledEntityType($entity_type) || self::enableMigrationIsActive());
   }
 
   /**
@@ -211,15 +234,13 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     $entity_types = ($entity_types_to_enable !== NULL) ? $entity_types_to_enable : $this->getSupportedEntityTypes();
     $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
     foreach ($entity_types as $entity_type_id => $entity_type) {
-      if (!in_array($entity_type_id, $enabled_entity_types)) {
-        $enabled_entity_types[] = $entity_type_id;
+      if (in_array($entity_type_id, $enabled_entity_types)) {
+        unset($entity_types[$entity_type_id]);
       }
     }
-    \Drupal::configFactory()
-      ->getEditable('multiversion.settings')
-      ->set('enabled_entity_types', $enabled_entity_types)
-      ->save();
-
+    if (empty($entity_types)) {
+      return $this;
+    }
     $migration = $this->createMigration();
     $migration->installDependencies();
     $has_data = $this->prepareContentForMigration($entity_types, $migration);
@@ -236,7 +257,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       $this->cache->invalidate($cid);
     }
 
-    self::migrationIsActive(TRUE);
+    self::enableMigrationIsActive(TRUE);
     $migration->applyNewStorage();
 
     // Definitions will now be updated. So fetch the new ones.
@@ -267,12 +288,23 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       $this->state->set("multiversion.migration_done.$entity_type_id", TRUE);
     }
 
+    foreach ($entity_types as $entity_type_id => $entity_type) {
+      $enabled = $this->state->get("multiversion.migration_done.$entity_type_id", FALSE);
+      if (!in_array($entity_type_id, $enabled_entity_types) && $enabled) {
+        $enabled_entity_types[] = $entity_type_id;
+      }
+    }
+    \Drupal::configFactory()
+      ->getEditable('multiversion.settings')
+      ->set('enabled_entity_types', $enabled_entity_types)
+      ->save();
+
     // Enable the the maintenance of entity statistics for comments.
     $this->state->set('comment.maintain_entity_statistics', TRUE);
 
     // Clean up after us.
     $migration->uninstallDependencies();
-    self::migrationIsActive(FALSE);
+    self::enableMigrationIsActive(FALSE);
 
     // Mark the whole migration as done. Any entity types installed after this
     // will not need a migration since they will be created directly on top of
@@ -291,10 +323,14 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function disableEntityTypes($entity_types_to_disable = NULL) {
-    $entity_types = ($entity_types_to_disable !== NULL) ? $entity_types_to_disable : $this->getSupportedEntityTypes();
+    $entity_types = ($entity_types_to_disable !== NULL) ? $entity_types_to_disable : $this->getEnabledEntityTypes();
     $migration = $this->createMigration();
     $migration->installDependencies();
     $has_data = $this->prepareContentForMigration($entity_types, $migration);
+
+    if (empty($entity_types)) {
+      return $this;
+    }
 
     if ($entity_types_to_disable === NULL) {
       // Uninstall field storage definitions provided by multiversion.
@@ -331,7 +367,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       ->set('enabled_entity_types', $enabled_entity_types)
       ->save();
 
-    self::migrationIsActive(TRUE);
+    self::disableMigrationIsActive(TRUE);
     $migration->applyNewStorage();
 
     // Temporarily disable the maintenance of the {comment_entity_statistics} table.
@@ -364,7 +400,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
     // Clean up after us.
     $migration->uninstallDependencies();
-    self::migrationIsActive(FALSE);
+    self::disableMigrationIsActive(FALSE);
 
     $this->state->delete('multiversion.migration_done');
 

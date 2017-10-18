@@ -13,6 +13,13 @@ class Query extends CoreQuery implements QueryInterface {
   use QueryTrait;
 
   /**
+   * The entity type manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * @var \Drupal\multiversion\MultiversionManager
    */
   protected $multiversionManager;
@@ -22,7 +29,7 @@ class Query extends CoreQuery implements QueryInterface {
    */
   public function __construct(EntityTypeInterface $entity_type, $conjunction, Connection $connection, array $namespaces) {
     parent::__construct($entity_type, $conjunction, $connection, $namespaces);
-    $this->entityManager = \Drupal::service('entity.manager');
+    $this->entityTypeManager = \Drupal::service('entity_type.manager');
     $this->multiversionManager = \Drupal::service('multiversion.manager');
   }
 

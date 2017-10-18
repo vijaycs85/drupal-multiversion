@@ -145,7 +145,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
     // Test save and load.
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
+      $storage = $this->entityTypeManager->getStorage($entity_type_id);
       $message = "$entity_type_id has the correct storage handler.";
       if ($storage instanceof ContentEntityStorageInterface) {
         $this->pass($message);
@@ -233,7 +233,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       // Test exceptions.
 
-      $entity_type = $this->entityManager->getDefinition($entity_type_id);
+      $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
       $id_key = $entity_type->getKey('id');
       // Test with exception upon first save.
       $entity = $storage->create($info['info']);
@@ -336,7 +336,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $this->workspaceManager->setActiveWorkspace($workspace);
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
-        $storage = $this->entityManager->getStorage($entity_type_id);
+        $storage = $this->entityTypeManager->getStorage($entity_type_id);
         $entity = $storage->create($info['info']);
         $entity->save();
       if ($entity->getEntityType()->get('workspace') !== FALSE) {
@@ -347,7 +347,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $uuids = [];
     $ids = [];
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
+      $storage = $this->entityTypeManager->getStorage($entity_type_id);
       $entity = $storage->create($info['info']);
       $entity->save();
       $uuids[$entity_type_id] = $entity->uuid();
@@ -355,8 +355,6 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
       $entity = $storage->load($ids[$entity_type_id]);
       $this->assertTrue(!empty($entity), "$entity_type_id was loaded in the workspace it belongs to.");
-      $entity = $this->entityManager->loadEntityByUuid($entity_type_id, $uuids[$entity_type_id]);
-      $this->assertTrue(!empty($entity), "$entity_type_id was loaded by UUID in the workspace it belongs to.");
     }
 
     // Switch back to the original workspace and check that the entities does
@@ -364,11 +362,9 @@ class EntityStorageTest extends MultiversionWebTestBase {
     $this->multiversionManager->setActiveWorkspaceId(1);
 
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
+      $storage = $this->entityTypeManager->getStorage($entity_type_id);
       $entity = $storage->load($ids[$entity_type_id]);
       $this->assertTrue(empty($entity), "$entity_type_id was not loaded in a workspace it does not belongs to.");
-      $entity = $this->entityManager->loadEntityByUuid($entity_type_id, $uuids[$entity_type_id]);
-      $this->assertTrue(empty($entity), "$entity_type_id was not loaded by UUID in a workspace it does not belong to.");
     }
 
     // Test saving the same entity in two workspaces. This is a simplified
@@ -391,7 +387,7 @@ class EntityStorageTest extends MultiversionWebTestBase {
 
     $entities = [];
     foreach ($this->entityTypes as $entity_type_id => $info) {
-      $storage = $this->entityManager->getStorage($entity_type_id);
+      $storage = $this->entityTypeManager->getStorage($entity_type_id);
       $entity = $storage->create($info['info']);
       $entity->save();
       $entities[$entity_type_id][$entity->uuid()] = $entity;

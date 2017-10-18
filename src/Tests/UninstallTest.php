@@ -91,10 +91,9 @@ class UninstallTest extends WebTestBase {
       }
       $count_before[$entity_type_id] = $count;
     }
-
-    // Disable entity types.
     /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
     $manager = \Drupal::getContainer()->get('multiversion.manager');
+    // Disable entity types.
     $manager->disableEntityTypes();
     // Uninstall Multiversion.
     $this->moduleInstaller->uninstall(['multiversion']);

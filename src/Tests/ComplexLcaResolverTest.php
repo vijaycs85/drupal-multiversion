@@ -48,7 +48,7 @@ class ComplexLcaResolverTest extends MultiversionWebTestBase {
    *            5
    */
   public function testLcaFinder() {
-    $storage = $this->entityManager->getStorage('entity_test');
+    $storage = $this->entityTypeManager->getStorage('entity_test');
     $entity = $storage->create();
     $uuid = $entity->uuid();
 
@@ -111,7 +111,7 @@ class ComplexLcaResolverTest extends MultiversionWebTestBase {
    *
    */
   public function testLcaFinder2() {
-    $storage = $this->entityManager->getStorage('entity_test');
+    $storage = $this->entityTypeManager->getStorage('entity_test');
     $entity = $storage->create();
     $uuid = $entity->uuid();
 
@@ -204,7 +204,7 @@ class ComplexLcaResolverTest extends MultiversionWebTestBase {
 
   // Graph structure in multiversion/vendor/relaxedws/lca/pictures/simple_graph.png
   public function testLcaFinder3() {
-    $storage = $this->entityManager->getStorage('entity_test');
+    $storage = $this->entityTypeManager->getStorage('entity_test');
     $entity = $storage->create();
     $uuid = $entity->uuid();
 

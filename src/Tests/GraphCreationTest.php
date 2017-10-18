@@ -40,7 +40,7 @@ class GraphCreationTest extends MultiversionWebTestBase {
    *            5
    */
   public function testGraphCreation() {
-    $storage = $this->entityManager->getStorage('entity_test_rev');
+    $storage = $this->entityTypeManager->getStorage('entity_test_rev');
     $entity = $storage->create();
     $uuid = $entity->uuid();
 
@@ -122,7 +122,7 @@ class GraphCreationTest extends MultiversionWebTestBase {
    *
    */
   public function testGraphCreation2() {
-    $storage = $this->entityManager->getStorage('entity_test_rev');
+    $storage = $this->entityTypeManager->getStorage('entity_test_rev');
     $entity = $storage->create();
     $uuid = $entity->uuid();
 
@@ -203,7 +203,7 @@ class GraphCreationTest extends MultiversionWebTestBase {
    * Graph structure defined in /vendor/relaxedws/lca/pictures/simple_graph.png
    */
   public function testGraphCreation3() {
-    $storage = $this->entityManager->getStorage('entity_test_rev');
+    $storage = $this->entityTypeManager->getStorage('entity_test_rev');
     $entity = $storage->create();
     $uuid = $entity->uuid();
 

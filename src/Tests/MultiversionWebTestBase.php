@@ -30,11 +30,11 @@ abstract class MultiversionWebTestBase extends WebTestBase {
   protected $revTree;
 
   /**
-   * The entity manager service.
+   * The entity type manager service.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * The multiversion manager.
@@ -75,13 +75,13 @@ abstract class MultiversionWebTestBase extends WebTestBase {
   protected function setUp() {
     parent::setUp();
 
+    $this->entityTypeManager = $this->container->get('entity_type.manager');
     $this->uuidIndex = $this->container->get('multiversion.entity_index.uuid');
     $this->revIndex = $this->container->get('multiversion.entity_index.rev');
     $this->revTree = $this->container->get('multiversion.entity_index.rev.tree');
 
     $this->multiversionManager = $this->container->get('multiversion.manager');
     $this->workspaceManager = $this->container->get('workspace.manager');
-    $this->entityManager = $this->container->get('entity.manager');
     $this->entityDefinitionUpdateManager = $this->container->get('entity.definition_update_manager');
 
     // Create Basic page and Article node types.
