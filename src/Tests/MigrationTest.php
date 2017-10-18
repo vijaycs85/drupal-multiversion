@@ -142,7 +142,8 @@ class MigrationTest extends WebTestBase {
     $this->moduleInstaller->install(['taxonomy']);
 
     $entity_type = \Drupal::entityTypeManager()->getDefinition('taxonomy_term');
-    $this->assertTrue($this->multiversionManager->isEnabledEntityType($entity_type), 'Newly installed entity types gets enabled as well.');
+    \Drupal::service('multiversion.manager')->enableEntityTypes(['taxonomy_term' => $entity_type]);
+    $this->assertTrue($this->multiversionManager->isEnabledEntityType($entity_type), 'Newly installed entity types got enabled as well.');
   }
 
 }
