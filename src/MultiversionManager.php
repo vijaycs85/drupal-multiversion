@@ -233,11 +233,6 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   public function enableEntityTypes($entity_types_to_enable = NULL) {
     $entity_types = ($entity_types_to_enable !== NULL) ? $entity_types_to_enable : $this->getSupportedEntityTypes();
     $enabled_entity_types = \Drupal::config('multiversion.settings')->get('enabled_entity_types') ?: [];
-    foreach ($entity_types as $entity_type_id => $entity_type) {
-      if (in_array($entity_type_id, $enabled_entity_types)) {
-        unset($entity_types[$entity_type_id]);
-      }
-    }
     if (empty($entity_types)) {
       return $this;
     }
