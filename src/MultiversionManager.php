@@ -100,8 +100,8 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * might create multiple instances of this manager. Is this only an issue
    * during tests perhaps?
    *
-   * @param boolean $status
-   * @return boolean
+   * @param boolean|array $status
+   * @return boolean|array
    */
   public static function enableMigrationIsActive($status = NULL) {
     static $cache = FALSE;
@@ -113,6 +113,9 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
 
   /**
    * Static method maintaining the disable migration status.
+   *
+   * @param boolean|array $status
+   * @return boolean|array
    */
   public static function disableMigrationIsActive($status = NULL) {
     static $cache = FALSE;
@@ -206,10 +209,22 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    */
   public function allowToAlter(EntityTypeInterface $entity_type) {
     $supported_entity_types = \Drupal::config('multiversion.settings')->get('supported_entity_types') ?: [];
-    if (!in_array($entity_type->id(), $supported_entity_types) || self::disableMigrationIsActive()) {
+    $id = $entity_type->id();
+    $enable_migration = self::enableMigrationIsActive();
+    $disable_migration = self::disableMigrationIsActive();
+    // Don't allow to alter entity type that is not supported.
+    if (!in_array($id, $supported_entity_types)) {
       return FALSE;
     }
-    return ($this->isEnabledEntityType($entity_type) || self::enableMigrationIsActive());
+    // Don't allow to alter entity type that is in process to be disabled.
+    if (is_array($disable_migration) && in_array($id, $disable_migration)) {
+      return FALSE;
+    }
+    // Allow to alter entity type that is in process to be enabled.
+    if (is_array($enable_migration) && in_array($id, $enable_migration)) {
+      return TRUE;
+    }
+    return ($this->isEnabledEntityType($entity_type));
   }
 
   /**
@@ -252,7 +267,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       $this->cache->invalidate($cid);
     }
 
-    self::enableMigrationIsActive(TRUE);
+    self::enableMigrationIsActive(array_keys($entity_types));
     $migration->applyNewStorage();
 
     // Definitions will now be updated. So fetch the new ones.
@@ -362,7 +377,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
       ->set('enabled_entity_types', $enabled_entity_types)
       ->save();
 
-    self::disableMigrationIsActive(TRUE);
+    self::disableMigrationIsActive(array_keys($entity_types));
     $migration->applyNewStorage();
 
     // Temporarily disable the maintenance of the {comment_entity_statistics} table.
