@@ -456,6 +456,7 @@ function multiversion_modules_installed($modules) {
   $supported_entity_types = \Drupal::configFactory()
     ->getEditable('multiversion.settings')
     ->get('supported_entity_types');
+  $supported_entity_types = $supported_entity_types ?: [];
   $entities_to_enable = [];
   foreach ($supported_entity_types as $entity_type_id) {
     $entity_type = $entity_type_manager->getDefinition($entity_type_id, FALSE);
