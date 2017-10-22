@@ -440,3 +440,15 @@ function multiversion_update_8104() {
   }
   $multiversion_settings->set('enabled_entity_types', $enabled_entity_types)->save();
 }
+
+/**
+ * Fix the migration status for already enabled entity types.
+ */
+function multiversion_update_8105() {
+  $entity_types = \Drupal::entityTypeManager()->getDefinitions();
+  foreach ($entity_types as $entity_type_id => $entity_type) {
+    if (is_subclass_of($entity_type->getStorageClass(), 'Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface')) {
+      \Drupal::state()->set("multiversion.migration_done.$entity_type_id", TRUE);
+    }
+  }
+}
