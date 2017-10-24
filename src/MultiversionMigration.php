@@ -151,6 +151,9 @@ class MultiversionMigration implements MultiversionMigrationInterface {
    * {@inheritdoc}
    */
   public function applyNewStorage() {
+    // The first call is for making entity types revisionable, the second call
+    // is for adding required fields.
+    $this->updateManager->applyUpdates();
     $this->updateManager->applyUpdates();
     return $this;
   }
