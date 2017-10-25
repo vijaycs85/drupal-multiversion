@@ -95,6 +95,9 @@ class UninstallTest extends WebTestBase {
 
     /** @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface $update_manager */
     $update_manager = $this->container->get('entity.definition_update_manager');
+    // The field class for the UUID field that Multiversion provides will now
+    // be gone. So we need to apply updates.
+    $update_manager->applyUpdates();
     // Check that applying updates worked.
     $this->assertFalse($update_manager->needsUpdates(), 'There are not new updates to apply.');
 
