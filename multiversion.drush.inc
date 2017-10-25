@@ -89,6 +89,10 @@ function drush_multiversion_uninstall() {
 
     try {
       \Drupal::service('multiversion.manager')->disableEntityTypes();
+      // Delete workspace entities before uninstall.
+      $storage = \Drupal::entityTypeManager()->getStorage('workspace');
+      $entities = $storage->loadMultiple();
+      $storage->delete($entities);
       drush_module_uninstall(['multiversion']);
     }
     catch (Exception $e) {
