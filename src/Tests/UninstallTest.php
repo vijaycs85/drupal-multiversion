@@ -85,6 +85,11 @@ class UninstallTest extends WebTestBase {
     $manager = $this->container->get('multiversion.manager');
     // Disable entity types.
     $manager->disableEntityTypes();
+    // Delete workspace entities before uninstall.
+    $storage = $entity_type_manager->getStorage('workspace');
+    $entities = $storage->loadMultiple();
+    $storage->delete($entities);
+
     // Uninstall Multiversion.
     $this->container->get('module_installer')->uninstall(['multiversion']);
 
