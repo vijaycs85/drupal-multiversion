@@ -94,6 +94,11 @@ class MigrationTest extends WebTestBase {
     $this->moduleInstaller->install(['multiversion']);
     $this->multiversionManager = \Drupal::service('multiversion.manager');
 
+    // Check if all updates have been applied.
+    $update_manager = \Drupal::service('entity.definition_update_manager');
+    $this->assertFalse($update_manager->needsUpdates(), 'All compatible entity types have been updated.');
+
+
     $ids_after = [];
     // Now check that the previously created entities still exist, have the
     // right IDs and are multiversion enabled. That means profit. Big profit.
@@ -143,6 +148,7 @@ class MigrationTest extends WebTestBase {
 
     $entity_type = \Drupal::entityTypeManager()->getDefinition('taxonomy_term');
     $this->assertTrue($this->multiversionManager->isEnabledEntityType($entity_type), 'Newly installed entity types got enabled as well.');
+    $this->assertFalse($update_manager->needsUpdates(), 'There are not new updates to apply.');
   }
 
 }
