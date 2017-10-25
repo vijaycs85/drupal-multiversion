@@ -47,6 +47,10 @@ class UninstallTest extends WebTestBase {
    * {@inheritdoc}
    */
   public static $modules = [
+    'multiversion',
+    'key_value',
+    'serialization',
+    'conflict',
     'node',
     'comment',
     'menu_link_content',
@@ -61,15 +65,13 @@ class UninstallTest extends WebTestBase {
   protected function setUp() {
     parent::setUp();
 
+    $this->container->get('multiversion.manager')->enableEntityTypes();
+
     $this->drupalCreateContentType(['type' => 'article', 'name' => 'Article']);
     $this->drupalLogin($this->rootUser);
   }
 
   public function testDisableWithExistingContent() {
-    // Install Multiversion.
-    $module_installer = $this->container->get('module_installer');
-    $module_installer->install(['multiversion']);
-
     $entity_type_manager = $this->container->get('entity_type.manager');
     foreach ($this->entityTypes as $entity_type_id => $values) {
       $storage = $entity_type_manager->getStorage($entity_type_id);
@@ -84,13 +86,12 @@ class UninstallTest extends WebTestBase {
     // Disable entity types.
     $manager->disableEntityTypes();
     // Uninstall Multiversion.
-    $module_installer->uninstall(['multiversion']);
+    $this->container->get('module_installer')->uninstall(['multiversion']);
 
     /** @var \Drupal\Core\Entity\EntityDefinitionUpdateManagerInterface $update_manager */
-    $update_manager = \Drupal::service('entity.definition_update_manager');
-    // The field class for the UUID field that Multiversion provides will now
-    // be gone. So we need to apply updates.
-    $update_manager->applyUpdates();
+    $update_manager = $this->container->get('entity.definition_update_manager');
+    // Check that applying updates worked.
+    $this->assertFalse($update_manager->needsUpdates(), 'There are not new updates to apply.');
 
     $ids_after = [];
     // Now check that the previously created entities still exist, have the
