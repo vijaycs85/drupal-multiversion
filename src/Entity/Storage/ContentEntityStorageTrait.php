@@ -156,8 +156,10 @@ trait ContentEntityStorageTrait {
 
     // Index the revision.
     $branch = $this->buildRevisionBranch($entity);
-    $this->indexEntityRevision($entity);
-    $this->indexEntityRevisionTree($entity, $branch);
+    if ($this->entityType->get('local') !== TRUE) {
+      $this->indexEntityRevision($entity);
+      $this->indexEntityRevisionTree($entity, $branch);
+    }
 
     // Prepare the file directory.
     if ($entity instanceof FileInterface) {
@@ -169,8 +171,10 @@ trait ContentEntityStorageTrait {
 
       // Update indexes.
       $this->indexEntity($entity);
-      $this->indexEntityRevision($entity);
-      $this->trackConflicts($entity);
+      if ($this->entityType->get('local') !== TRUE) {
+        $this->indexEntityRevision($entity);
+        $this->trackConflicts($entity);
+      }
 
       return $save_result;
     }
