@@ -76,6 +76,10 @@ function multiversion_entity_type_alter(array &$entity_types) {
           $entity_type->setHandlerClass('storage', "$namespace\\PollStorage");
           break;
 
+        case 'crop':
+          $entity_type->setHandlerClass('storage', "$namespace\\CropStorage");
+          break;
+
         default:
           $storage_class = $entity_type->getHandlerClass('storage');
 
