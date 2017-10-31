@@ -162,8 +162,12 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setCardinality(1)
       ->setReadOnly(TRUE);
 
-    // Add the 'revision_translation_affected' field if needed.
-    if ($entity_type->isTranslatable()) {
+    // Get the minor version only from the \Drupal::VERSION string.
+    $minor_version = substr(\Drupal::VERSION, 0, 3);
+
+    // Add the 'revision_translation_affected' field if needed. Limit this to
+    // Drupal version 8.4 and higher.
+    if (version_compare($minor_version, '8.4', '>=') && $entity_type->isTranslatable()) {
       $fields[$entity_type->getKey('revision_translation_affected')] = BaseFieldDefinition::create('boolean')
         ->setName($entity_type->getKey('revision_translation_affected'))
         ->setTargetEntityTypeId($entity_type->id())
