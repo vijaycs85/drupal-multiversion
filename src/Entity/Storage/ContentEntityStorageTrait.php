@@ -347,7 +347,7 @@ trait ContentEntityStorageTrait {
    * @todo Revisit this logic with forward revisions in mind.
    */
   protected function doSave($id, EntityInterface $entity) {
-    if ($entity->_rev->is_stub) {
+    if ($entity->_rev->is_stub || $this->entityType->get('local')) {
       $entity->isDefaultRevision(TRUE);
     }
     else {
