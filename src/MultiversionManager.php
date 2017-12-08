@@ -429,11 +429,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // necessary) to identify in which format to return the normalized entity.
     $normalized_entity = $this->serializer->normalize($entity, NULL, ['new_revision_id' => TRUE]);
     // Remove fields internal to the multiversion system.
-    foreach ($normalized_entity as $key => $value) {
-      if ($key{0} == '_') {
-        unset($normalized_entity[$key]);
-      }
-    }
+    $this->filterNormalizedEntity($normalized_entity);
     // The terms being serialized are:
     // - deleted
     // - old sequence ID (@todo: {@link https://www.drupal.org/node/2597341
@@ -443,6 +439,20 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
     // - attachments (@todo: {@link https://www.drupal.org/node/2597341
     // Address this property.})
     return ($index + 1) . '-' . md5($this->termToBinary([$deleted, 0, $old_rev, $normalized_entity, []]));
+  }
+
+  /**
+   * @param array $normalized_entity
+   */
+  protected function filterNormalizedEntity(&$normalized_entity){
+    foreach ($normalized_entity as $key => &$value) {
+      if ($key{0} == '_') {
+        unset($normalized_entity[$key]);
+      }
+      elseif (is_array($value)) {
+        $this->filterNormalizedEntity($value);
+      }
+    }
   }
 
   protected function termToBinary(array $term) {
