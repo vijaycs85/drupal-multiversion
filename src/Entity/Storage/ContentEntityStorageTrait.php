@@ -51,8 +51,8 @@ trait ContentEntityStorageTrait {
   /**
    * {@inheritdoc}
    */
-  protected function buildQuery($ids, $revision_id = FALSE) {
-    $query = parent::buildQuery($ids, $revision_id);
+  protected function buildQuery($ids, $revision_ids = FALSE) {
+    $query = parent::buildQuery($ids, $revision_ids);
     $enabled = \Drupal::state()->get('multiversion.migration_done.' . $this->getEntityTypeId(), FALSE);
 
     // Prevent to modify the query before entity type updates.
@@ -71,8 +71,8 @@ trait ContentEntityStorageTrait {
       // Join the revision data table in order to set the delete condition.
       $revision_data_table = $this->getRevisionDataTable();
       $revision_data_alias = 'revision_data';
-      if ($revision_id) {
-        $query->join($revision_data_table, $revision_data_alias, "$revision_data_alias.{$this->revisionKey} = revision.{$this->revisionKey} AND $revision_data_alias.{$this->revisionKey} = :revisionId", [':revisionId' => $revision_id]);
+      if ($revision_ids) {
+        $query->join($revision_data_table, $revision_data_alias, "$revision_data_alias.{$this->revisionKey} = revision.{$this->revisionKey} AND $revision_data_alias.{$this->revisionKey} IN (:revisionIds[])", [':revisionIds[]' => (array) $revision_ids]);
       }
       else {
         $query->join($revision_data_table, $revision_data_alias, "$revision_data_alias.{$this->revisionKey} = revision.{$this->revisionKey}");
@@ -80,7 +80,7 @@ trait ContentEntityStorageTrait {
     }
     // Loading a revision is explicit. So when we try to load one we should do
     // so without a condition on the deleted flag.
-    if (!$revision_id) {
+    if (!$revision_ids) {
       $query->condition("$revision_data_alias._deleted", (int) $this->isDeleted);
     }
     // Entities in other workspaces than the active one can only be queried with
