@@ -93,3 +93,7 @@ services:
     class: Drupal\multiversion\Entity\Index\ComplexLcaResolver
     tags:
       - { name: lca_resolver, priority: 20 }
+  multiversion.serializer.normalizer.entity_reference_item:
+    class: Drupal\multiversion\Normalizer\EntityReferenceItemNormalizer
+    tags:
+      - { name: normalizer, priority: 50 }
