@@ -345,14 +345,16 @@ function multiversion_query_entity_query_alter(AlterableInterface $query) {
   if ($entity_type_id && \Drupal::service('multiversion.manager')->isEnabledEntityType($entity_type)) {
     $revision_key = $entity_type->getKey('revision');
     $data_table = $entity_type->getDataTable();
-    $active_workspace_id = \Drupal::service('workspace.manager')->getActiveWorkspace();
-    if ($data_table && $active_workspace_id instanceof WorkspaceInterface) {
-      $query->join(
-        $data_table,
-        NULL,
-        'base_table.' . $revision_key . '=' . $entity_type->getDataTable() . '.' . $revision_key
-      );
-      $query->condition($data_table . '.workspace', $active_workspace_id->id());
+    $active_workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
+    if ($data_table && $active_workspace instanceof WorkspaceInterface) {
+      if (!in_array($data_table, array_column($query->getTables(), 'table'))) {
+        $query->join(
+          $data_table,
+          NULL,
+          'base_table.' . $revision_key . '=' . $data_table . '.' . $revision_key
+        );
+      }
+      $query->condition($data_table . '.workspace', $active_workspace->id());
     }
   }
 }
