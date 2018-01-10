@@ -66,14 +66,14 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
       ->setSetting('unsigned', TRUE);
 
     $fields['label'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Workaspace name'))
+      ->setLabel(t('Workspace name'))
       ->setDescription(t('The workspace name.'))
       ->setRevisionable(TRUE)
       ->setSetting('max_length', 128)
       ->setRequired(TRUE);
 
     $fields['machine_name'] = BaseFieldDefinition::create('string')
-      ->setLabel(t('Workaspace ID'))
+      ->setLabel(t('Workspace ID'))
       ->setDescription(t('The workspace machine name.'))
       ->setRevisionable(TRUE)
       ->setSetting('max_length', 128)
