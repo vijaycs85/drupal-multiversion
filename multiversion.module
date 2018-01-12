@@ -492,3 +492,17 @@ function multiversion_modules_installed($modules) {
     \Drupal::service('multiversion.manager')->enableEntityTypes($entities_to_enable);
   }
 }
+
+/**
+ * Implements hook_preprocess_html().
+ *
+ * Adds the workspace as a class to the body.
+ */
+function multiversion_preprocess_html(&$variables) {
+  // Get the active workspace.
+  $workspace = 'workspace-' . \Drupal::service('workspace.manager')
+      ->getActiveWorkspace()
+      ->getMachineName();
+  // Add it as a body class.
+  $variables['attributes']['class'][] = $workspace;
+}
