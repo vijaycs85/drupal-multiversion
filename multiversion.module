@@ -494,15 +494,15 @@ function multiversion_modules_installed($modules) {
 }
 
 /**
- * Implements hook_preprocess_html().
+ * Implements hook_preprocess_HOOK().
  *
  * Adds the workspace as a class to the body.
  */
 function multiversion_preprocess_html(&$variables) {
-  // Get the active workspace.
-  $workspace = 'workspace-' . \Drupal::service('workspace.manager')
-      ->getActiveWorkspace()
-      ->getMachineName();
-  // Add it as a body class.
-  $variables['attributes']['class'][] = $workspace;
+  $active_workspace = \Drupal::service('workspace.manager')
+    ->getActiveWorkspace();
+  if ($active_workspace && $machine_name = $active_workspace->getMachineName()) {
+    // Add a new body class with the active workspace.
+    $variables['attributes']['class'][] = 'workspace-' . $machine_name;
+  }
 }
