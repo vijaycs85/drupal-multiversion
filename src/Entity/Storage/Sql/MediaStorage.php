@@ -4,12 +4,12 @@ namespace Drupal\multiversion\Entity\Storage\Sql;
 
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\Storage\ContentEntityStorageTrait;
-use Drupal\media_entity\MediaStorage as CoreMediaStorage;
+use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 
 /**
- * Storage handler for files.
+ * Storage handler for media entity.
  */
-class MediaStorage extends CoreMediaStorage implements ContentEntityStorageInterface {
+class MediaStorage extends SqlContentEntityStorage implements ContentEntityStorageInterface {
 
   use ContentEntityStorageTrait;
 
