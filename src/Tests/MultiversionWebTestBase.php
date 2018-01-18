@@ -46,7 +46,7 @@ abstract class MultiversionWebTestBase extends WebTestBase {
   /**
    * The workspace manager.
    *
-   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
+   * @var \Drupal\workspace\WorkspaceManagerInterface
    */
   protected $workspaceManager;
 

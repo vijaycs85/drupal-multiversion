@@ -4,8 +4,8 @@ namespace Drupal\multiversion\Entity\Index;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
-use Drupal\multiversion\Entity\Workspace;
-use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
+use Drupal\workspace\Entity\Workspace;
+use Drupal\workspace\WorkspaceManagerInterface;
 use Fhaculty\Graph\Graph;
 
 /**
@@ -20,7 +20,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
   protected $keyValueFactory;
 
   /**
-   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
+   * @var \Drupal\workspace\WorkspaceManagerInterface
    */
   protected $workspaceManager;
 
@@ -41,7 +41,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
 
   /**
    * @param \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $key_value_factory
-   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
+   * @param \Drupal\workspace\WorkspaceManagerInterface $workspace_manager
    * @param \Drupal\multiversion\Entity\Index\MultiversionIndexFactory $index_factory
    */
   function __construct(KeyValueFactoryInterface $key_value_factory, WorkspaceManagerInterface $workspace_manager, MultiversionIndexFactory $index_factory) {
@@ -84,7 +84,7 @@ class RevisionTreeIndex implements RevisionTreeIndexInterface {
    *
    * @param array $tree
    *   An associative array containing information about tree.
-   * @param array $rev_ids
+   * @param array $revision_ids
    *   An array to store all revision ID.
    */
   protected function storeNodesId($tree, &$revision_ids) {

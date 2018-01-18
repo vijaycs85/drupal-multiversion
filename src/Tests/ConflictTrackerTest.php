@@ -24,7 +24,7 @@ class ConflictTrackerTest extends MultiversionWebTestBase {
    */
   protected function setUp() {
     parent::setUp();
-    $this->conflictTracker = \Drupal::service('workspace.conflict_tracker');
+    $this->conflictTracker = \Drupal::service('multiversion.conflict_tracker');
     $this->storage = $this->entityTypeManager->getStorage('entity_test_rev');
   }
 

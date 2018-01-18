@@ -2,8 +2,8 @@
 
 namespace Drupal\multiversion\Entity\Index;
 
-use Drupal\multiversion\Entity\WorkspaceInterface;
-use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
+use Drupal\workspace\Entity\Workspace;
+use Drupal\workspace\WorkspaceManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class MultiversionIndexFactory {
@@ -22,7 +22,7 @@ class MultiversionIndexFactory {
     $this->workspaceManager = $workspace_manager;
   }
 
-  public function get($service, WorkspaceInterface $workspace = null) {
+  public function get($service, Workspace $workspace = null) {
     $index = $this->container->get($service . '.scope');
     if ($index instanceof IndexInterface) {
       $workspace_id = $workspace ? $workspace->id() : $this->workspaceManager->getActiveWorkspace()->id();

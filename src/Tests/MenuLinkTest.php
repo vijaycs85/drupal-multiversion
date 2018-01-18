@@ -4,7 +4,7 @@ namespace Drupal\multiversion\Tests;
 
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\menu_link_content\MenuLinkContentInterface;
-use Drupal\multiversion\Entity\Workspace;
+use Drupal\workspace\Entity\Workspace;
 use Drupal\simpletest\WebTestBase;
 
 /**
@@ -17,17 +17,17 @@ class MenuLinkTest extends WebTestBase {
   protected $strictConfigSchema = FALSE;
 
   /**
-   * @var \Drupal\multiversion\Workspace\WorkspaceManager
+   * @var \Drupal\workspace\WorkspaceManager
    */
   protected $workspaceManager;
 
   /**
-   * @var \Drupal\multiversion\Entity\WorkspaceInterface
+   * @var \Drupal\workspace\Entity\Workspace
    */
   protected $initialWorkspace;
 
   /**
-   * @var \Drupal\multiversion\Entity\WorkspaceInterface
+   * @var \Drupal\workspace\Entity\Workspace
    */
   protected $newWorkspace;
 

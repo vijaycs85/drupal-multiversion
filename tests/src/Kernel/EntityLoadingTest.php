@@ -3,7 +3,7 @@
 namespace Drupal\Tests\multiversion\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\multiversion\Entity\Workspace;
+use Drupal\workspace\Entity\Workspace;
 use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 

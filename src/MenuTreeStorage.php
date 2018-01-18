@@ -12,7 +12,7 @@ use Drupal\multiversion\Entity\MenuLinkContent;
 class MenuTreeStorage extends CoreMenuTreeStorage {
 
   /**
-   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
+   * @var \Drupal\workspace\WorkspaceManagerInterface
    */
   protected $workspaceManager;
 

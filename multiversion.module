@@ -5,7 +5,7 @@ use Drupal\Core\Database\Query\AlterableInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\multiversion\Entity\WorkspaceInterface;
+use Drupal\workspace\Entity\Workspace;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
 
@@ -346,7 +346,7 @@ function multiversion_query_entity_query_alter(AlterableInterface $query) {
     $revision_key = $entity_type->getKey('revision');
     $data_table = $entity_type->getDataTable();
     $active_workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
-    if ($data_table && $active_workspace instanceof WorkspaceInterface) {
+    if ($data_table && $active_workspace instanceof Workspace) {
       if (!in_array($data_table, array_column($query->getTables(), 'table'))) {
         $query->join(
           $data_table,
@@ -396,7 +396,7 @@ function multiversion_get_active_workspace_id() {
 /**
  * URI callback for the workspace entity type.
  */
-function multiversion_workspace_uri(WorkspaceInterface $entity) {
+function multiversion_workspace_uri(Workspace $entity) {
   return $entity->id();
 }
 
@@ -501,7 +501,7 @@ function multiversion_modules_installed($modules) {
 function multiversion_preprocess_html(&$variables) {
   $active_workspace = \Drupal::service('workspace.manager')
     ->getActiveWorkspace();
-  if ($active_workspace && $machine_name = $active_workspace->getMachineName()) {
+  if ($active_workspace && $machine_name = $active_workspace->id()) {
     // Add a new body class with the active workspace.
     $variables['attributes']['class'][] = 'workspace-' . $machine_name;
   }

@@ -8,7 +8,7 @@ use Drupal\multiversion\Entity\Index\RevisionIndexInterface;
 use Drupal\multiversion\Entity\Index\RevisionTreeIndexInterface;
 use Drupal\multiversion\Entity\Index\SequenceIndexInterface;
 use Drupal\multiversion\Entity\Index\UuidIndexInterface;
-use Drupal\multiversion\Entity\Workspace;
+use Drupal\workspace\Entity\Workspace;
 
 
 /**
@@ -24,7 +24,7 @@ class MultiversionIndexFactoryTest extends KernelTestBase {
   /** @var  \Drupal\multiversion\Entity\Index\MultiversionIndexFactory */
   protected $multiversionIndexFactory;
 
-  /** @var  \Drupal\multiversion\Entity\WorkspaceInterface */
+  /** @var  \Drupal\workspace\Entity\Workspace */
   protected $workspace;
 
   /**

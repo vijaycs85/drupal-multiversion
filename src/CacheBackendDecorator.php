@@ -3,7 +3,7 @@
 namespace Drupal\multiversion;
 
 use Drupal\Core\Cache\CacheBackendInterface;
-use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
+use Drupal\workspace\WorkspaceManagerInterface;
 
 class CacheBackendDecorator implements CacheBackendInterface {
 
@@ -13,7 +13,7 @@ class CacheBackendDecorator implements CacheBackendInterface {
   protected $decorated;
 
   /**
-   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
+   * @var \Drupal\workspace\WorkspaceManagerInterface
    */
   protected $workspaceManager;
 
@@ -21,7 +21,7 @@ class CacheBackendDecorator implements CacheBackendInterface {
    * Constructor
    *
    * @param \Drupal\Core\Cache\CacheBackendInterface $decorated
-   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
+   * @param \Drupal\workspace\WorkspaceManagerInterface $workspace_manager
    */
   public function __construct(CacheBackendInterface $decorated, WorkspaceManagerInterface $workspace_manager) {
     $this->decorated = $decorated;

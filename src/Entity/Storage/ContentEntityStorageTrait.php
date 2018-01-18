@@ -483,7 +483,7 @@ trait ContentEntityStorageTrait {
   protected function trackConflicts(EntityInterface $entity) {
     $workspace = isset($entity->workspace) ? $entity->workspace->entity : null;
     /** @var \Drupal\multiversion\Workspace\ConflictTrackerInterface $conflictTracker */
-    $conflictTracker = \Drupal::service('workspace.conflict_tracker')
+    $conflictTracker = \Drupal::service('multiversion.conflict_tracker')
       ->useWorkspace($workspace);
 
     $index_factory = \Drupal::service('multiversion.entity_index.factory');

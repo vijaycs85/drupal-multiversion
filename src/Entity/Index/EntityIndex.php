@@ -5,7 +5,7 @@ namespace Drupal\multiversion\Entity\Index;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
-use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
+use Drupal\workspace\WorkspaceManagerInterface;
 
 class EntityIndex implements EntityIndexInterface {
 
@@ -20,7 +20,7 @@ class EntityIndex implements EntityIndexInterface {
   protected $keyValueFactory;
 
   /**
-   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
+   * @var \Drupal\workspace\WorkspaceManagerInterface
    */
   protected $workspaceManager;
 
@@ -31,7 +31,7 @@ class EntityIndex implements EntityIndexInterface {
 
   /**
    * @param \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $key_value_factory
-   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
+   * @param \Drupal\workspace\WorkspaceManagerInterface $workspace_manager
    */
   public function __construct(KeyValueFactoryInterface $key_value_factory, WorkspaceManagerInterface $workspace_manager) {
     $this->keyValueFactory = $key_value_factory;

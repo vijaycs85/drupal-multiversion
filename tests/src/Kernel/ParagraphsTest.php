@@ -4,7 +4,7 @@ namespace Drupal\Tests\multiversion\Kernel;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\multiversion\Entity\Workspace;
+use Drupal\workspace\Entity\Workspace;
 
 /**
  * Test for paragraphs integration.

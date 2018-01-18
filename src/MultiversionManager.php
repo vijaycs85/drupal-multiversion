@@ -5,7 +5,6 @@ namespace Drupal\multiversion;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -13,8 +12,8 @@ use Drupal\Core\State\StateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Database\Connection;
-use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
-use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
+use Drupal\workspace\Entity\Workspace;
+use Drupal\workspace\WorkspaceManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\Serializer\Serializer;
@@ -24,7 +23,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   use ContainerAwareTrait;
 
   /**
-   * @var \Drupal\multiversion\Workspace\WorkspaceManagerInterface
+   * @var \Drupal\workspace\WorkspaceManagerInterface
    */
   protected $workspaceManager;
 
@@ -73,7 +72,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
   protected $lastSequenceId;
 
   /**
-   * @param \Drupal\multiversion\Workspace\WorkspaceManagerInterface $workspace_manager
+   * @param \Drupal\workspace\WorkspaceManagerInterface $workspace_manager
    * @param \Symfony\Component\Serializer\Serializer $serializer
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Drupal\Core\State\StateInterface $state
@@ -136,7 +135,7 @@ class MultiversionManager implements MultiversionManagerInterface, ContainerAwar
    * {@inheritdoc}
    */
   public function setActiveWorkspaceId($id) {
-    $workspace = $this->workspaceManager->load($id);
+    $workspace = Workspace::load($id);
     return $this->workspaceManager->setActiveWorkspace($workspace);
   }
 
