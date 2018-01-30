@@ -1,10 +1,12 @@
 <?php
 
 use Drupal\Core\Entity\ContentEntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\Core\Database\Database;
-use \Drupal\Core\Database\Driver\mysql\Connection;
+use Drupal\Core\Database\Driver\mysql\Connection;
 use Drupal\multiversion\MultiversionMigration;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 
 /**
  * Implements hook_install().
@@ -486,4 +488,30 @@ function multiversion_update_8106() {
       }
     }
   }
+}
+
+/**
+ * Add a publishing status field for workspace entities.
+ */
+function multiversion_update_8107() {
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  // Add the published entity key to the workspace entity type.
+  $entity_type = $definition_update_manager->getEntityType('workspace');
+  $entity_keys = $entity_type->getKeys();
+  $entity_keys['published'] = 'published';
+  $entity_type->set('entity_keys', $entity_keys);
+  $definition_update_manager->updateEntityType($entity_type);
+
+  // Add the publishing status field to the workspace entity type.
+  $status = BaseFieldDefinition::create('boolean')
+    ->setLabel(new TranslatableMarkup('Publishing status'))
+    ->setDescription(new TranslatableMarkup('A boolean indicating the published state.'))
+    ->setRevisionable(TRUE)
+    ->setTranslatable(TRUE)
+    ->setDefaultValue(TRUE)
+    ->setInitialValue(TRUE);
+
+  $definition_update_manager->installFieldStorageDefinition('published', 'workspace', 'workspace', $status);
+
 }

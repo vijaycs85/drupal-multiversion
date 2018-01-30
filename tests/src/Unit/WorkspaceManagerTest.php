@@ -207,7 +207,7 @@ class WorkspaceManagerTest extends UnitTestCase {
     $workspace = $this->getMockBuilder('Drupal\multiversion\Entity\Workspace')
       ->disableOriginalConstructor()
       ->getMock();
-
+    $workspace->expects($this->any())->method("isPublished")->willReturn(TRUE);
     $workspace->expects($this->any())->method("access")->willReturn(TRUE);
 
     // Spy on the negotiator and stub the applies and persist methods.

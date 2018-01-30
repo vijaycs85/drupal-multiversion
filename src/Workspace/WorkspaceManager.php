@@ -9,6 +9,7 @@ use Drupal\multiversion\Entity\WorkspaceInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
 
 class WorkspaceManager implements WorkspaceManagerInterface {
   use StringTranslationTrait;
@@ -109,11 +110,16 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * {@inheritdoc}
    */
   public function setActiveWorkspace(WorkspaceInterface $workspace) {
-    $default_workspace_id = \Drupal::getContainer()->getParameter('workspace.default');
+    // Unpublished workspaces should not be allowed to be active.
+    if (!$workspace->isPublished()) {
+      $this->logger->error('The workspace {workspace} has been archived.', ['workspace' => $workspace->label()]);
+      throw new InvalidParameterException('Archived workspaces cannot be set as the active workspace.');
+    }
+
     // If the current user doesn't have access to view the workspace, they
     // shouldn't be allowed to switch to it.
     // @todo Could this be handled better?
-    if (!$workspace->access('view') && ($workspace->id() != $default_workspace_id)) {
+    if (!$workspace->access('view') && !$workspace->isDefaultWorkspace()) {
       $this->logger->error('Denied access to view workspace {workspace}', ['workspace' => $workspace->label()]);
       throw new WorkspaceAccessException('The user does not have permission to view that workspace.');
     }

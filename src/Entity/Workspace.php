@@ -5,6 +5,8 @@ namespace Drupal\multiversion\Entity;
 use Drupal\Core\Entity\Entity;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityPublishedTrait;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\user\UserInterface;
@@ -34,7 +36,8 @@ use Drupal\user\UserInterface;
  *     "label" = "label",
  *     "machine_name" = "machine_name",
  *     "uid" = "uid",
- *     "created" = "created"
+ *     "created" = "created",
+ *     "published" = "published"
  *   },
  *   multiversion = FALSE,
  *   local = TRUE
@@ -43,27 +46,16 @@ use Drupal\user\UserInterface;
 class Workspace extends ContentEntityBase implements WorkspaceInterface {
 
   use EntityChangedTrait;
+  use EntityPublishedTrait;
 
   /**
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
-    $fields['id'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Workspace ID'))
-      ->setDescription(t('The workspace ID.'))
-      ->setReadOnly(TRUE)
-      ->setSetting('unsigned', TRUE);
+    $fields = parent::baseFieldDefinitions($entity_type);
 
-    $fields['uuid'] = BaseFieldDefinition::create('uuid')
-      ->setLabel(t('UUID'))
-      ->setDescription(t('The workspace UUID.'))
-      ->setReadOnly(TRUE);
-
-    $fields['revision_id'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Revision ID'))
-      ->setDescription(t('The revision ID.'))
-      ->setReadOnly(TRUE)
-      ->setSetting('unsigned', TRUE);
+    // Add the published field.
+    $fields += static::publishedBaseFieldDefinitions($entity_type);
 
     $fields['label'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Workspace name'))
@@ -101,6 +93,8 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
       ->setDescription(t('The UNIX timestamp of when the workspace has been created.'));
+
+    $fields['published']->addConstraint('UnpublishWorkspace');
 
     return $fields;
   }
@@ -162,6 +156,13 @@ class Workspace extends ContentEntityBase implements WorkspaceInterface {
   public function setOwnerId($uid) {
     $this->set('uid', $uid);
     return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isDefaultWorkspace() {
+    return $this->id() == \Drupal::getContainer()->getParameter('workspace.default');
   }
 
   /**
