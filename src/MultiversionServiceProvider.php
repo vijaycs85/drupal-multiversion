@@ -5,6 +5,7 @@ namespace Drupal\multiversion;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\ServiceProviderBase;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Defines a service profiler for the multiversion module.
@@ -20,6 +21,16 @@ class MultiversionServiceProvider extends ServiceProviderBase {
     // contexts.
     $definition = $container->getDefinition('menu.tree_storage');
     $definition->setClass('Drupal\multiversion\MenuTreeStorage');
+
+    // Override the path.alias_storage class with a new class.
+    $definition = $container->getDefinition('path.alias_storage');
+    $definition->setClass('Drupal\multiversion\AliasStorage')
+      ->addArgument(new Reference('workspace.manager'));
+
+    // Override the router.route_provider class with a new class.
+    $definition = $container->getDefinition('router.route_provider');
+    $definition->setClass('Drupal\multiversion\RouteProvider')
+      ->addArgument(new Reference('workspace.manager'));
 
     // Override the comment.statistics class with a new class.
     try {

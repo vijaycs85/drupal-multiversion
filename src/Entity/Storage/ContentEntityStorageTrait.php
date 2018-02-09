@@ -6,6 +6,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\file\FileInterface;
+use Drupal\path\Plugin\Field\FieldType\PathFieldItemList;
 use Drupal\user\UserStorageInterface;
 
 trait ContentEntityStorageTrait {
@@ -174,6 +175,11 @@ trait ContentEntityStorageTrait {
       if ($this->entityType->get('local') !== TRUE) {
         $this->indexEntityRevision($entity);
         $this->trackConflicts($entity);
+      }
+
+      // Delete path alias value if there is one.
+      if ($entity->_deleted->value == TRUE && isset($entity->path) && $entity->path instanceof PathFieldItemList) {
+        $entity->path->delete();
       }
 
       return $save_result;
