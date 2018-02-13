@@ -19,20 +19,7 @@ function multiversion_install() {
   $manager = \Drupal::getContainer()->get('multiversion.manager');
   $manager->enableEntityTypes();
 
-  $database = \Drupal::database();
-  $schema = $database->schema();
-  $table = 'url_alias';
-  $field = 'workspace';
-  if (!$schema->fieldExists($table, $field)) {
-    $spec = [
-      'description' => 'The workspace the alias belongs to.',
-      'type' => 'int',
-      'unsigned' => TRUE,
-      'default' => NULL,
-      'size' => 'normal',
-    ];
-    $schema->addField($table, $field, $spec);
-  }
+  _multiversion_add_workspace_field_in_url_alias_table(TRUE);
 }
 
 /**
@@ -45,7 +32,7 @@ function multiversion_uninstall() {
   $schema = $database->schema();
   $table = 'url_alias';
   $field = 'workspace';
-  if (!$schema->fieldExists($table, $field)) {
+  if ($schema->fieldExists($table, $field)) {
     $schema->dropField($table, $field);
   }
 }
@@ -544,54 +531,5 @@ function multiversion_update_8107() {
  * Add workspace field in url_alias table.
  */
 function multiversion_update_8108() {
-  $database = \Drupal::database();
-  $schema = $database->schema();
-  $table = 'url_alias';
-  $field = 'workspace';
-  if (!$schema->fieldExists($table, $field)) {
-    $spec = [
-      'description' => 'The workspace the alias belongs to.',
-      'type' => 'int',
-      'unsigned' => TRUE,
-      'default' => NULL,
-      'size' => 'normal',
-    ];
-    $schema->addField($table, $field, $spec);
-  }
-  $table_data = $database->select($table)
-    ->fields($table)
-    ->execute()
-    ->fetchAll();
-  $entity_type_manager = \Drupal::entityTypeManager();
-  $entity_ids = [];
-  foreach ($table_data as $row) {
-    $row_data = (array) $row;
-    $source_elements = explode('/', $row_data['source']);
-    if (!empty($source_elements[1]) && !empty($source_elements[2]) && is_numeric($source_elements[2])) {
-      if ($entity_type_manager->getDefinition($source_elements[1], FALSE)) {
-        $entity_ids[$source_elements[1]][$row_data['pid']] = $source_elements[2];
-      }
-    }
-  }
-  $workspaces = Workspace::loadMultiple();
-  foreach ($workspaces as $workspace_id => $workspace) {
-    foreach ($entity_ids as $entity_type_id => $ids) {
-      $storage = $entity_type_manager->getStorage($entity_type_id);
-      if ($storage instanceof ContentEntityStorageInterface) {
-        $storage->useWorkspace($workspace_id);
-        $entities = $storage->loadMultiple($ids);
-      }
-      if (empty($entities)) {
-        continue;
-      }
-      foreach ($ids as $pid => $entity_id) {
-        if (in_array($entity_id, array_keys($entities))) {
-          $database->update($table)
-            ->fields([$field => $workspace_id])
-            ->condition('pid', $pid)
-            ->execute();
-        }
-      }
-    }
-  }
+  _multiversion_add_workspace_field_in_url_alias_table();
 }

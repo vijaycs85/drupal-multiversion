@@ -25,7 +25,8 @@ class MultiversionServiceProvider extends ServiceProviderBase {
     // Override the path.alias_storage class with a new class.
     $definition = $container->getDefinition('path.alias_storage');
     $definition->setClass('Drupal\multiversion\AliasStorage')
-      ->addArgument(new Reference('workspace.manager'));
+      ->addArgument(new Reference('workspace.manager'))
+      ->addArgument(new Reference('state'));
 
     // Override the router.route_provider class with a new class.
     $definition = $container->getDefinition('router.route_provider');

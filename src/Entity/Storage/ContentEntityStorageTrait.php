@@ -36,15 +36,12 @@ trait ContentEntityStorageTrait {
   /**
    * Get original entity type storage handler (not the multiversion one).
    *
-   * @param string $type
-   *   Entity type.
-   *
    * @return \Drupal\Core\Entity\EntityStorageInterface
    *   Original entity type storage handler.
    */
-  protected function getOriginalStorage($type) {
+  public function getOriginalStorage() {
     if ($this->originalStorage == NULL) {
-      $this->originalStorage = $this->entityManager->getHandler($type, 'original_storage');
+      $this->originalStorage = $this->entityManager->getHandler($this->entityTypeId, 'original_storage');
     }
     return $this->originalStorage;
   }
@@ -145,7 +142,7 @@ trait ContentEntityStorageTrait {
    * {@inheritdoc}
    */
   public function saveWithoutForcingNewRevision(EntityInterface $entity) {
-    $this->getOriginalStorage($entity->getEntityTypeId())->save($entity);
+    $this->getOriginalStorage()->save($entity);
   }
 
   /**
