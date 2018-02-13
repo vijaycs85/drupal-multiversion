@@ -547,7 +547,7 @@ function _multiversion_add_workspace_field_in_url_alias_table($install = FALSE) 
       'description' => 'The workspace the alias belongs to.',
       'type' => 'int',
       'unsigned' => TRUE,
-      'default' => $install ? 1 : NULL,
+      'default' => $install ? 1 : 0,
       'size' => 'normal',
     ];
     $schema->addField($table, $field, $spec);

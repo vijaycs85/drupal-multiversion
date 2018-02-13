@@ -2,11 +2,11 @@
 
 namespace Drupal\multiversion;
 
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Connection;
-use Drupal\Core\Database\Query\Condition;
 use Drupal\Core\Database\Query\Merge;
-use Drupal\Core\Database\SchemaObjectExistsException;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Path\AliasStorage as CoreAliasStorage;
@@ -28,6 +28,11 @@ class AliasStorage extends CoreAliasStorage {
   private $workspaceManager;
 
   /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * The state service.
    *
    * @var \Drupal\Core\State\StateInterface
@@ -37,9 +42,10 @@ class AliasStorage extends CoreAliasStorage {
   /**
    * {@inheritdoc}
    */
-  public function __construct(Connection $connection, ModuleHandlerInterface $module_handler, WorkspaceManagerInterface $workspace_manager, StateInterface $state) {
+  public function __construct(Connection $connection, ModuleHandlerInterface $module_handler, WorkspaceManagerInterface $workspace_manager, EntityTypeManagerInterface $entity_type_manager, StateInterface $state) {
     parent::__construct($connection, $module_handler);
     $this->workspaceManager = $workspace_manager;
+    $this->entityTypeManager = $entity_type_manager;
     $this->state = $state;
   }
 
@@ -59,11 +65,24 @@ class AliasStorage extends CoreAliasStorage {
       throw new \InvalidArgumentException(sprintf('Alias path %s has to start with a slash.', $alias));
     }
 
+    // Set workspace equal with the active workspace just for path aliases for
+    // multiversionable entities. For all other aliases set workspace 0, they
+    // will be available on all workspaces.
+    $workspace = 0;
+    // Don't inject this service to avoid circular reference error.
+    $path_validator = \Drupal::service('path.validator');
+    $url = $path_validator->getUrlIfValidWithoutAccessCheck($source);
+    $route_name = $url->getRouteName();
+    $route_name_parts = explode('.', $route_name);
+    if ($route_name_parts[0] === 'entity' && $this->isMultiversionableEntityType($route_name_parts[1])) {
+      $workspace = $this->workspaceManager->getActiveWorkspace()->id();
+    }
+
     $fields = [
       'source' => $source,
       'alias' => $alias,
       'langcode' => $langcode,
-      'workspace' => $this->workspaceManager->getActiveWorkspace()->id(),
+      'workspace' => $workspace,
     ];
 
     // Insert or update the alias.
@@ -142,6 +161,35 @@ class AliasStorage extends CoreAliasStorage {
   /**
    * {@inheritdoc}
    */
+  public function load($conditions) {
+    $select = $this->connection->select(static::TABLE);
+    $select->condition('workspace', [$this->workspaceManager->getActiveWorkspace()->id(), 0], 'IN');
+    foreach ($conditions as $field => $value) {
+      if ($field == 'source' || $field == 'alias') {
+        // Use LIKE for case-insensitive matching.
+        $select->condition($field, $this->connection->escapeLike($value), 'LIKE');
+      }
+      else {
+        $select->condition($field, $value);
+      }
+    }
+    try {
+      return $select
+        ->fields(static::TABLE)
+        ->orderBy('pid', 'DESC')
+        ->range(0, 1)
+        ->execute()
+        ->fetchAssoc();
+    }
+    catch (\Exception $e) {
+      $this->catchException($e);
+      return FALSE;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function lookupPathAlias($path, $langcode) {
     if (!$this->state->get('multiversion.migration_done', FALSE)) {
       return parent::lookupPathAlias($path, $langcode);
@@ -154,7 +202,7 @@ class AliasStorage extends CoreAliasStorage {
     $select = $this->connection->select(static::TABLE)
       ->fields(static::TABLE, ['alias'])
       ->condition('source', $source, 'LIKE')
-      ->condition('workspace', $this->workspaceManager->getActiveWorkspace()->id(), 'LIKE');
+      ->condition('workspace', [$this->workspaceManager->getActiveWorkspace()->id(), 0], 'IN');
     if ($langcode == LanguageInterface::LANGCODE_NOT_SPECIFIED) {
       array_pop($langcode_list);
     }
@@ -191,7 +239,7 @@ class AliasStorage extends CoreAliasStorage {
     $select = $this->connection->select(static::TABLE)
       ->fields(static::TABLE, ['source'])
       ->condition('alias', $alias, 'LIKE')
-      ->condition('workspace', $this->workspaceManager->getActiveWorkspace()->id(), 'LIKE');
+      ->condition('workspace', [$this->workspaceManager->getActiveWorkspace()->id(), 0], 'IN');
     if ($langcode == LanguageInterface::LANGCODE_NOT_SPECIFIED) {
       array_pop($langcode_list);
     }
@@ -225,7 +273,7 @@ class AliasStorage extends CoreAliasStorage {
     $query = $this->connection->select(static::TABLE)
       ->condition('alias', $this->connection->escapeLike($alias), 'LIKE')
       ->condition('langcode', $langcode)
-      ->condition('workspace', $this->workspaceManager->getActiveWorkspace()->id(), 'LIKE');
+      ->condition('workspace', [$this->workspaceManager->getActiveWorkspace()->id(), 0], 'IN');
     if (!empty($source)) {
       $query->condition('source', $this->connection->escapeLike($source), 'NOT LIKE');
     }
@@ -238,6 +286,52 @@ class AliasStorage extends CoreAliasStorage {
       $this->catchException($e);
       return FALSE;
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getAliasesForAdminListing($header, $keys = NULL) {
+    $query = $this->connection->select(static::TABLE)
+      ->extend('Drupal\Core\Database\Query\PagerSelectExtender')
+      ->extend('Drupal\Core\Database\Query\TableSortExtender');
+    $query->condition('workspace', [$this->workspaceManager->getActiveWorkspace()->id(), 0], 'IN');
+    if ($keys) {
+      // Replace wildcards with PDO wildcards.
+      $query->condition('alias', '%' . preg_replace('!\*+!', '%', $keys) . '%', 'LIKE');
+    }
+    try {
+      return $query
+        ->fields(static::TABLE)
+        ->orderByHeader($header)
+        ->limit(50)
+        ->execute()
+        ->fetchAll();
+    }
+    catch (\Exception $e) {
+      $this->catchException($e);
+      return [];
+    }
+  }
+
+  /**
+   * @param string $entity_type_id
+   *
+   * @return bool
+   */
+  protected function isMultiversionableEntityType($entity_type_id) {
+    try {
+      $storage = $this->entityTypeManager->getStorage($entity_type_id);
+    }
+    catch (InvalidPluginDefinitionException $exception) {
+      return FALSE;
+    }
+    $entity_type = $storage->getEntityType();
+    $enabled = $this->state->get('multiversion.migration_done.' . $entity_type_id, FALSE);
+    if (is_subclass_of($entity_type->getStorageClass(), 'Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface') && $enabled) {
+      return TRUE;
+    }
+    return FALSE;
   }
 
 }
