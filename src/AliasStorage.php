@@ -11,6 +11,7 @@ use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Path\AliasStorage as CoreAliasStorage;
 use Drupal\Core\State\StateInterface;
+use Drupal\Core\Url;
 use Drupal\multiversion\Workspace\WorkspaceManagerInterface;
 
 
@@ -72,10 +73,12 @@ class AliasStorage extends CoreAliasStorage {
     // Don't inject this service to avoid circular reference error.
     $path_validator = \Drupal::service('path.validator');
     $url = $path_validator->getUrlIfValidWithoutAccessCheck($source);
-    $route_name = $url->getRouteName();
-    $route_name_parts = explode('.', $route_name);
-    if ($route_name_parts[0] === 'entity' && $this->isMultiversionableEntityType($route_name_parts[1])) {
-      $workspace = $this->workspaceManager->getActiveWorkspace()->id();
+    if ($url instanceof Url) {
+      $route_name = $url->getRouteName();
+      $route_name_parts = explode('.', $route_name);
+      if ($route_name_parts[0] === 'entity' && $this->isMultiversionableEntityType($route_name_parts[1])) {
+        $workspace = $this->workspaceManager->getActiveWorkspace()->id();
+      }
     }
 
     $fields = [
@@ -123,11 +126,8 @@ class AliasStorage extends CoreAliasStorage {
         ->execute()
         ->fetchField();
       $fields['pid'] = $pid;
-      if ($result == Merge::STATUS_INSERT) {
+      if ($result == Merge::STATUS_INSERT || $result == Merge::STATUS_UPDATE) {
         $operation = 'insert';
-      }
-      elseif ($result == Merge::STATUS_UPDATE) {
-        $operation = 'update';
       }
     }
     else {
