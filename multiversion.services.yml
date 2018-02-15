@@ -104,3 +104,20 @@ services:
     class: Drupal\multiversion\Normalizer\WorkspaceReferenceItemNormalizer
     tags:
       - { name: normalizer, priority: 50 }
+  multiversion.alias_storage:
+    decorates: 'path.alias_storage'
+    class: Drupal\multiversion\AliasStorage
+    arguments: ['@database', '@module_handler', '@workspace.manager', '@entity_type.manager', '@state']
+    public: false
+    decoration_priority: 50
+    tags:
+      - { name: backend_overridable }
+  multiversion.route_provider:
+    decorates: 'router.route_provider'
+    class: Drupal\multiversion\RouteProvider
+    arguments: ['@database', '@state', '@path.current', '@cache.data', '@path_processor_manager', '@cache_tags.invalidator', 'router', '@workspace.manager']
+    public: false
+    decoration_priority: 50
+    tags:
+      - { name: event_subscriber }
+      - { name: backend_overridable }
