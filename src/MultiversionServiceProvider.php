@@ -32,7 +32,16 @@ class MultiversionServiceProvider extends ServiceProviderBase {
     // Override the router.route_provider class with a new class.
     $definition = $container->getDefinition('router.route_provider');
     $definition->setClass('Drupal\multiversion\RouteProvider')
-      ->addArgument(new Reference('workspace.manager'));
+      ->setArguments([
+        new Reference('database'),
+        new Reference('state'),
+        new Reference('path.current'),
+        new Reference('cache.data'),
+        new Reference('path_processor_manager'),
+        new Reference('cache_tags.invalidator'),
+        'router',
+        new Reference('workspace.manager'),
+      ]);
 
     // Override the comment.statistics class with a new class.
     try {

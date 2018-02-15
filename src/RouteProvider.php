@@ -27,7 +27,7 @@ class RouteProvider extends CoreRouteProvider {
   /**
    * {@inheritdoc}
    */
-  public function __construct(Connection $connection, StateInterface $state, CurrentPathStack $current_path, CacheBackendInterface $cache_backend, InboundPathProcessorInterface $path_processor, CacheTagsInvalidatorInterface $cache_tag_invalidator, WorkspaceManagerInterface $workspace_manager, $table = 'router') {
+  public function __construct(Connection $connection, StateInterface $state, CurrentPathStack $current_path, CacheBackendInterface $cache_backend, InboundPathProcessorInterface $path_processor, CacheTagsInvalidatorInterface $cache_tag_invalidator, $table = 'router', WorkspaceManagerInterface $workspace_manager) {
     parent::__construct($connection, $state, $current_path, $cache_backend, $path_processor, $cache_tag_invalidator, $table);
     $this->workspaceManager = $workspace_manager;
   }
