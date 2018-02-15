@@ -162,6 +162,10 @@ class AliasStorage extends CoreAliasStorage {
    * {@inheritdoc}
    */
   public function load($conditions) {
+    if (!$this->state->get('multiversion.migration_done', FALSE)) {
+      return parent::load($conditions);
+    }
+
     $select = $this->connection->select(static::TABLE);
     $select->condition('workspace', [$this->workspaceManager->getActiveWorkspace()->id(), 0], 'IN');
     foreach ($conditions as $field => $value) {
