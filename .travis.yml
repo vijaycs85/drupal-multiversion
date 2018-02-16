@@ -7,14 +7,8 @@ php:
   - 7.1
 
 env:
-  - MAKE_FILE=drupal-8.3.x.make.yml
   - MAKE_FILE=drupal-8.4.x.make.yml
   - MAKE_FILE=drupal-8.5.x.make.yml
-
-matrix:
-  allow_failures:
-  - env: MAKE_FILE=drupal-8.3.x.make.yml
-  - env: MAKE_FILE=drupal-8.5.x.make.yml
 
 services:
   - mysql
@@ -37,6 +31,7 @@ before_install:
   - php ~/drush.phar make $TRAVIS_BUILD_DIR/.travis/$MAKE_FILE $HOME/www
   - php ~/drush.phar --root=$HOME/www --yes site-install --db-url=mysql://root:@127.0.0.1/drupal testing
   - composer --working-dir=$HOME/www require relaxedws/lca
+  - sed -ri "s%<env name=\"SYMFONY_DEPRECATIONS_HELPER\" value=\"weak_vendors\"/>%<env name=\"SYMFONY_DEPRECATIONS_HELPER\" value=\"disabled\"/>%" $HOME/www/core/phpunit.xml
 
 install:
   - ln -s $TRAVIS_BUILD_DIR ~/www/modules/multiversion
