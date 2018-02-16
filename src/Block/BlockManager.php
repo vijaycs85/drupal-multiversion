@@ -24,9 +24,11 @@ class BlockManager extends CoreBlockManager {
    * {@inheritdoc}
    */
   public function clearCachedDefinitions() {
-    $active_workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
-    if (isset($active_workspace)) {
-      $this->cacheKey = 'block_plugins:' . $active_workspace->id();
+    if (\Drupal::database()->schema()->tableExists('workspace')) {
+      $active_workspace = \Drupal::service('workspace.manager')->getActiveWorkspace();
+      if (isset($active_workspace)) {
+        $this->cacheKey = 'block_plugins:' . $active_workspace->id();
+      }
     }
     parent::clearCachedDefinitions();
   }
