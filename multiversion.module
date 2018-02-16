@@ -133,6 +133,17 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
 
+    $fields['revision_default'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Default revision'))
+      ->setDescription(t('A flag indicating whether this was a default revision when it was saved.'))
+      ->setStorageRequired(TRUE)
+      ->setTranslatable(FALSE)
+      ->setRevisionable(TRUE)
+      // We cannot tell whether existing revisions were default or not when
+      // they were created, but since we did not support creating non-default
+      // revisions in any core stable UI so far, we default to TRUE.
+      ->setInitialValue(TRUE);
+
     // This field shouldn't really be revisionable since all revisions for an
     // entity will only ever exist in one and the same workspace. But we mark
     // this as revisionable to make the storage query more performance because
