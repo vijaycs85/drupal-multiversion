@@ -5,13 +5,14 @@ namespace Drupal\Tests\multiversion\Kernel;
 use Drupal\block_content\Entity\BlockContent;
 use Drupal\block_content\Entity\BlockContentType;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\multiversion\Entity\WorkspaceType;
 use Drupal\Tests\block\Traits\BlockCreationTrait;
 use Drupal\Tests\user\Traits\UserCreationTrait;
 
 /**
+ * Tests workspace interactions.
+ *
  * @group multiversion
  */
 class WorkspaceTest extends KernelTestBase {
@@ -32,7 +33,7 @@ class WorkspaceTest extends KernelTestBase {
     'block_content',
     'link',
     'menu_link_content',
-    ];
+  ];
 
   /**
    * {@inheritdoc}
@@ -108,6 +109,9 @@ class WorkspaceTest extends KernelTestBase {
     $this->live->save();
   }
 
+  /**
+   * Tests block plugins between workspaces.
+   */
   public function testBlockPlugins() {
     // Make sure live is the active workspace.
     \Drupal::service('workspace.manager')->setActiveWorkspace($this->live);
@@ -139,24 +143,6 @@ class WorkspaceTest extends KernelTestBase {
     \Drupal::service('workspace.manager')->setActiveWorkspace($this->live);
     $live_definitions = $block_manager->getDefinitions();
     $this->assertTrue(isset($live_definitions['block_content:' . $block_content_1->uuid()]));
-  }
-
-  public function testMenuLinkPlugins() {
-    // Make sure live is the active workspace.
-    \Drupal::service('workspace.manager')->setActiveWorkspace($this->live);
-
-    // Create a test menu link.
-    $menu_link_1 = MenuLinkContent::create([
-      'title' => 'Menu link 1',
-      'link' => ['uri' => 'internal:/'],
-      'menu_name' => 'tools',
-    ]);
-    $menu_link_1->save();
-
-    // Test menu link 1 appears in the menu link definitions on live.
-    /** @var \Drupal\Core\Menu\MenuLinkManagerInterface $menu_link_manager */
-    $menu_link_manager = \Drupal::service('plugin.manager.menu.link');
-    $live_definitions = $menu_link_manager->getDefinitions();
   }
 
 }

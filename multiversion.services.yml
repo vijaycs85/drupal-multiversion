@@ -66,6 +66,12 @@ services:
     class: Drupal\multiversion\StreamWrapper\MigrateStream
     tags:
       - { name: stream_wrapper, scheme: migrate }
+  multiversion.plugin.manager.block:
+    decorates: plugin.manager.block
+    class: Drupal\multiversion\Block\BlockManager
+    parent: default_plugin_manager
+    public: false
+    decoration_priority: 50
   logger.channel.workspace:
     parent: logger.channel_base
     arguments: ['cron']
