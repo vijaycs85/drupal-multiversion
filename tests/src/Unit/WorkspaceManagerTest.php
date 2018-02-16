@@ -142,7 +142,7 @@ class WorkspaceManagerTest extends UnitTestCase {
    * Tests the addNegotiator() method.
    */
   public function testAddNegotiator() {
-    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityTypeManager, $this->currentUser,$this->block_manager, $this->logger);
+    $workspace_manager = new WorkspaceManager($this->requestStack, $this->entityTypeManager, $this->currentUser, $this->logger);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[0][0], 0);
     $workspace_manager->addNegotiator($this->workspaceNegotiators[1][0], 1);
 
