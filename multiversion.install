@@ -2,6 +2,7 @@
 
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
 use Drupal\multiversion\Entity\Workspace;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\Driver\mysql\Connection;
@@ -17,6 +18,8 @@ function multiversion_install() {
   /** @var \Drupal\multiversion\MultiversionManagerInterface $manager */
   $manager = \Drupal::getContainer()->get('multiversion.manager');
   $manager->enableEntityTypes();
+
+  _multiversion_add_workspace_field_in_url_alias_table(TRUE);
 }
 
 /**
@@ -24,6 +27,14 @@ function multiversion_install() {
  */
 function multiversion_uninstall() {
   \Drupal::state()->delete('multiversion_enabled');
+
+  $database = \Drupal::database();
+  $schema = $database->schema();
+  $table = 'url_alias';
+  $field = 'workspace';
+  if ($schema->fieldExists($table, $field)) {
+    $schema->dropField($table, $field);
+  }
 }
 
 /**
@@ -514,4 +525,11 @@ function multiversion_update_8107() {
 
   $definition_update_manager->installFieldStorageDefinition('published', 'workspace', 'workspace', $status);
 
+}
+
+/**
+ * Add workspace field in url_alias table.
+ */
+function multiversion_update_8108() {
+  _multiversion_add_workspace_field_in_url_alias_table();
 }

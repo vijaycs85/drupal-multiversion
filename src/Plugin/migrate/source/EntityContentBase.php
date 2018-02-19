@@ -2,6 +2,8 @@
 
 namespace Drupal\multiversion\Plugin\migrate\source;
 
+use Drupal\multiversion\Entity\Storage\ContentEntityStorageInterface;
+
 /**
  * Migration source class for content entities.
  *
@@ -37,7 +39,7 @@ class EntityContentBase extends SourcePluginBase {
             if (count($value) == 1) {
               $value = reset($value);
               // If there's only one property in the field value, unwrap it.
-              if (count($value) == 1) {
+              if (count($value) == 1 && empty($value['langcode'])) {
                 $value = reset($value);
               }
             }
@@ -50,15 +52,6 @@ class EntityContentBase extends SourcePluginBase {
           }
         }
         $results[] = $result;
-      }
-    }
-
-    // Make sure we don't migrate deleted entities.
-    if (strpos($storage_class, 'Drupal\multiversion\Entity\Storage') !== FALSE) {
-      foreach ($results as $key => $value) {
-        if (isset($value['_deleted']) && $value['_deleted'] == 1) {
-          unset($results[$key]);
-        }
       }
     }
 
