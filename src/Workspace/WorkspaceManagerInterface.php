@@ -28,9 +28,20 @@ interface WorkspaceManagerInterface {
   public function loadByMachineName($machine_name);
 
   /**
+   * Fetches the currently active workspace entity.
+   *
    * @return \Drupal\multiversion\Entity\WorkspaceInterface
+   *   The active workspace entity.
    */
   public function getActiveWorkspace();
+
+  /**
+   * Fetches the currently active workspace ID.
+   *
+   * @return int
+   *   The active workspace ID.
+   */
+  public function getActiveWorkspaceId();
 
   /**
    * Sets the active workspace for the site/session.

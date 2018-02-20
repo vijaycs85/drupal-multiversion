@@ -61,7 +61,7 @@ class BlockManager extends CoreBlockManager {
    * {@inheritdoc}
    */
   protected function setCachedDefinitions($definitions) {
-    $this->cacheKey = $this->workspaceCacheKeyPrefix . $this->workspaceManager->getActiveWorkspace()->id();
+    $this->cacheKey = $this->workspaceCacheKeyPrefix . $this->workspaceManager->getActiveWorkspaceId();
     parent::setCachedDefinitions($definitions);
   }
 
@@ -69,11 +69,9 @@ class BlockManager extends CoreBlockManager {
    * {@inheritdoc}
    */
   public function clearCachedDefinitions() {
-    if (\Drupal::database()->schema()->tableExists('workspace')) {
-      $active_workspace = $this->workspaceManager->getActiveWorkspace();
-      if (isset($active_workspace)) {
-        $this->cacheKey = $this->workspaceCacheKeyPrefix . $active_workspace->id();
-      }
+    $active_workspace_id = $this->workspaceManager->getActiveWorkspaceId();
+    if (isset($active_workspace)) {
+      $this->cacheKey = $this->workspaceCacheKeyPrefix . $active_workspace_id;
     }
     parent::clearCachedDefinitions();
   }
@@ -82,7 +80,7 @@ class BlockManager extends CoreBlockManager {
    * {@inheritdoc}
    */
   protected function getCachedDefinitions() {
-    $this->cacheKey = $this->workspaceCacheKeyPrefix . $this->workspaceManager->getActiveWorkspace()->id();
+    $this->cacheKey = $this->workspaceCacheKeyPrefix . $this->workspaceManager->getActiveWorkspaceId();
     parent::getCachedDefinitions();
   }
 

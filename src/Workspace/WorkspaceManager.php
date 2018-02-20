@@ -94,13 +94,21 @@ class WorkspaceManager implements WorkspaceManagerInterface {
    * @todo {@link https://www.drupal.org/node/2600382 Access check.}
    */
   public function getActiveWorkspace() {
+    $workspace_id = $this->getActiveWorkspaceId();
+    if ($workspace = $this->load($workspace_id)) {
+      return $workspace;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getActiveWorkspaceId() {
     $request = $this->requestStack->getCurrentRequest();
     foreach ($this->getSortedNegotiators() as $negotiator) {
       if ($negotiator->applies($request)) {
         if ($workspace_id = $negotiator->getWorkspaceId($request)) {
-          if ($workspace = $this->load($workspace_id)) {
-            return $workspace;
-          }
+          return $workspace_id;
         }
       }
     }
