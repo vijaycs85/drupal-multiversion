@@ -31,10 +31,9 @@ before_install:
   - php ~/drush.phar make $TRAVIS_BUILD_DIR/.travis/$MAKE_FILE $HOME/www
   - php ~/drush.phar --root=$HOME/www --yes site-install --db-url=mysql://root:@127.0.0.1/drupal testing
   - composer --working-dir=$HOME/www require relaxedws/lca
-  - sed -ri "s%<env name=\"SYMFONY_DEPRECATIONS_HELPER\" value=\"weak_vendors\"/>%<env name=\"SYMFONY_DEPRECATIONS_HELPER\" value=\"weak\"/>%" $HOME/www/core/phpunit.xml.dist
 
 install:
   - ln -s $TRAVIS_BUILD_DIR ~/www/modules/multiversion
 
 script:
-  - cd ~/www && php ./core/scripts/run-tests.sh --verbose --keep-results --color --concurrency 4 --php `which php` --sqlite /tmp/test.sqlite --url http://localhost:8080 --module multiversion
+  - cd ~/www && php ./core/scripts/run-tests.sh --suppress-deprecations --verbose --keep-results --color --concurrency 4 --php `which php` --sqlite /tmp/test.sqlite --url http://localhost:8080 --module multiversion
