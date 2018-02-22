@@ -40,3 +40,5 @@ script:
 
 after_script:
   - find ~/www/sites/simpletest/browser_output -type f -exec cat {} \;
+  - cat /tmp/error.log
+  - cat /tmp/access.log
