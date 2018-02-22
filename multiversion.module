@@ -116,6 +116,9 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
   if ($manager->allowToAlter($entity_type)) {
     $fields = [];
 
+    // Get the minor version only from the \Drupal::VERSION string.
+    $minor_version = substr(\Drupal::VERSION, 0, 3);
+
     // @todo: Alter the entity label field to make it revisionable.
 
     // In some scenarios where's in a state of limbo where we've already
@@ -133,6 +136,20 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setDescription(t('The local revision ID of the entity.'))
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
+
+    // Add the revision_default field on 8.5 or higher.
+    if (version_compare($minor_version, '8.5', '>=')) {
+      $fields['revision_default'] = BaseFieldDefinition::create('boolean')
+        ->setLabel(t('Default revision'))
+        ->setDescription(t('A flag indicating whether this was a default revision when it was saved.'))
+        ->setStorageRequired(TRUE)
+        ->setTranslatable(FALSE)
+        ->setRevisionable(TRUE)
+        // We cannot tell whether existing revisions were default or not when
+        // they were created, but since we did not support creating non-default
+        // revisions in any core stable UI so far, we default to TRUE.
+        ->setInitialValue(TRUE);
+    }
 
     // This field shouldn't really be revisionable since all revisions for an
     // entity will only ever exist in one and the same workspace. But we mark
@@ -164,9 +181,6 @@ function multiversion_entity_base_field_info(EntityTypeInterface $entity_type) {
       ->setTranslatable(FALSE)
       ->setCardinality(1)
       ->setReadOnly(TRUE);
-
-    // Get the minor version only from the \Drupal::VERSION string.
-    $minor_version = substr(\Drupal::VERSION, 0, 3);
 
     // Add the 'revision_translation_affected' field if needed. Limit this to
     // Drupal version 8.4 and higher.
