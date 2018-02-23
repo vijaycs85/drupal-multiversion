@@ -118,6 +118,17 @@ function drush_multiversion_enable_entity_types() {
       return drush_user_abort();
     }
     try {
+      $multiversion_settings = \Drupal::configFactory()->getEditable('multiversion.settings');
+      $supported_entity_types = $multiversion_settings->get('supported_entity_types') ?: [];
+      foreach (array_keys($entity_types) as $id) {
+        if (!in_array($id, $supported_entity_types)) {
+          $supported_entity_types[] = $id;
+        }
+      }
+      // Add new entity types to the supported entity types list.
+      $multiversion_settings
+        ->set('supported_entity_types', $supported_entity_types)
+        ->save();
       \Drupal::service('multiversion.manager')->enableEntityTypes($entity_types);
     }
     catch (Exception $e) {
